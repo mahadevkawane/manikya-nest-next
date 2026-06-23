@@ -15,16 +15,16 @@ export default function PageLayout({ children, breadcrumbs }: PageLayoutProps) {
   return (
     <main className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-10 pb-20 md:pb-8">
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center gap-1.5 py-3 text-xs text-gray-400">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 py-3 text-xs text-muted">
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={i}>
-              {i > 0 && <span className="text-gray-300">/</span>}
+              {i > 0 && <span className="text-hairline" aria-hidden="true">/</span>}
               {crumb.href ? (
-                <Link href={crumb.href} className="hover:text-gray-600 transition-colors">
+                <Link href={crumb.href} className="hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink rounded-sm">
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="text-gray-600">{crumb.label}</span>
+                <span className="text-ink font-medium" aria-current="page">{crumb.label}</span>
               )}
             </React.Fragment>
           ))}

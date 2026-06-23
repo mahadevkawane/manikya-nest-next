@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface ListingCardProps {
@@ -12,6 +12,10 @@ interface ListingCardProps {
   reviewCount: number;
   badge: string;
   amenities: string[];
+  verified?: boolean;
+  noBrokerage?: boolean;
+  furnishing?: string;
+  availableFrom?: string;
 }
 
 export default function ListingCard({
@@ -24,39 +28,62 @@ export default function ListingCard({
   reviewCount,
   badge,
   amenities,
+  verified,
+  noBrokerage,
+  furnishing,
+  availableFrom,
 }: ListingCardProps) {
   const [saved, setSaved] = useState(false);
+  // Image skeleton: show a shimmer until the (future) photo is ready, then
+  // settle to the placeholder. Demonstrates the loading → content transition.
+  const [imgReady, setImgReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setImgReady(true), 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  const hasTags = verified || noBrokerage || furnishing || availableFrom;
 
   return (
-    <Link href={`/listing/${id}`} className="block group">
-      <div className="bg-canvas rounded-[14px] transition-shadow hover:shadow-airbnb">
-        {/* Image placeholder */}
+    <Link
+      href={`/listing/${id}`}
+      className="block group rounded-[14px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+    >
+      <div className="bg-canvas rounded-[14px] hover-lift hover:shadow-airbnb">
+        {/* Image placeholder with skeleton state */}
         <div className="relative h-44 bg-surface-strong rounded-[14px] overflow-hidden flex items-center justify-center">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#929292" strokeWidth="1.2">
-            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
-          </svg>
+          {!imgReady && <div className="absolute inset-0 skeleton" aria-hidden="true" />}
+          {imgReady && (
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-muted-soft" aria-hidden="true">
+              <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
+            </svg>
+          )}
           {/* Save icon */}
           <button
+            type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               setSaved(!saved);
             }}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center transition-transform hover:scale-110"
-            aria-label="Save listing"
+            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canvas rounded-full"
+            aria-label={saved ? "Remove from saved" : "Save listing"}
+            aria-pressed={saved}
           >
             <svg
               width="22"
               height="22"
               viewBox="0 0 24 24"
-              fill={saved ? "#ff385c" : "rgba(0,0,0,0.5)"}
+              fill="currentColor"
               stroke="#ffffff"
               strokeWidth="2"
+              aria-hidden="true"
+              className={saved ? "text-rausch" : "text-ink/50"}
             >
               <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </button>
-          {/* Guest-favorite style badge */}
+          {/* Category badge */}
           <span className="absolute top-3 left-3 bg-canvas text-[11px] font-semibold text-ink px-2.5 py-1 rounded-full shadow-airbnb">
             {badge}
           </span>
@@ -69,7 +96,7 @@ export default function ListingCard({
               {title}
             </h3>
             <div className="flex items-center gap-0.5 text-sm text-ink shrink-0">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="#222222" stroke="#222222" strokeWidth="1">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#222222" stroke="#222222" strokeWidth="1" aria-hidden="true">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <span>{rating}</span>
@@ -80,6 +107,35 @@ export default function ListingCard({
             {location}
             {metroDistance && <span> · {metroDistance}</span>}
           </p>
+
+          {/* Differentiator tags */}
+          {hasTags && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {verified && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rausch bg-rausch/10 px-2 py-0.5 rounded-full">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Verified
+                </span>
+              )}
+              {noBrokerage && (
+                <span className="text-[11px] font-medium text-ink bg-surface-soft px-2 py-0.5 rounded-full">
+                  No brokerage
+                </span>
+              )}
+              {furnishing && (
+                <span className="text-[11px] text-muted bg-surface-soft px-2 py-0.5 rounded-full">
+                  {furnishing}
+                </span>
+              )}
+              {availableFrom && (
+                <span className="text-[11px] text-muted bg-surface-soft px-2 py-0.5 rounded-full">
+                  {availableFrom}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Amenity pills */}
           <div className="flex flex-wrap gap-1 mt-2">

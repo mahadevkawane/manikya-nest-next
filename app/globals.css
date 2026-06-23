@@ -57,6 +57,39 @@
     rgba(0, 0, 0, 0.1) 0 4px 8px 0;
 }
 
+/* Card hover lift — pairs with .shadow-airbnb on hover. The card rises a
+   couple of pixels on an ease-out curve for a tactile, premium feel. */
+.hover-lift {
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+  will-change: transform;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* Skeleton shimmer — placeholder state for image areas and loading content.
+   Uses surface tokens so it stays on-palette. */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-surface-strong) 25%,
+    var(--color-surface-soft) 37%,
+    var(--color-surface-strong) 63%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
 /* Hide scrollbar for horizontal scroll sections */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -89,4 +122,18 @@
 ::selection {
   background-color: #ff385c;
   color: white;
+}
+
+/* Accessibility — honor reduced-motion preference globally. Animation and
+   transitions become near-instant so motion-sensitive users aren't affected,
+   while functionality (scroll, state) is preserved. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

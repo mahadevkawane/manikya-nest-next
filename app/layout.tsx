@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "NestNext — Find your nest. Plan your next.",
+  title: "NestNext — A home near work, and the job to go with it",
   description:
-    "NestNext is a platform for students and working professionals in Indian cities. Find verified PGs, rental flats, co-living, jobs, commute planning, and upskilling — all in one place. Zero broker fee.",
+    "NestNext is the only platform that pairs housing with jobs and your daily commute. Find verified PGs, rental flats and co-living near where you study or work in Bengaluru — discover roles nearby and plan the route to get there. Zero brokerage.",
 };
 
 export default function RootLayout({
