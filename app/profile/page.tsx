@@ -12,11 +12,6 @@ const nextMenu = [
   { label: "Saved jobs", icon: "🔖", href: "/jobs" },
   { label: "My courses", icon: "📚", href: "/whats-next" },
 ];
-const manageMenu = [
-  { label: "Owner dashboard", icon: "🏠", href: "/dashboard/owner" },
-  { label: "Employer dashboard", icon: "🏢", href: "/dashboard/employer" },
-  { label: "Admin panel", icon: "🛡️", href: "/dashboard/admin" },
-];
 const accountMenu = [
   { label: "KYC verification", icon: "🪪", badge: "Pending" },
   { label: "Settings", icon: "⚙️" },
@@ -202,30 +197,6 @@ export default function UserProfile() {
               key={item.label}
               className={`w-full flex items-center justify-between px-4 py-3 hover:bg-surface-soft transition-colors ${
                 i < nextMenu.length - 1 ? "border-b border-hairline" : ""
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-base">{item.icon}</span>
-                <span className="text-sm text-gray-800">{item.label}</span>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2">
-                <path d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Manage (dashboards) */}
-      <section className="mb-2">
-        <p className="text-[11px] uppercase text-gray-400 tracking-wider px-1 pt-4 pb-2 font-medium">Manage</p>
-        <div className="bg-white rounded-xl overflow-hidden border border-hairline">
-          {manageMenu.map((item, i) => (
-            <Link
-              href={item.href}
-              key={item.label}
-              className={`w-full flex items-center justify-between px-4 py-3 hover:bg-surface-soft transition-colors ${
-                i < manageMenu.length - 1 ? "border-b border-hairline" : ""
               }`}
             >
               <div className="flex items-center gap-3">

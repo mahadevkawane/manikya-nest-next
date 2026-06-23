@@ -33,7 +33,7 @@ export default function JobsPage() {
     <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Jobs" }]}>
       <div className="flex items-center justify-between mb-4 pt-2">
         <h1 className="text-[21px] font-bold text-ink">Jobs near your nest</h1>
-        <Link href="/dashboard/employer" className="text-sm text-ink font-medium underline">Post a job</Link>
+        <Link href="/post" className="text-sm text-ink font-medium underline">Post a job</Link>
       </div>
 
       {/* Search */}

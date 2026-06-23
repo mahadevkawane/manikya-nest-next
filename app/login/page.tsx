@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Logo from "../components/Logo";
 import {
-  demoAccounts,
   findAccountByPhone,
   verifyEmailLogin,
   signIn,
@@ -26,13 +25,7 @@ export default function LoginPage() {
 
   const enter = (account: DemoAccount) => {
     signIn(account);
-    router.push(account.dashboard);
-  };
-
-  // One-tap demo login from the credentials card.
-  const quickLogin = (account: DemoAccount) => {
-    setError("");
-    enter(account);
+    router.push("/");
   };
 
   const sendOtp = () => {
@@ -200,39 +193,6 @@ export default function LoginPage() {
         )}
 
         {error && <p className="text-[13px] text-rausch mt-4 text-center">{error}</p>}
-      </div>
-
-      {/* Demo credentials card */}
-      <div className="bg-surface-soft border border-hairline rounded-[14px] p-5 mt-6">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wide bg-ink text-white rounded-full px-2 py-0.5">
-            Demo
-          </span>
-          <p className="text-sm font-semibold text-ink">Quick login</p>
-        </div>
-        <p className="text-[13px] text-muted mb-4">
-          One tap to explore a role, or sign in manually with the credentials below.
-        </p>
-        <div className="space-y-2">
-          {demoAccounts.map((a) => (
-            <button
-              key={a.role}
-              onClick={() => quickLogin(a)}
-              className="w-full flex items-center justify-between text-left bg-canvas border border-hairline rounded-[10px] px-4 py-3 hover:border-ink transition-colors group"
-            >
-              <span>
-                <span className="block text-sm font-semibold text-ink capitalize">{a.role}</span>
-                <span className="block text-[12px] text-muted">{a.blurb}</span>
-                <span className="block text-[11px] text-muted mt-1">
-                  +91 {a.phone} · {a.email} · pwd/OTP {a.password} / {a.otp}
-                </span>
-              </span>
-              <span className="text-sm text-rausch font-medium shrink-0 ml-3 group-hover:underline">
-                Enter →
-              </span>
-            </button>
-          ))}
-        </div>
       </div>
 
       <p className="text-[12px] text-muted text-center mt-6 leading-relaxed">

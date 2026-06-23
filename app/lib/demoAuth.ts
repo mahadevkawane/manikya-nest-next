@@ -1,5 +1,5 @@
 // Demo authentication for the NestNext prototype.
-// No backend — these are fixed demo accounts that map to roles + dashboards.
+// No backend — these are fixed demo accounts that map to roles.
 // A lightweight "session" is persisted in localStorage so the UI can reflect
 // who is logged in across page navigations.
 
@@ -16,8 +16,6 @@ export interface DemoAccount {
   password: string;
   /** Fixed 4-digit OTP for the phone flow. */
   otp: string;
-  /** Where this account lands after login. */
-  dashboard: string;
   /** Short label shown on the demo-credentials card. */
   blurb: string;
 }
@@ -34,7 +32,6 @@ export const demoAccounts: DemoAccount[] = [
     email: "owner@nestnext.demo",
     password: PASSWORD,
     otp: OTP,
-    dashboard: "/dashboard/owner",
     blurb: "Property owner — manage listings & leads",
   },
   {
@@ -44,7 +41,6 @@ export const demoAccounts: DemoAccount[] = [
     email: "employer@nestnext.demo",
     password: PASSWORD,
     otp: OTP,
-    dashboard: "/dashboard/employer",
     blurb: "Employer — post jobs & view applicants",
   },
   {
@@ -54,7 +50,6 @@ export const demoAccounts: DemoAccount[] = [
     email: "admin@nestnext.demo",
     password: PASSWORD,
     otp: OTP,
-    dashboard: "/dashboard/admin",
     blurb: "Admin — moderate listings & users",
   },
 ];
