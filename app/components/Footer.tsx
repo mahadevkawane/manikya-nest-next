@@ -10,8 +10,8 @@ const aboutLinks = [
 ];
 
 const quickLinks = [
-  { label: "Find PG/Hostel", href: "/find-nest" },
-  { label: "Find Rental Flat", href: "/find-nest" },
+  { label: "Find PG/Hostel", href: "/c/pg" },
+  { label: "Find Rental Flat", href: "/c/rent" },
   { label: "Jobs & Internships", href: "/whats-next" },
   { label: "Commute Planner", href: "/whats-next" },
   { label: "Upskilling", href: "/whats-next" },
@@ -63,7 +63,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {cities.map((city) => (
                 <li key={city}>
-                  <Link href="/find-nest" className="text-sm text-ink hover:underline transition-colors">
+                  <Link href="/explore" className="text-sm text-ink hover:underline transition-colors">
                     {city}
                   </Link>
                 </li>

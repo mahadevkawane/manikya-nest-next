@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "../components/SearchBar";
 import ListingCard from "../components/ListingCard";
@@ -24,17 +25,18 @@ interface Listing {
   noBrokerage?: boolean;
   furnishing?: string;
   availableFrom?: string;
+  image?: string;
 }
 
 const listings: Listing[] = [
-  { id: 1, title: "Green Meadows PG for Men", location: "Koramangala, Bengaluru", metroDistance: "500m from metro", price: "₹8,500/mo", rating: 4.5, reviewCount: 128, badge: "PG", amenities: ["AC", "Meals", "Wi-Fi"], verified: true, noBrokerage: true },
-  { id: 2, title: "Sunrise Co-living Space", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹12,000/mo", rating: 4.7, reviewCount: 89, badge: "Co-living", amenities: ["AC", "Wi-Fi", "Gym"], verified: true, furnishing: "Furnished" },
-  { id: 3, title: "Lakeside 1BHK Rental Flat", location: "Indiranagar, Bengaluru", metroDistance: "300m from metro", price: "₹18,500/mo", rating: 4.3, reviewCount: 56, badge: "Flat", amenities: ["AC", "Parking", "Security"], noBrokerage: true, furnishing: "Furnished", availableFrom: "Available now" },
-  { id: 4, title: "StudyNest Girls Hostel", location: "BTM Layout, Bengaluru", metroDistance: "800m from metro", price: "₹6,200/mo", rating: 4.6, reviewCount: 204, badge: "Hostel", amenities: ["Meals", "Wi-Fi", "Laundry"], verified: true, noBrokerage: true },
-  { id: 5, title: "Urban Nest 2BHK", location: "Whitefield, Bengaluru", price: "₹22,000/mo", rating: 4.4, reviewCount: 42, badge: "Flat", amenities: ["AC", "Parking", "Power backup"], furnishing: "Semi-furnished" },
-  { id: 6, title: "Cozy Homestay near MG Road", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹15,000/mo", rating: 4.8, reviewCount: 31, badge: "Homestay", amenities: ["AC", "Wi-Fi", "Meals"], verified: true, noBrokerage: true },
-  { id: 7, title: "TechPark PG – Triple Sharing", location: "Electronic City, Bengaluru", metroDistance: "1km from metro", price: "₹5,800/mo", rating: 4.2, reviewCount: 176, badge: "PG", amenities: ["Meals", "Wi-Fi", "Laundry"], noBrokerage: true },
-  { id: 8, title: "Elite Co-living Studio", location: "Marathahalli, Bengaluru", price: "₹14,500/mo", rating: 4.6, reviewCount: 63, badge: "Co-living", amenities: ["AC", "Gym", "Wi-Fi"], verified: true, furnishing: "Furnished" },
+  { id: 1, title: "Green Meadows PG for Men", location: "Koramangala, Bengaluru", metroDistance: "500m from metro", price: "₹8,500/mo", rating: 4.5, reviewCount: 128, badge: "PG", amenities: ["AC", "Meals", "Wi-Fi"], verified: true, noBrokerage: true, image: "/categories/pg.jpg" },
+  { id: 2, title: "Sunrise Co-living Space", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹12,000/mo", rating: 4.7, reviewCount: 89, badge: "Co-living", amenities: ["AC", "Wi-Fi", "Gym"], verified: true, furnishing: "Furnished", image: "/categories/coliving.jpg" },
+  { id: 3, title: "Lakeside 1BHK Rental Flat", location: "Indiranagar, Bengaluru", metroDistance: "300m from metro", price: "₹18,500/mo", rating: 4.3, reviewCount: 56, badge: "Flat", amenities: ["AC", "Parking", "Security"], noBrokerage: true, furnishing: "Furnished", availableFrom: "Available now", image: "/categories/rent.jpg" },
+  { id: 4, title: "StudyNest Girls Hostel", location: "BTM Layout, Bengaluru", metroDistance: "800m from metro", price: "₹6,200/mo", rating: 4.6, reviewCount: 204, badge: "Hostel", amenities: ["Meals", "Wi-Fi", "Laundry"], verified: true, noBrokerage: true, image: "/categories/pg.jpg" },
+  { id: 5, title: "Urban Nest 2BHK", location: "Whitefield, Bengaluru", price: "₹22,000/mo", rating: 4.4, reviewCount: 42, badge: "Flat", amenities: ["AC", "Parking", "Power backup"], furnishing: "Semi-furnished", image: "/categories/rent.jpg" },
+  { id: 6, title: "Cozy Homestay near MG Road", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹15,000/mo", rating: 4.8, reviewCount: 31, badge: "Homestay", amenities: ["AC", "Wi-Fi", "Meals"], verified: true, noBrokerage: true, image: "/categories/homestay.jpg" },
+  { id: 7, title: "TechPark PG – Triple Sharing", location: "Electronic City, Bengaluru", metroDistance: "1km from metro", price: "₹5,800/mo", rating: 4.2, reviewCount: 176, badge: "PG", amenities: ["Meals", "Wi-Fi", "Laundry"], noBrokerage: true, image: "/categories/pg.jpg" },
+  { id: 8, title: "Elite Co-living Studio", location: "Marathahalli, Bengaluru", price: "₹14,500/mo", rating: 4.6, reviewCount: 63, badge: "Co-living", amenities: ["AC", "Gym", "Wi-Fi"], verified: true, furnishing: "Furnished", image: "/categories/coliving.jpg" },
 ];
 
 const MAX_BUDGET = 30000;
@@ -96,6 +98,23 @@ export default function FindNest() {
 
   return (
     <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Find Nest" }]}>
+      {/* Discovery hub CTA */}
+      <Link
+        href="/explore"
+        className="flex items-center justify-between gap-3 mb-4 rounded-[14px] border border-hairline-soft bg-surface-soft px-4 py-3 hover:bg-surface-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+      >
+        <span className="text-sm text-ink">
+          <span className="font-semibold">Browse by category</span>
+          <span className="text-muted"> — rent, buy, PG, offices &amp; more</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-sm font-semibold text-rausch shrink-0">
+          Explore
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </span>
+      </Link>
+
       {/* Search bar */}
       <div className="mb-4">
         <SearchBar />
@@ -262,10 +281,23 @@ export default function FindNest() {
                     className="flex gap-3 py-3 px-2 -mx-2 rounded-[14px] hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                   >
                     {/* Thumbnail */}
-                    <div className="w-24 h-24 bg-surface-strong rounded-[14px] shrink-0 flex items-center justify-center">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-muted-soft" aria-hidden="true">
-                        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
-                      </svg>
+                    <div className="w-24 h-24 bg-surface-strong rounded-[14px] shrink-0 overflow-hidden relative">
+                      {listing.image ? (
+                        <Image
+                          src={listing.image}
+                          alt={`${listing.title} thumbnail`}
+                          fill
+                          sizes="96px"
+                          className="object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-muted-soft" aria-hidden="true">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                     {/* Info */}
                     <div className="flex-1 min-w-0 flex flex-col">
@@ -320,7 +352,7 @@ export default function FindNest() {
           {filtered.length > 0 && (
             <div className="hidden lg:grid lg:grid-cols-2 gap-4 mt-6">
               {filtered.map((listing) => (
-                <ListingCard key={`grid-${listing.id}`} {...listing} />
+                <ListingCard key={`grid-${listing.id}`} {...listing} image={listing.image} />
               ))}
             </div>
           )}

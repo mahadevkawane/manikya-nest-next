@@ -1,23 +1,43 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import PageLayout from "../../components/PageLayout";
+import { LISTINGS, getCategory, Listing } from "../../lib/categories";
 
-const amenities = [
-  { label: "Wi-Fi", icon: "📶" },
-  { label: "AC", icon: "❄️" },
-  { label: "Meals", icon: "🍽️" },
-  { label: "Laundry", icon: "👕" },
-  { label: "Security", icon: "🔒" },
-  { label: "Parking", icon: "🅿️" },
-  { label: "Power backup", icon: "⚡" },
-  { label: "Hot water", icon: "🚿" },
-];
+const amenityIcons: Record<string, string> = {
+  "Wi-Fi": "📶",
+  AC: "❄️",
+  Meals: "🍽️",
+  Laundry: "👕",
+  Security: "🔒",
+  Parking: "🅿️",
+  "Power backup": "⚡",
+  "Hot water": "🚿",
+  Gym: "🏋️",
+  Pool: "🏊",
+  Clubhouse: "🏠",
+  "Meeting rooms": "📊",
+  Cafeteria: "☕",
+  "24/7 access": "🕐",
+  "Loading dock": "🚛",
+  "High ceiling": "📏",
+  "Highway access": "🛣️",
+  "Main road": "🛣️",
+  Washroom: "🚻",
+  Lift: "🛗",
+  "Bank tenant": "🏦",
+  "Long lease": "📜",
+  "High yield": "📈",
+  "Corner plot": "📐",
+  Gated: "🚧",
+};
 
 const nearbyPlaces = [
-  { name: "Koramangala Metro", type: "Transit", dist: "800 m", icon: "🚇" },
+  { name: "Metro Station", type: "Transit", dist: "800 m", icon: "🚇" },
   { name: "Forum Mall", type: "Shopping", dist: "1.2 km", icon: "🛍️" },
-  { name: "St. John's Hospital", type: "Healthcare", dist: "2.1 km", icon: "🏥" },
+  { name: "City Hospital", type: "Healthcare", dist: "2.1 km", icon: "🏥" },
   { name: "Cubbon Park", type: "Park", dist: "3.5 km", icon: "🌳" },
 ];
 
@@ -28,8 +48,8 @@ const areaInsights = [
 ];
 
 const reviews = [
-  { name: "Priya M.", date: "May 2026", rating: 5, text: "Clean rooms, tasty home-style meals and the owner is very responsive. Metro is a short walk away." },
-  { name: "Sandeep R.", date: "Apr 2026", rating: 4, text: "Great location for techies. Wi-Fi could be faster but overall good value for the price." },
+  { name: "Priya M.", date: "May 2026", rating: 5, text: "Clean, well-maintained and the owner is very responsive. Metro is a short walk away." },
+  { name: "Sandeep R.", date: "Apr 2026", rating: 4, text: "Great location for techies. Good value overall for the price and amenities on offer." },
 ];
 
 function StarIcon({ size = 13 }: { size?: number }) {
@@ -40,19 +60,51 @@ function StarIcon({ size = 13 }: { size?: number }) {
   );
 }
 
-function ContactCard({ saved, onToggleSave }: { saved: boolean; onToggleSave: () => void }) {
+/** Build an intent-aware key-facts list from the listing + its category. */
+function buildFacts(listing: Listing): { label: string; value: string }[] {
+  const facts: { label: string; value: string }[] = [{ label: "Price", value: listing.price }];
+  const slug = listing.category;
+  const world = getCategory(slug)?.world;
+
+  if (listing.area) facts.push({ label: world === "commercial" ? "Area" : "Carpet area", value: listing.area });
+
+  if (listing.spec) {
+    const specLabel =
+      slug === "pg" ? "Sharing"
+        : slug === "coliving" ? "Room"
+        : slug === "flatmate" ? "Looking for"
+        : slug === "buy" ? "Type"
+        : world === "commercial" ? "Configuration"
+        : "Details";
+    facts.push({ label: specLabel, value: listing.spec });
+  }
+
+  if (listing.furnishing) facts.push({ label: "Furnishing", value: listing.furnishing });
+  if (listing.availableFrom) facts.push({ label: slug === "buy" ? "Possession" : "Availability", value: listing.availableFrom });
+
+  return facts;
+}
+
+function ContactCard({
+  listing,
+  saved,
+  onToggleSave,
+}: {
+  listing: Listing;
+  saved: boolean;
+  onToggleSave: () => void;
+}) {
+  const isCommercial = getCategory(listing.category)?.world === "commercial";
+  const ownerLabel = isCommercial ? "Verified agent" : "Verified owner";
   return (
     <div className="bg-canvas border border-hairline rounded-[14px] p-5 shadow-airbnb">
       {/* Price + rating */}
       <div className="flex items-baseline justify-between mb-4">
-        <p className="text-ink">
-          <span className="text-2xl font-bold">₹8,500</span>
-          <span className="text-sm font-normal text-muted">/mo</span>
-        </p>
+        <p className="text-2xl font-bold text-ink">{listing.price}</p>
         <div className="flex items-center gap-1 text-sm text-ink">
           <span className="text-ink"><StarIcon size={13} /></span>
-          <span className="font-semibold">4.5</span>
-          <span className="text-muted">· 128</span>
+          <span className="font-semibold">{listing.rating}</span>
+          <span className="text-muted">· {listing.reviewCount}</span>
         </div>
       </div>
 
@@ -68,7 +120,7 @@ function ContactCard({ saved, onToggleSave }: { saved: boolean; onToggleSave: ()
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-[11px] text-muted">Verified owner · Responds in ~1 hr</p>
+          <p className="text-[11px] text-muted">{ownerLabel} · Responds in ~1 hr</p>
         </div>
       </div>
 
@@ -77,7 +129,7 @@ function ContactCard({ saved, onToggleSave }: { saved: boolean; onToggleSave: ()
         type="button"
         className="w-full py-2.5 text-sm font-semibold text-white bg-rausch rounded-[8px] hover:bg-rausch-active active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2"
       >
-        Contact owner
+        {isCommercial ? "Contact agent" : "Contact owner"}
       </button>
 
       {/* Secondary actions */}
@@ -86,7 +138,7 @@ function ContactCard({ saved, onToggleSave }: { saved: boolean; onToggleSave: ()
           type="button"
           className="flex-1 py-2 text-sm font-medium text-ink border border-hairline rounded-[8px] hover:bg-surface-soft active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
         >
-          Chat
+          Schedule visit
         </button>
         <button
           type="button"
@@ -98,7 +150,7 @@ function ContactCard({ saved, onToggleSave }: { saved: boolean; onToggleSave: ()
 
       {/* WhatsApp */}
       <a
-        href="https://wa.me/919876543210?text=Hi%2C%20I%27m%20interested%20in%20Green%20Meadows%20PG"
+        href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi, I'm interested in ${listing.title}`)}`}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-2 w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-white bg-[#25D366] rounded-[8px] hover:brightness-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
@@ -137,16 +189,42 @@ function ContactCard({ saved, onToggleSave }: { saved: boolean; onToggleSave: ()
 }
 
 export default function ListingDetail() {
+  const params = useParams();
+  const id = Number(params.id);
+  const listing = LISTINGS.find((l) => l.id === id) ?? LISTINGS[0];
+  const category = getCategory(listing.category);
+  const facts = buildFacts(listing);
   const [saved, setSaved] = useState(false);
 
   return (
-    <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Find Nest", href: "/find-nest" }, { label: "Green Meadows PG" }]}>
+    <PageLayout
+      breadcrumbs={[
+        { label: "Home", href: "/" },
+        { label: "Explore", href: "/explore" },
+        ...(category ? [{ label: category.label, href: `/c/${category.slug}` }] : []),
+        { label: listing.title },
+      ]}
+    >
       {/* Photo Gallery */}
       <section className="mb-5">
-        <div className="h-[280px] md:h-[360px] bg-surface-soft rounded-[14px] flex items-center justify-center mb-2 relative">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-muted-soft" aria-hidden="true">
-            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
-          </svg>
+        {/* Main image */}
+        <div className="h-[280px] md:h-[360px] bg-surface-soft rounded-[14px] overflow-hidden mb-2 relative">
+          {category?.image ? (
+            <Image
+              src={category.image}
+              alt={`${listing.title} — ${category.label} in ${listing.location}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 80vw"
+              className="object-cover photo-enhance"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-muted-soft" aria-hidden="true">
+                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
+              </svg>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setSaved(!saved)}
@@ -159,17 +237,24 @@ export default function ListingDetail() {
             </svg>
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-[60px] md:h-[80px] bg-surface-soft rounded-[8px] flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-muted-soft" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <path d="M21 15l-5-5L5 21" />
-              </svg>
-            </div>
-          ))}
-        </div>
+        {/* Thumbnail strip — same image with slight opacity to simulate alternate views */}
+        {category?.image && (
+          <div className="grid grid-cols-3 gap-2">
+            {[0.85, 0.7, 0.55].map((opacity, i) => (
+              <div key={i} className="h-[60px] md:h-[80px] rounded-[8px] overflow-hidden relative">
+                <Image
+                  src={category.image}
+                  alt={`${listing.title} — view ${i + 2}`}
+                  fill
+                  sizes="(max-width: 768px) 33vw, 20vw"
+                  className="object-cover photo-enhance"
+                  style={{ opacity }}
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Two-column: content + sticky contact card */}
@@ -180,46 +265,63 @@ export default function ListingDetail() {
           <section className="mb-5">
             <div className="flex items-start justify-between gap-4 mb-2">
               <div>
-                <h1 className="text-2xl font-bold text-ink tracking-tight">Green Meadows PG for Men</h1>
-                <p className="text-sm text-muted mt-0.5">Koramangala 4th Block, Bengaluru</p>
+                <h1 className="text-2xl font-bold text-ink tracking-tight">{listing.title}</h1>
+                <p className="text-sm text-muted mt-0.5">{listing.location}</p>
               </div>
-              <span className="text-2xl font-bold text-ink shrink-0 lg:hidden">
-                ₹8,500<span className="text-sm font-normal text-muted">/mo</span>
-              </span>
+              <span className="text-2xl font-bold text-ink shrink-0 lg:hidden">{listing.price}</span>
             </div>
 
             {/* Badge row */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rausch bg-rausch/10 px-2 py-0.5 rounded-full">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Verified
+              {listing.verified && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rausch bg-rausch/10 px-2 py-0.5 rounded-full">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Verified
+                </span>
+              )}
+              {listing.noBrokerage && (
+                <span className="text-[11px] font-medium text-ink bg-surface-soft px-2 py-0.5 rounded-full">No brokerage</span>
+              )}
+              <span className="text-[11px] font-medium text-muted bg-surface-soft px-2 py-0.5 rounded-full">
+                {category?.label ?? listing.badge}
+                {listing.spec && ` · ${listing.spec}`}
               </span>
-              <span className="text-[11px] font-medium text-ink bg-surface-soft px-2 py-0.5 rounded-full">No brokerage</span>
-              <span className="text-[11px] font-medium text-muted bg-surface-soft px-2 py-0.5 rounded-full">PG · Triple sharing</span>
               <div className="flex items-center gap-0.5 text-xs text-ink">
                 <span className="text-ink"><StarIcon size={12} /></span>
-                <span className="font-semibold">4.5</span>
-                <span className="text-muted">(128 reviews)</span>
+                <span className="font-semibold">{listing.rating}</span>
+                <span className="text-muted">({listing.reviewCount} reviews)</span>
               </div>
             </div>
           </section>
 
-          {/* Amenities */}
-          <section className="mb-6 pb-6 border-b border-hairline-soft">
-            <h2 className="text-lg font-bold text-ink mb-3">Amenities</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {amenities.map((a) => (
-                <div key={a.label} className="flex items-center gap-2 text-sm text-body py-1.5">
-                  <span className="text-base">{a.icon}</span>
-                  <span>{a.label}</span>
+          {/* Key facts — intent-aware row reflecting the category */}
+          <section className="mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-hairline-soft rounded-[14px] overflow-hidden border border-hairline-soft">
+              {facts.map((f) => (
+                <div key={f.label} className="bg-canvas px-4 py-3">
+                  <p className="text-[11px] text-muted">{f.label}</p>
+                  <p className="text-sm font-semibold text-ink mt-0.5">{f.value}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* AI Nest Insight Card */}
+          {/* Amenities — from this listing */}
+          <section className="mb-6 pb-6 border-b border-hairline-soft">
+            <h2 className="text-lg font-bold text-ink mb-3">Amenities</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {listing.amenities.map((a) => (
+                <div key={a} className="flex items-center gap-2 text-sm text-body py-1.5">
+                  <span className="text-base">{amenityIcons[a] ?? "✅"}</span>
+                  <span>{a}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* AI Nest Insight Card — the housing × jobs differentiator */}
           <section className="mb-6">
             <div className="bg-rausch/5 border border-rausch/40 rounded-[14px] p-4">
               <div className="flex items-center gap-1.5 mb-2">
@@ -229,9 +331,10 @@ export default function ListingDetail() {
                 <span className="text-sm font-semibold text-rausch">AI nest insight</span>
               </div>
               <p className="text-sm text-body leading-relaxed mb-2">
-                This PG is 12 min from 3 companies hiring for your profile. Metro station is 800m away. 4 flatmate matches found in your network.
+                This {category?.label.toLowerCase() ?? "place"} is 12 min from 3 companies hiring for your profile.
+                {listing.metroDistance ? ` ${listing.metroDistance}.` : ""} Plan your commute and explore roles nearby.
               </p>
-              <Link href="#" className="text-sm text-rausch font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm">
+              <Link href="/whats-next" className="text-sm text-rausch font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm">
                 View matches →
               </Link>
             </div>
@@ -277,8 +380,8 @@ export default function ListingDetail() {
               <h2 className="text-lg font-bold text-ink">Reviews</h2>
               <div className="flex items-center gap-1 text-sm text-ink">
                 <span className="text-ink"><StarIcon size={14} /></span>
-                <span className="font-semibold">4.5</span>
-                <span className="text-muted">· 128 reviews</span>
+                <span className="font-semibold">{listing.rating}</span>
+                <span className="text-muted">· {listing.reviewCount} reviews</span>
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-3">
@@ -306,20 +409,20 @@ export default function ListingDetail() {
               type="button"
               className="text-sm text-ink font-medium underline underline-offset-2 mt-3 hover:text-rausch transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink rounded-sm"
             >
-              Show all 128 reviews
+              Show all {listing.reviewCount} reviews
             </button>
           </section>
 
           {/* Contact card — inline below lg breakpoint */}
           <section className="mb-24 lg:hidden">
-            <ContactCard saved={saved} onToggleSave={() => setSaved(!saved)} />
+            <ContactCard listing={listing} saved={saved} onToggleSave={() => setSaved(!saved)} />
           </section>
         </div>
 
         {/* Sticky contact card — desktop */}
         <aside className="hidden lg:block">
           <div className="lg:sticky lg:top-24">
-            <ContactCard saved={saved} onToggleSave={() => setSaved(!saved)} />
+            <ContactCard listing={listing} saved={saved} onToggleSave={() => setSaved(!saved)} />
           </div>
         </aside>
       </div>
@@ -327,17 +430,14 @@ export default function ListingDetail() {
       {/* Sticky CTA bar (mobile) */}
       <div className="fixed bottom-14 left-0 right-0 bg-canvas border-t border-hairline px-4 py-3 flex items-center justify-between gap-3 z-40 md:hidden">
         <div>
-          <p className="text-ink leading-tight">
-            <span className="text-lg font-bold">₹8,500</span>
-            <span className="text-xs font-normal text-muted">/mo</span>
-          </p>
-          <p className="text-[11px] text-muted">Zero brokerage</p>
+          <p className="text-lg font-bold text-ink leading-tight">{listing.price}</p>
+          <p className="text-[11px] text-muted">{listing.noBrokerage ? "Zero brokerage" : category?.label ?? "Listing"}</p>
         </div>
         <button
           type="button"
           className="px-6 py-2.5 text-sm font-semibold text-white bg-rausch rounded-[8px] hover:bg-rausch-active active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2"
         >
-          Contact owner
+          {getCategory(listing.category)?.world === "commercial" ? "Contact agent" : "Contact owner"}
         </button>
       </div>
     </PageLayout>

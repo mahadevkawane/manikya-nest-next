@@ -1,11 +1,7 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import SearchBar from "./components/SearchBar";
 import ListingCard from "./components/ListingCard";
 import PageLayout from "./components/PageLayout";
-
-const categories = ["PG/Hostel", "Rental flat", "Co-living", "Homestay", "Jobs"];
+import HeroSearch from "./components/HeroSearch";
 
 const trustPoints = [
   {
@@ -47,12 +43,12 @@ const trustPoints = [
 ];
 
 const trendingListings = [
-  { id: 1, title: "Green Meadows PG for Men", location: "Koramangala, Bengaluru", metroDistance: "500m from metro", price: "₹8,500/mo", rating: 4.5, reviewCount: 128, badge: "PG", amenities: ["AC", "Meals", "Wi-Fi"], verified: true, noBrokerage: true },
-  { id: 2, title: "Sunrise Co-living Space", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹12,000/mo", rating: 4.7, reviewCount: 89, badge: "Co-living", amenities: ["AC", "Wi-Fi", "Gym"], verified: true, furnishing: "Furnished" },
-  { id: 3, title: "Lakeside 1BHK Rental Flat", location: "Indiranagar, Bengaluru", metroDistance: "300m from metro", price: "₹18,500/mo", rating: 4.3, reviewCount: 56, badge: "Flat", amenities: ["AC", "Parking", "Security"], noBrokerage: true, availableFrom: "Available now" },
-  { id: 4, title: "StudyNest Girls Hostel", location: "BTM Layout, Bengaluru", metroDistance: "800m from metro", price: "₹6,200/mo", rating: 4.6, reviewCount: 204, badge: "Hostel", amenities: ["Meals", "Wi-Fi", "Laundry"], verified: true, noBrokerage: true },
-  { id: 5, title: "Urban Nest 2BHK", location: "Whitefield, Bengaluru", price: "₹22,000/mo", rating: 4.4, reviewCount: 42, badge: "Flat", amenities: ["AC", "Parking", "Power backup"], furnishing: "Semi-furnished" },
-  { id: 6, title: "Cozy Homestay near MG Road", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹15,000/mo", rating: 4.8, reviewCount: 31, badge: "Homestay", amenities: ["AC", "Wi-Fi", "Meals"], verified: true, noBrokerage: true },
+  { id: 1, title: "Green Meadows PG for Men", location: "Koramangala, Bengaluru", metroDistance: "500m from metro", price: "₹8,500/mo", rating: 4.5, reviewCount: 128, badge: "PG", amenities: ["AC", "Meals", "Wi-Fi"], verified: true, noBrokerage: true, image: "/categories/pg.jpg" },
+  { id: 2, title: "Sunrise Co-living Space", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹12,000/mo", rating: 4.7, reviewCount: 89, badge: "Co-living", amenities: ["AC", "Wi-Fi", "Gym"], verified: true, furnishing: "Furnished", image: "/categories/coliving.jpg" },
+  { id: 3, title: "Lakeside 1BHK Rental Flat", location: "Indiranagar, Bengaluru", metroDistance: "300m from metro", price: "₹18,500/mo", rating: 4.3, reviewCount: 56, badge: "Flat", amenities: ["AC", "Parking", "Security"], noBrokerage: true, availableFrom: "Available now", image: "/categories/rent.jpg" },
+  { id: 4, title: "StudyNest Girls Hostel", location: "BTM Layout, Bengaluru", metroDistance: "800m from metro", price: "₹6,200/mo", rating: 4.6, reviewCount: 204, badge: "Hostel", amenities: ["Meals", "Wi-Fi", "Laundry"], verified: true, noBrokerage: true, image: "/categories/pg.jpg" },
+  { id: 5, title: "Urban Nest 2BHK", location: "Whitefield, Bengaluru", price: "₹22,000/mo", rating: 4.4, reviewCount: 42, badge: "Flat", amenities: ["AC", "Parking", "Power backup"], furnishing: "Semi-furnished", image: "/categories/rent.jpg" },
+  { id: 6, title: "Cozy Homestay near MG Road", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹15,000/mo", rating: 4.8, reviewCount: 31, badge: "Homestay", amenities: ["AC", "Wi-Fi", "Meals"], verified: true, noBrokerage: true, image: "/categories/homestay.jpg" },
 ];
 
 const whyCards = [
@@ -125,92 +121,10 @@ const nextCards = [
 ];
 
 export default function HomePage() {
-  const [activeCategory, setActiveCategory] = useState("PG/Hostel");
-  const [introDone, setIntroDone] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const finishIntro = () => setIntroDone(true);
-  const skipIntro = () => {
-    videoRef.current?.pause();
-    setIntroDone(true);
-  };
-
-  // Force muted + kick off playback imperatively. React doesn't reliably apply
-  // the `muted` property on first render, which makes browsers block autoplay.
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = true;
-    const played = v.play();
-    if (played) played.catch(() => {});
-  }, []);
-
   return (
     <PageLayout>
-      {/* Hero Section */}
-      <section className="bg-surface-soft -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-8 md:pt-12 pb-10 md:pb-12 mb-6 rounded-b-[32px] md:rounded-b-none">
-        <div className="max-w-[1120px] mx-auto">
-          {/* Intro video — reveals the hero content when it finishes */}
-          <div className="relative rounded-[20px] overflow-hidden shadow-airbnb bg-ink">
-            <video
-              ref={videoRef}
-              src="/hero-intro.mp4"
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onEnded={finishIntro}
-              onError={finishIntro}
-              aria-label="NestNext intro"
-              className="w-full aspect-video object-cover"
-            />
-            {!introDone && (
-              <button
-                type="button"
-                onClick={skipIntro}
-                className="absolute bottom-3 right-3 px-3 py-1.5 text-xs font-medium text-white bg-ink/70 hover:bg-ink rounded-full backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              >
-                Skip intro →
-              </button>
-            )}
-          </div>
-
-          {/* Hero content — opens after the video plays */}
-          {introDone && (
-            <div className="max-w-[820px] mx-auto text-center mt-8 animate-fade-up">
-              <h1 className="text-[clamp(32px,5vw,56px)] font-bold text-ink tracking-tight leading-[1.05] mb-4">
-                A home near work — and the job to go with it.
-              </h1>
-              <p className="text-base md:text-lg text-body max-w-[600px] mx-auto mb-8">
-                Housing, jobs &amp; commute in one place. Find verified PGs, flats and
-                co-living near where you study or work — then discover roles nearby
-                and plan the route. Zero brokerage.
-              </p>
-
-              {/* Category pills */}
-              <div className="flex flex-wrap justify-center gap-2 mb-6">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    aria-pressed={activeCategory === cat}
-                    className={`px-4 py-2 text-sm font-medium rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft ${
-                      activeCategory === cat
-                        ? "bg-ink text-white border-ink"
-                        : "bg-canvas text-body border-hairline hover:border-ink"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              {/* Search Bar */}
-              <SearchBar />
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Hero Section — tabbed Housing.com-style hero with search */}
+      <HeroSearch />
 
       {/* Trust strip — proof points mirroring our core promise */}
       <section aria-label="Why renters trust NestNext" className="mb-10">
@@ -231,7 +145,7 @@ export default function HomePage() {
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Trending near you</h2>
-          <Link href="/find-nest" className="text-sm text-ink font-medium underline">
+          <Link href="/explore" className="text-sm text-ink font-medium underline">
             See all
           </Link>
         </div>

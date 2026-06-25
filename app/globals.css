@@ -19,6 +19,18 @@
   --color-luxe: #460479;
   --color-plus: #92174d;
 
+  /* Hero theme accents (violet / indigo) */
+  --color-violet: #7c3aed;
+  --color-indigo: #4f46e5;
+
+  /* Antique / heritage palette — weathered "old architecture" tones */
+  --color-parchment: #efe6d2;
+  --color-parchment-deep: #e2d4b7;
+  --color-sepia: #5a4632;
+  --color-umber: #8a6a47;
+  --color-terracotta: #a9653f;
+  --color-patina: #6f8f86;
+
   /* Text */
   --color-ink: #222222;
   --color-body: #3f3f3f;
@@ -46,6 +58,14 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 32px;
+
+  /* Hero tab accent colours — referenced as bg-tab-* / text-tab-* in JSX.
+     Raw hex lives ONLY here; components use Tailwind class names. */
+  --color-tab-pg: #ff5a3c;
+  --color-tab-rent: #ff7a52;
+  --color-tab-flatmate: #0fb5a5;
+  --color-tab-jobs: #1e6fff;
+  --color-tab-combo: #4f46e5;
 }
 
 /* The single elevation tier in the system — used on hover-floated cards,
@@ -126,6 +146,13 @@
 }
 .animate-fade-up {
   animation: fade-up 0.5s ease-out both;
+}
+
+/* Category photo enhancement — subtle brightness/contrast/saturation lift
+   applied to real images in ListingCard, the hero accent card, and the
+   listing gallery. Keeps photos vivid without blowing highlights. */
+.photo-enhance {
+  filter: brightness(1.06) contrast(1.04) saturate(1.06);
 }
 
 /* Smooth transitions globally */

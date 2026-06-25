@@ -13,11 +13,12 @@ const items = [
     ),
   },
   {
-    href: "/find-nest",
-    label: "Find Nest",
+    href: "/explore",
+    label: "Explore",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M14.5 9.5l-1.6 4.5-4.4 1.6 1.6-4.5z" />
       </svg>
     ),
   },

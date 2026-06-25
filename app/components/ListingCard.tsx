@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface ListingCardProps {
@@ -16,6 +17,14 @@ interface ListingCardProps {
   noBrokerage?: boolean;
   furnishing?: string;
   availableFrom?: string;
+  /** Carpet/built-up area, e.g. "650 sq ft" — emphasised for BHK & commercial. */
+  area?: string;
+  /** Intent-specific spec line, e.g. "Triple sharing · Men" or "Bank tenant". */
+  spec?: string;
+  /** Render the owner-contact CTA row (used on category listing pages). */
+  showCta?: boolean;
+  /** Representative category photo. When provided, replaces the icon placeholder. */
+  image?: string;
 }
 
 export default function ListingCard({
@@ -32,15 +41,14 @@ export default function ListingCard({
   noBrokerage,
   furnishing,
   availableFrom,
+  area,
+  spec,
+  showCta,
+  image,
 }: ListingCardProps) {
   const [saved, setSaved] = useState(false);
-  // Image skeleton: show a shimmer until the (future) photo is ready, then
-  // settle to the placeholder. Demonstrates the loading → content transition.
-  const [imgReady, setImgReady] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setImgReady(true), 600);
-    return () => clearTimeout(t);
-  }, []);
+  // imgLoaded tracks when next/image fires onLoad; until then the skeleton shows.
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const hasTags = verified || noBrokerage || furnishing || availableFrom;
 
@@ -50,10 +58,22 @@ export default function ListingCard({
       className="block group rounded-[14px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
     >
       <div className="bg-canvas rounded-[14px] hover-lift hover:shadow-airbnb">
-        {/* Image placeholder with skeleton state */}
+        {/* Image area — real photo when available, skeleton → icon otherwise */}
         <div className="relative h-44 bg-surface-strong rounded-[14px] overflow-hidden flex items-center justify-center">
-          {!imgReady && <div className="absolute inset-0 skeleton" aria-hidden="true" />}
-          {imgReady && (
+          {image ? (
+            <>
+              {!imgLoaded && <div className="absolute inset-0 skeleton" aria-hidden="true" />}
+              <Image
+                src={image}
+                alt={`${title} — ${badge} in ${location}`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                className="object-cover photo-enhance"
+                onLoad={() => setImgLoaded(true)}
+                loading="lazy"
+              />
+            </>
+          ) : (
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-muted-soft" aria-hidden="true">
               <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3m4-10h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01" />
             </svg>
@@ -108,6 +128,15 @@ export default function ListingCard({
             {metroDistance && <span> · {metroDistance}</span>}
           </p>
 
+          {/* Intent fields — spec (sharing/tenant/floor) + area, emphasised */}
+          {(spec || area) && (
+            <p className="text-[13px] font-medium text-body mt-1 line-clamp-1">
+              {spec}
+              {spec && area && <span className="text-muted-soft"> · </span>}
+              {area && <span>{area}</span>}
+            </p>
+          )}
+
           {/* Differentiator tags */}
           {hasTags && (
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
@@ -150,6 +179,32 @@ export default function ListingCard({
           <p className="mt-2 text-[15px] text-ink">
             <span className="font-semibold">{price}</span>
           </p>
+
+          {/* Contact CTA — only on category listing pages */}
+          {showCta && (
+            <div className="flex gap-2 mt-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                className="flex-1 py-2 text-sm font-semibold text-white bg-rausch rounded-[8px] hover:bg-rausch-active active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2"
+              >
+                Contact owner
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                className="flex-1 py-2 text-sm font-medium text-ink border border-hairline rounded-[8px] hover:bg-surface-soft active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              >
+                Schedule visit
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Link>
