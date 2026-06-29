@@ -185,10 +185,26 @@ export default function RequirementsPage() {
 
   return (
     <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Post a requirement" }]}>
-      <section className="max-w-[760px] mx-auto">
-        <h1 className="text-[clamp(26px,4vw,40px)] font-bold text-ink tracking-tight mb-2">Post your requirement</h1>
-        <p className="text-base text-body mb-6">{roleDef.tagline}</p>
+      {/* Themed hero band — demand-side, mirrors the /post hero pattern */}
+      <section
+        aria-label="Post your requirement"
+        className="relative overflow-hidden bg-gradient-to-br from-surface-soft via-rausch/5 to-violet/20 -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-8 md:pt-12 pb-8 md:pb-10 mb-8 rounded-b-[32px]"
+      >
+        {/* Decorative themed background */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-24 -right-16 w-80 h-80 rounded-full bg-rausch/10 blur-3xl" />
+          <div className="absolute -bottom-28 -left-24 w-80 h-80 rounded-full bg-violet/20 blur-3xl" />
+          <div className="absolute top-12 right-1/4 w-24 h-24 rounded-[20px] rotate-12 bg-violet/15" />
+          <div className="absolute bottom-10 left-1/3 w-16 h-16 rounded-full border border-violet/30" />
+        </div>
+        <div className="relative z-10 max-w-[760px] mx-auto">
+          <p className="text-sm font-semibold text-rausch uppercase tracking-wider mb-3">Demand-side · Seekers post first</p>
+          <h1 className="text-[clamp(26px,4vw,40px)] font-bold text-ink tracking-tight mb-2">Post your requirement</h1>
+          <p className="text-base text-body max-w-[520px]">{roleDef.tagline}</p>
+        </div>
+      </section>
 
+      <section className="max-w-[760px] mx-auto">
         {submitted && (
           <p className="text-sm font-medium text-rausch mb-4" role="status">Requirement posted — see it in the feed below.</p>
         )}
