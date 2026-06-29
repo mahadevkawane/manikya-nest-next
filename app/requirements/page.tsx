@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import PageLayout from "../components/PageLayout";
+import RequirementCard from "../components/RequirementCard";
 import { Role, roleList, getRole, Requirement, REQUIREMENTS } from "../lib/requirements";
 import { World, categoriesForWorld } from "../lib/categories";
 
@@ -76,8 +77,14 @@ export default function RequirementsPage() {
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  // requirements feed is rendered in a later task.
-  void requirements;
+  // Feed filters + respond flow
+  const [filterRole, setFilterRole] = useState<Role | "all">("all");
+  const [respondTarget, setRespondTarget] = useState<Requirement | null>(null);
+
+  const feed = requirements.filter((r) => filterRole === "all" || r.role === filterRole);
+
+  // respondTarget drives the modal wired in a later task.
+  void respondTarget;
 
   const chooseRole = (r: Role) => {
     setRole(r);
@@ -168,6 +175,10 @@ export default function RequirementsPage() {
     };
     setRequirements((p) => [req, ...p]);
     setSubmitted(true);
+    setFilterRole("all");
+    if (typeof document !== "undefined") {
+      document.getElementById("requirements-feed")?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const roleDef = getRole(role)!;
@@ -290,6 +301,31 @@ export default function RequirementsPage() {
           className="w-full h-12 bg-rausch text-white text-base font-semibold rounded-[8px] hover:bg-rausch-active transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2">
           Post requirement
         </button>
+      </section>
+
+      <section id="requirements-feed" className="max-w-[1100px] mx-auto mt-14">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Recent requirements</h2>
+          <div role="group" aria-label="Filter by role" className="inline-flex items-center gap-1 bg-surface-soft border border-hairline-soft rounded-full p-1">
+            {(["all", "tenant", "buyer", "seller", "agent"] as const).map((r) => {
+              const on = filterRole === r;
+              return (
+                <button key={r} type="button" onClick={() => setFilterRole(r)} aria-pressed={on}
+                  className={`px-3 py-1.5 text-sm font-semibold rounded-full capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${on ? "bg-ink text-white" : "text-muted hover:text-ink"}`}>
+                  {r === "all" ? "All" : roleList().find((x) => x.role === r)!.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {feed.length === 0 ? (
+          <p className="text-sm text-muted py-10 text-center">No requirements match this filter yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {feed.map((r) => (<RequirementCard key={r.id} req={r} onRespond={setRespondTarget} />))}
+          </div>
+        )}
       </section>
     </PageLayout>
   );
