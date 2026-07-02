@@ -529,37 +529,39 @@ export default function HeroSearch() {
 
         {/* ── Row 2: Category tab bar (world mode only) ── */}
         {!isJobs && (
-          <div
-            role="tablist"
-            aria-label={`${world} categories`}
-            className="flex items-end justify-center gap-1 overflow-x-auto scrollbar-hide mb-5 w-full -mx-1 px-1"
-          >
-            {worldCategories.map((cat) => {
-              const isActive = cat.slug === activeSlug;
-              return (
-                <button
-                  key={cat.slug}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls={`hero-panel-${cat.slug}`}
-                  id={`hero-tab-${cat.slug}`}
-                  onClick={() => handleCategoryChange(cat.slug)}
-                  className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-semibold rounded-t-[12px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${isActive
-                    ? "bg-white/95 backdrop-blur-sm text-ink pb-3 shadow-airbnb"
-                    : "bg-white/20 text-white hover:bg-white/35"
-                    }`}
-                >
-                  {cat.label}
-                  {isActive && (
-                    <span
-                      className="absolute bottom-0 left-4 right-4 h-[3px] bg-ink rounded-full"
-                      aria-hidden="true"
-                    />
-                  )}
-                </button>
-              );
-            })}
+          <div className="w-full flex justify-center overflow-x-auto scrollbar-hide mb-5 px-4">
+            <div
+              role="tablist"
+              aria-label={`${world} categories`}
+              className="flex items-end gap-1 min-w-max mx-auto justify-center"
+            >
+              {worldCategories.map((cat) => {
+                const isActive = cat.slug === activeSlug;
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`hero-panel-${cat.slug}`}
+                    id={`hero-tab-${cat.slug}`}
+                    onClick={() => handleCategoryChange(cat.slug)}
+                    className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-semibold rounded-t-[12px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${isActive
+                      ? "bg-white/95 backdrop-blur-sm text-ink pb-3 shadow-airbnb"
+                      : "bg-white/20 text-white hover:bg-white/35"
+                      }`}
+                  >
+                    {cat.label}
+                    {isActive && (
+                      <span
+                        className="absolute bottom-0 left-4 right-4 h-[3px] bg-ink rounded-full"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
