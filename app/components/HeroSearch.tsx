@@ -163,9 +163,8 @@ function CityDropdown({ onSelect, value }: CityDropdownProps) {
                   type="button"
                   tabIndex={0}
                   onClick={() => { onSelect(area); setOpen(false); }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:bg-surface-soft ${
-                    value === area ? "text-ink font-semibold bg-surface-soft" : "text-body hover:bg-surface-soft"
-                  }`}
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:bg-surface-soft ${value === area ? "text-ink font-semibold bg-surface-soft" : "text-body hover:bg-surface-soft"
+                    }`}
                 >
                   {area}
                 </button>
@@ -210,7 +209,7 @@ function VariantA({ placeholder, onSubmit }: VariantAProps) {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex items-center gap-2 bg-white/95 border border-white/50 rounded-[32px] shadow-airbnb px-4 py-2">
+    <div className="flex items-center gap-2 bg-white/95 border border-white/50 rounded-full shadow-airbnb px-4 py-2 w-full max-w-[580px] h-14 mx-auto text-left animate-fade-up">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-soft shrink-0" aria-hidden="true">
         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
@@ -231,7 +230,7 @@ function VariantA({ placeholder, onSubmit }: VariantAProps) {
   );
 }
 
-/* ─── Variant B: city dropdown + input + gender chips ───────────────────── */
+/* ─── Variant B: city dropdown + input + gender select inline ───────────── */
 interface VariantBProps {
   onSubmit: (payload: Record<string, string>) => void;
 }
@@ -245,43 +244,51 @@ function VariantB({ onSubmit }: VariantBProps) {
   const [gender, setGender] = useState<GenderChip>("Any");
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white/95 border border-white/50 rounded-[20px] sm:rounded-[32px] shadow-airbnb p-2 sm:px-4 sm:py-2">
-        <CityDropdown value={area} onSelect={setArea} />
-        <div className="hidden sm:block w-px bg-hairline h-6 self-center" />
-        <label htmlFor="hero-search-b" className="sr-only">
-          Search locality or area in Bengaluru
+    <div className="flex items-center gap-2 bg-white/95 border border-white/50 rounded-full shadow-airbnb px-4 py-2 w-full max-w-[580px] h-14 mx-auto text-left animate-fade-up">
+      <CityDropdown value={area} onSelect={setArea} />
+      <div className="hidden sm:block w-px bg-hairline h-6 self-center shrink-0" aria-hidden="true" />
+      <label htmlFor="hero-search-b" className="sr-only">
+        Search locality or area in Bengaluru
+      </label>
+      <input
+        id="hero-search-b"
+        type="text"
+        placeholder="Search locality or area"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && onSubmit({ area, query, gender })}
+        className="flex-1 text-sm text-body placeholder-muted-soft outline-none bg-transparent px-2 py-1 min-w-0"
+      />
+      <div className="hidden sm:block w-px bg-hairline h-6 self-center shrink-0" aria-hidden="true" />
+      <div className="relative shrink-0 flex items-center pr-2">
+        <label htmlFor="hero-gender" className="sr-only">
+          Gender preference
         </label>
-        <input
-          id="hero-search-b"
-          type="text"
-          placeholder="Search locality or area"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSubmit({ area, query, gender })}
-          className="flex-1 text-sm text-body placeholder-muted-soft outline-none bg-transparent px-2 py-1.5 sm:py-1 min-w-0"
-        />
-        <SearchButton onClick={() => onSubmit({ area, query, gender })} label="Search PGs" />
+        <select
+          id="hero-gender"
+          value={gender}
+          onChange={(e) => setGender(e.target.value as GenderChip)}
+          className="appearance-none bg-transparent text-xs font-semibold text-muted pr-4 py-1 outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-ink"
+        >
+          <option value="Any">For: Any</option>
+          <option value="Male">For: Boys</option>
+          <option value="Female">For: Girls</option>
+          <option value="Co-ed">For: Co-ed</option>
+        </select>
+        <svg
+          className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-muted-soft"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       </div>
-
-      <div role="group" aria-label="Filter by gender preference" className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-white/80">For:</span>
-        {GENDER_CHIPS.map((chip) => (
-          <button
-            key={chip}
-            type="button"
-            aria-pressed={gender === chip}
-            onClick={() => setGender(chip)}
-            className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 ${
-              gender === chip
-                ? "bg-white text-ink border-transparent"
-                : "bg-white/20 text-white border-white/40 hover:bg-white/30"
-            }`}
-          >
-            {chip}
-          </button>
-        ))}
-      </div>
+      <SearchButton onClick={() => onSubmit({ area, query, gender })} />
     </div>
   );
 }
@@ -295,7 +302,7 @@ function VariantC({ onSubmit }: VariantCProps) {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex items-center gap-2 bg-white/95 border border-white/50 rounded-[32px] shadow-airbnb px-4 py-2">
+    <div className="flex items-center gap-2 bg-white/95 border border-white/50 rounded-full shadow-airbnb px-4 py-2 w-full max-w-[580px] h-14 mx-auto text-left animate-fade-up">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-soft shrink-0" aria-hidden="true">
         <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
@@ -378,7 +385,7 @@ export default function HeroSearch() {
     const v = videoRef.current;
     if (!v) return;
     v.muted = true;
-    v.play().catch(() => {});
+    v.play().catch(() => { });
   }, []);
 
   /* ── Derived ── */
@@ -444,14 +451,9 @@ export default function HeroSearch() {
   return (
     <section
       aria-label="Search for housing and jobs"
-      className="relative overflow-hidden -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-0 md:pt-10 pb-10 md:pb-12 mb-6 bg-ink transition-[background] duration-300 md:flex md:flex-col md:justify-center md:min-h-[560px]"
+      className="relative overflow-hidden -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-0 md:pt-10 pb-10 md:pb-12 mb-6 bg-ink transition-[background] duration-300 md:flex md:flex-col md:justify-center md:min-h-[560px] rounded-b-[24px]"
     >
-      {/* Looping hero video (home page only). The 16:9 clip is shown two ways:
-          • Mobile: a full-bleed 16:9 frame at the top so the whole video is
-            visible without cropping; the search content sits below it.
-          • Desktop (md+): an absolute background the content overlays.
-          One element, repositioned responsively, so it loads once.
-          Autoplay is forced muted in the effect above. */}
+      {/* Looping hero video (home page only) */}
       <video
         ref={videoRef}
         src="/hero-home.mp4"
@@ -463,19 +465,8 @@ export default function HeroSearch() {
         aria-hidden="true"
         className="pointer-events-none w-screen max-w-none relative left-1/2 -translate-x-1/2 aspect-video object-cover bg-ink mb-6 md:w-full md:left-0 md:translate-x-0 md:mb-0 md:absolute md:inset-0 md:h-full md:aspect-auto"
       />
-
-      {/* Mobile-only content backdrop — neutral dark fade beginning where the
-          16:9 video ends, blending out of the video's bottom edge into the
-          search area (no colour tint). */}
-      <div
-        aria-hidden="true"
-        className="md:hidden pointer-events-none absolute -left-4 -right-4 bottom-0 top-[calc(56.25vw_-_2rem)] bg-gradient-to-b from-transparent via-black/45 to-black/85"
-      />
-
-      {/* Desktop-only overlays (the video is a background there). On mobile the
-          video has its own frame above, so these would needlessly dim it. */}
-      {/* Dark scrim — kept light so the video reads; weighted to the bottom. */}
-      <div aria-hidden="true" className="hidden md:block pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/15" />
+      {/* Background scrim */}
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/35 pointer-events-none" />
 
       {/* Decorative blob. */}
       <div aria-hidden="true" className="hidden md:block pointer-events-none absolute inset-0 overflow-hidden">
@@ -487,10 +478,10 @@ export default function HeroSearch() {
         <CitySkyline className="w-full h-28 md:h-36" />
       </div>
 
-      <div className="relative z-10 max-w-[1280px] mx-auto">
+      <div className="relative z-10 max-w-[1280px] mx-auto w-full flex flex-col items-center">
 
         {/* ── Row 1: World toggle + Jobs button ── */}
-        <div className="flex flex-wrap items-center gap-3 mb-5">
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-5 w-full">
           {/* World toggle — translucent pill track, white active pill */}
           <div
             role="group"
@@ -505,11 +496,10 @@ export default function HeroSearch() {
                   type="button"
                   aria-pressed={active}
                   onClick={() => handleWorldChange(w.value)}
-                  className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${
-                    active
-                      ? "bg-white text-ink shadow-airbnb"
-                      : "text-white/90 hover:text-white hover:bg-white/15"
-                  }`}
+                  className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${active
+                    ? "bg-white text-ink shadow-airbnb"
+                    : "text-white/90 hover:text-white hover:bg-white/15"
+                    }`}
                 >
                   {w.label}
                 </button>
@@ -525,11 +515,10 @@ export default function HeroSearch() {
             type="button"
             aria-pressed={isJobs}
             onClick={handleJobsClick}
-            className={`flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${
-              isJobs
-                ? "bg-white text-ink shadow-airbnb"
-                : "bg-black/20 backdrop-blur-sm text-white/90 hover:text-white hover:bg-white/15"
-            }`}
+            className={`flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${isJobs
+              ? "bg-white text-ink shadow-airbnb"
+              : "bg-black/20 backdrop-blur-sm text-white/90 hover:text-white hover:bg-white/15"
+              }`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
               <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -543,7 +532,7 @@ export default function HeroSearch() {
           <div
             role="tablist"
             aria-label={`${world} categories`}
-            className="flex items-end gap-1 overflow-x-auto scrollbar-hide mb-5 -mx-1 px-1"
+            className="flex items-end justify-center gap-1 overflow-x-auto scrollbar-hide mb-5 w-full -mx-1 px-1"
           >
             {worldCategories.map((cat) => {
               const isActive = cat.slug === activeSlug;
@@ -556,11 +545,10 @@ export default function HeroSearch() {
                   aria-controls={`hero-panel-${cat.slug}`}
                   id={`hero-tab-${cat.slug}`}
                   onClick={() => handleCategoryChange(cat.slug)}
-                  className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-semibold rounded-t-[12px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${
-                    isActive
-                      ? "bg-white/95 backdrop-blur-sm text-ink pb-3 shadow-airbnb"
-                      : "bg-white/20 text-white hover:bg-white/35"
-                  }`}
+                  className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-semibold rounded-t-[12px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-transparent ${isActive
+                    ? "bg-white/95 backdrop-blur-sm text-ink pb-3 shadow-airbnb"
+                    : "bg-white/20 text-white hover:bg-white/35"
+                    }`}
                 >
                   {cat.label}
                   {isActive && (
@@ -581,26 +569,22 @@ export default function HeroSearch() {
           role="tabpanel"
           aria-label={isJobs ? "Jobs search" : `${activeCategory?.label ?? ""} search`}
           key={animKey}
-          className="animate-fade-up"
+          className="animate-fade-up w-full"
         >
           <div>
-            {/* Headline + subline + search + pills
-                The text column sits on a localized bottom-up scrim so white
-                text passes AA contrast even after the hero is softened. */}
-            <div className="min-w-0 text-left relative">
-              {/* No boxy scrim — the video shows through. Headline/subline stay
-                  legible via their own text shadows. */}
-              <h1 className="relative text-[clamp(28px,4.5vw,52px)] font-bold text-white tracking-tight leading-[1.08] mb-2 max-w-[680px] [text-shadow:0_2px_16px_rgba(0,0,0,0.75)]">
+            {/* Headline + subline + search + pills */}
+            <div className="min-w-0 text-center relative flex flex-col items-center">
+              <h1 className="relative text-[clamp(28px,4.5vw,52px)] font-bold text-white tracking-tight leading-[1.08] mb-2 max-w-[680px] [text-shadow:0_2px_16px_rgba(0,0,0,0.75)] text-center animate-fade-up">
                 {headline}
               </h1>
 
-              <p className="relative flex items-center gap-2 text-sm md:text-base text-white/90 mb-6 font-medium [text-shadow:0_1px_10px_rgba(0,0,0,0.7)]">
+              <p className="relative flex items-center justify-center gap-2 text-sm md:text-base text-white/90 mb-6 font-medium [text-shadow:0_1px_10px_rgba(0,0,0,0.7)]">
                 <span className="inline-block w-2 h-2 rounded-full bg-white/80 shrink-0" aria-hidden="true" />
                 {subline}
               </p>
 
               {/* Search bar */}
-              <div className="relative">
+              <div className="relative w-full max-w-[580px] mx-auto">
                 <SearchBarDispatch
                   isJobs={isJobs}
                   category={activeCategory}
@@ -610,7 +594,7 @@ export default function HeroSearch() {
 
               {/* Popular-search pills */}
               {pills.length > 0 && (
-                <div className="relative flex flex-wrap items-center gap-2 mt-4">
+                <div className="relative flex flex-wrap items-center justify-center gap-2 mt-4 w-full">
                   <span className="text-xs text-white/80 font-medium shrink-0">Popular:</span>
                   {pills.map((pill) => (
                     <button

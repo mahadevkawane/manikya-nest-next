@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import PageLayout from "../components/PageLayout";
@@ -203,6 +203,16 @@ export default function PostListing() {
   // Full-page brand intro video — plays muted on entry, then reveals the wizard.
   const [showIntro, setShowIntro] = useState(true);
 
+  // Autoplay intro video safely
+  const introVideoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (!showIntro) return;
+    const v = introVideoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => {});
+  }, [showIntro]);
+
   // Urgency countdown (kicks off as soon as the wizard loads)
   const [secondsLeft, setSecondsLeft] = useState(120);
   useEffect(() => {
@@ -321,6 +331,7 @@ export default function PostListing() {
                 corner (the Gemini watermark) is cropped out of view. */}
             <div className="relative rounded-[18px] overflow-hidden bg-black ring-1 ring-white/10 aspect-video">
               <video
+                ref={introVideoRef}
                 src="/post-intro.mp4"
                 autoPlay
                 muted

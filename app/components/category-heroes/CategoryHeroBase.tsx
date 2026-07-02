@@ -15,7 +15,7 @@
  * no business logic lives here.
  */
 
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 
 export type HeroWorld = "residential" | "commercial" | "stay";
 
@@ -58,6 +58,13 @@ export default function CategoryHeroBase({
 }: CategoryHeroBaseProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => {});
+  }, [videoSrc]);
 
   const handleSubmit = useCallback(() => {
     console.log("[CategoryHero] search", { query });

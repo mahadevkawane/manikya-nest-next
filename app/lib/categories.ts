@@ -266,6 +266,7 @@ export interface Listing {
   area?: string;
   /** Secondary spec line tailored to the intent (e.g. "Triple sharing", "Bank tenant"). */
   spec?: string;
+  roomTypes?: any[];
 }
 
 export const LISTINGS: Listing[] = [

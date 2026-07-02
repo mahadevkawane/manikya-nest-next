@@ -5,7 +5,36 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import PageLayout from "../../components/PageLayout";
 import ListingGallery from "../../components/ListingGallery";
+import RoomTypesPricing from "../../components/RoomTypesPricing";
 import { LISTINGS, getCategory, Listing } from "../../lib/categories";
+import {
+  Wifi,
+  Wind,
+  Utensils,
+  Shirt,
+  Shield,
+  Car,
+  Zap,
+  Flame,
+  Dumbbell,
+  Compass,
+  Home,
+  Briefcase,
+  Coffee,
+  Clock,
+  Truck,
+  ArrowUpDown,
+  Navigation,
+  Milestone,
+  DoorOpen,
+  ArrowUpCircle,
+  Building,
+  FileText,
+  TrendingUp,
+  Maximize,
+  Grid,
+  HelpCircle,
+} from "lucide-react";
 
 const amenityIcons: Record<string, string> = {
   "Wi-Fi": "📶",
@@ -35,6 +64,34 @@ const amenityIcons: Record<string, string> = {
   Gated: "🚧",
 };
 
+const amenityLucideIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  "Wi-Fi": Wifi,
+  "AC": Wind,
+  "Meals": Utensils,
+  "Laundry": Shirt,
+  "Security": Shield,
+  "Parking": Car,
+  "Power backup": Zap,
+  "Hot water": Flame,
+  "Gym": Dumbbell,
+  "Pool": Compass,
+  "Clubhouse": Home,
+  "Meeting rooms": Briefcase,
+  "Cafeteria": Coffee,
+  "24/7 access": Clock,
+  "Loading dock": Truck,
+  "High ceiling": ArrowUpDown,
+  "Highway access": Navigation,
+  "Main road": Milestone,
+  "Washroom": DoorOpen,
+  "Lift": ArrowUpCircle,
+  "Bank tenant": Building,
+  "Long lease": FileText,
+  "High yield": TrendingUp,
+  "Corner plot": Maximize,
+  "Gated": Grid,
+};
+
 const nearbyPlaces = [
   { name: "Metro Station", type: "Transit", dist: "800 m", icon: "🚇" },
   { name: "Forum Mall", type: "Shopping", dist: "1.2 km", icon: "🛍️" },
@@ -48,9 +105,20 @@ const areaInsights = [
   { label: "Schools", score: "Good", level: 70, icon: "🏫" },
 ];
 
-const reviews = [
-  { name: "Priya M.", date: "May 2026", rating: 5, text: "Clean, well-maintained and the owner is very responsive. Metro is a short walk away." },
-  { name: "Sandeep R.", date: "Apr 2026", rating: 4, text: "Great location for techies. Good value overall for the price and amenities on offer." },
+interface Review {
+  id: number;
+  name: string;
+  date: string;
+  rating: number;
+  text: string;
+  helpfulCount: number;
+}
+
+const DEFAULT_REVIEWS: Review[] = [
+  { id: 1, name: "Priya M.", date: "May 2026", rating: 5, text: "Clean, well-maintained and the owner is very responsive. Metro is a short walk away.", helpfulCount: 4 },
+  { id: 2, name: "Sandeep R.", date: "Apr 2026", rating: 4, text: "Great location for techies. Good value overall for the price and amenities on offer.", helpfulCount: 2 },
+  { id: 3, name: "Amit K.", date: "Mar 2026", rating: 5, text: "Absolutely loved the connectivity. Safe neighborhood with lots of green spaces nearby.", helpfulCount: 5 },
+  { id: 4, name: "Jessica D.", date: "Jan 2026", rating: 3, text: "Decent place, but power backup takes a couple of minutes to kick in. Otherwise quite comfortable.", helpfulCount: 1 }
 ];
 
 function StarIcon({ size = 13 }: { size?: number }) {
@@ -90,10 +158,14 @@ function ContactCard({
   listing,
   saved,
   onToggleSave,
+  currentRating,
+  currentReviewsCount,
 }: {
   listing: Listing;
   saved: boolean;
   onToggleSave: () => void;
+  currentRating: number;
+  currentReviewsCount: number;
 }) {
   const isCommercial = getCategory(listing.category)?.world === "commercial";
   const ownerLabel = isCommercial ? "Verified agent" : "Verified owner";
@@ -104,8 +176,8 @@ function ContactCard({
         <p className="text-2xl font-bold text-ink">{listing.price}</p>
         <div className="flex items-center gap-1 text-sm text-ink">
           <span className="text-ink"><StarIcon size={13} /></span>
-          <span className="font-semibold">{listing.rating}</span>
-          <span className="text-muted">· {listing.reviewCount}</span>
+          <span className="font-semibold">{currentRating}</span>
+          <span className="text-muted">· {currentReviewsCount} reviews</span>
         </div>
       </div>
 
@@ -189,6 +261,469 @@ function ContactCard({
   );
 }
 
+function ReviewsSection({
+  reviewsList,
+  setReviewsList,
+}: {
+  reviewsList: Review[];
+  setReviewsList: React.Dispatch<React.SetStateAction<Review[]>>;
+}) {
+  const [votedReviews, setVotedReviews] = useState<Record<number, boolean>>({});
+  const [selectedRatingFilter, setSelectedRatingFilter] = useState<number | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"recent" | "highest" | "lowest">("recent");
+
+  const [showWriteForm, setShowWriteForm] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newRating, setNewRating] = useState(5);
+  const [newText, setNewText] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Popular keyword tags for quick filtering
+  const popularTags = ["Clean", "Location", "Owner", "Metro", "Value"];
+
+  const ratingCounts = useMemo(() => {
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviewsList.forEach((r) => {
+      const rating = Math.min(5, Math.max(1, Math.round(r.rating))) as 5 | 4 | 3 | 2 | 1;
+      counts[rating]++;
+    });
+    return counts;
+  }, [reviewsList]);
+
+  const totalReviewsCount = reviewsList.length;
+
+  const averageRating = useMemo(() => {
+    if (totalReviewsCount === 0) return 0;
+    const total = reviewsList.reduce((acc, r) => acc + r.rating, 0);
+    return Number((total / totalReviewsCount).toFixed(1));
+  }, [reviewsList, totalReviewsCount]);
+
+  const filteredReviews = useMemo(() => {
+    let result = [...reviewsList];
+
+    if (selectedRatingFilter !== null) {
+      result = result.filter((r) => Math.round(r.rating) === selectedRatingFilter);
+    }
+
+    if (selectedTag) {
+      const tagLower = selectedTag.toLowerCase();
+      result = result.filter((r) => r.text.toLowerCase().includes(tagLower));
+    }
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((r) => r.text.toLowerCase().includes(q) || r.name.toLowerCase().includes(q));
+    }
+
+    if (sortBy === "recent") {
+      result.sort((a, b) => b.id - a.id);
+    } else if (sortBy === "highest") {
+      result.sort((a, b) => b.rating - a.rating);
+    } else if (sortBy === "lowest") {
+      result.sort((a, b) => a.rating - b.rating);
+    }
+
+    return result;
+  }, [reviewsList, selectedRatingFilter, selectedTag, searchQuery, sortBy]);
+
+  const handleHelpfulClick = (id: number) => {
+    if (votedReviews[id]) {
+      setReviewsList((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, helpfulCount: Math.max(0, r.helpfulCount - 1) } : r))
+      );
+      setVotedReviews((prev) => ({ ...prev, [id]: false }));
+    } else {
+      setReviewsList((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, helpfulCount: r.helpfulCount + 1 } : r))
+      );
+      setVotedReviews((prev) => ({ ...prev, [id]: true }));
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || !newText.trim()) {
+      setFormError("Please enter your name and review comments.");
+      return;
+    }
+    const newReview: Review = {
+      id: Date.now(),
+      name: newName.trim(),
+      date: "Jul 2026",
+      rating: newRating,
+      text: newText.trim(),
+      helpfulCount: 0,
+    };
+    setReviewsList((prev) => [newReview, ...prev]);
+    setIsSubmitted(true);
+    setFormError("");
+    setNewName("");
+    setNewText("");
+    setNewRating(5);
+    setTimeout(() => {
+      setShowWriteForm(false);
+      setIsSubmitted(false);
+    }, 1500);
+  };
+
+  // Helper to generate dynamic colored avatar backgrounds
+  const getAvatarBg = (name: string) => {
+    const charCode = name.charCodeAt(0) || 0;
+    const colors = [
+      "bg-orange-100 text-orange-600",
+      "bg-emerald-100 text-emerald-600",
+      "bg-blue-100 text-blue-600",
+      "bg-indigo-100 text-indigo-600",
+      "bg-rose-100 text-rose-600",
+      "bg-purple-100 text-purple-600",
+    ];
+    return colors[charCode % colors.length];
+  };
+
+  return (
+    <section className="bg-canvas border border-hairline rounded-[16px] p-6 shadow-airbnb w-full transition-all duration-300 mb-6">
+      {/* Header and Summary stats */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-hairline-soft pb-4">
+        <div>
+          <h2 className="text-xl font-bold text-ink mb-1 flex items-center gap-2">
+            Reviews
+            <span className="text-sm font-medium text-muted bg-surface-soft px-2.5 py-0.5 rounded-full">
+              {totalReviewsCount}
+            </span>
+          </h2>
+          <p className="text-xs text-muted leading-relaxed">
+            Ratings & comments from verified residents.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-2xl font-bold text-ink leading-none">{averageRating}</p>
+            <p className="text-[10px] text-muted font-medium uppercase tracking-wider mt-1">Average rating</p>
+          </div>
+          <div className="flex flex-col gap-0.5 text-rausch">
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <StarIcon key={i} size={14} />
+              ))}
+            </div>
+            <p className="text-[10px] text-muted text-right">Out of 5 stars</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 min-w-0">
+        {/* Left pane: Filtering & breakdown */}
+        <div className="flex flex-col gap-5 lg:border-r lg:border-hairline-soft lg:pr-6">
+          {/* Star breakdown */}
+          <div>
+            <h3 className="text-xs font-semibold text-ink uppercase tracking-wider mb-3">Rating Breakdown</h3>
+            <div className="flex flex-col gap-2">
+              {[5, 4, 3, 2, 1].map((stars) => {
+                const count = ratingCounts[stars as 5 | 4 | 3 | 2 | 1];
+                const pct = totalReviewsCount > 0 ? (count / totalReviewsCount) * 100 : 0;
+                const isSelected = selectedRatingFilter === stars;
+                return (
+                  <button
+                    key={stars}
+                    type="button"
+                    onClick={() => setSelectedRatingFilter(isSelected ? null : stars)}
+                    className={`flex items-center gap-2 text-xs w-full text-left p-1.5 rounded-md hover:bg-surface-soft active:scale-[0.98] transition-all group ${
+                      isSelected ? "bg-surface-soft font-semibold text-rausch" : "text-body"
+                    }`}
+                  >
+                    <span className="w-3 text-muted">{stars}</span>
+                    <span className={isSelected ? "text-rausch" : "text-muted-soft opacity-75 group-hover:text-rausch"}><StarIcon size={10} /></span>
+                    <div className="flex-1 h-2 bg-surface-strong rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isSelected ? "bg-rausch" : "bg-muted-soft group-hover:bg-rausch/75"
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="w-6 text-right text-muted-soft text-[10px] font-medium shrink-0">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Popular tags */}
+          <div>
+            <h3 className="text-xs font-semibold text-ink uppercase tracking-wider mb-2.5">Popular topics</h3>
+            <div className="flex flex-wrap gap-1.5">
+              {popularTags.map((tag) => {
+                const isSelected = selectedTag === tag;
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setSelectedTag(isSelected ? null : tag)}
+                    className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all active:scale-95 ${
+                      isSelected
+                        ? "bg-rausch text-white border-rausch shadow-sm"
+                        : "bg-canvas text-body border-hairline hover:border-ink"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right pane: list, search, sort, write review */}
+        <div className="flex flex-col gap-4 min-w-0">
+          {/* Controls Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-surface-soft/60 border border-hairline-soft rounded-[12px] p-3">
+            {/* Search Input */}
+            <div className="relative min-w-[200px] flex-1 max-w-xs">
+              <input
+                type="text"
+                placeholder="Search reviews..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-7 py-1.5 text-xs bg-canvas border border-hairline rounded-[8px] focus:outline-none focus:border-rausch placeholder-muted-soft text-ink"
+              />
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-soft">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+              </span>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-[10px] font-semibold"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-muted font-medium">Sort by</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="text-xs bg-canvas border border-hairline rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-rausch text-ink font-medium select-none"
+              >
+                <option value="recent">Newest</option>
+                <option value="highest">Highest Rating</option>
+                <option value="lowest">Lowest Rating</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Filter Status Badge */}
+          {(selectedRatingFilter !== null || selectedTag || searchQuery) && (
+            <div className="flex items-center justify-between text-xs bg-rausch/5 border border-rausch/10 rounded-[10px] px-3 py-2 text-ink animate-fade-up">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-semibold text-rausch">Active Filter:</span>
+                <span className="text-body">
+                  Found {filteredReviews.length} match{filteredReviews.length === 1 ? "" : "es"}
+                  {selectedRatingFilter !== null && ` · ${selectedRatingFilter} Star`}
+                  {selectedTag && ` · "${selectedTag}"`}
+                  {searchQuery && ` · "${searchQuery}"`}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedRatingFilter(null);
+                  setSelectedTag(null);
+                  setSearchQuery("");
+                }}
+                className="text-xs text-rausch font-bold hover:underline shrink-0"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
+          {/* Write Review Trigger & Form */}
+          {!showWriteForm ? (
+            <button
+              type="button"
+              onClick={() => {
+                setShowWriteForm(true);
+                setIsSubmitted(false);
+                setFormError("");
+              }}
+              className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-semibold text-ink border border-hairline border-dashed rounded-[10px] hover:border-rausch hover:text-rausch hover:bg-rausch/5 active:scale-[0.99] transition-all focus:outline-none"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+              Share your experience — Write a review
+            </button>
+          ) : (
+            <form onSubmit={handleFormSubmit} className="bg-surface-soft border border-hairline-soft rounded-[12px] p-4 animate-fade-up">
+              <div className="flex items-center justify-between mb-3 border-b border-hairline-soft pb-2">
+                <h3 className="text-xs font-bold text-ink uppercase tracking-wider">Write a review</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowWriteForm(false)}
+                  className="text-muted hover:text-ink text-xs font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              {isSubmitted ? (
+                <div className="text-center py-6">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 mb-2 animate-bounce">
+                    ✓
+                  </span>
+                  <p className="text-sm font-semibold text-ink mb-1">Review Submitted!</p>
+                  <p className="text-xs text-muted">Thank you for sharing your valuable review.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3.5">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] text-muted font-bold uppercase tracking-wider block">Your Rating</label>
+                    <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setNewRating(star)}
+                          className={`transition-transform hover:scale-110 active:scale-95 ${
+                            star <= newRating ? "text-rausch" : "text-muted-soft opacity-40"
+                          }`}
+                        >
+                          <StarIcon size={20} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="reviewer-name" className="text-[10px] text-muted font-bold uppercase tracking-wider block">Name</label>
+                      <input
+                        id="reviewer-name"
+                        type="text"
+                        placeholder="e.g. Rahul S."
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        className="w-full text-xs bg-canvas border border-hairline rounded-[8px] px-3 py-2 focus:outline-none focus:border-rausch text-ink placeholder-muted-soft"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="reviewer-text" className="text-[10px] text-muted font-bold uppercase tracking-wider block">Review Comments</label>
+                    <textarea
+                      id="reviewer-text"
+                      rows={3}
+                      placeholder="Tell us about the cleanliness, location, host, amenities, or commute convenience..."
+                      value={newText}
+                      onChange={(e) => setNewText(e.target.value)}
+                      className="w-full text-xs bg-canvas border border-hairline rounded-[8px] px-3 py-2 focus:outline-none focus:border-rausch text-ink resize-none placeholder-muted-soft"
+                    />
+                  </div>
+
+                  {formError && (
+                    <p className="text-xs text-error font-medium">{formError}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full py-2 bg-rausch hover:bg-rausch-active active:scale-[0.98] text-white text-xs font-semibold rounded-[8px] transition-all focus:outline-none"
+                  >
+                    Submit Review
+                  </button>
+                </div>
+              )}
+            </form>
+          )}
+
+          {/* Reviews List — Horizontal Scroll Slider */}
+          <div className="flex flex-row gap-4 overflow-x-auto pb-4 pt-1 pr-1.5 scrollbar-thin snap-x snap-mandatory">
+            {filteredReviews.length === 0 ? (
+              <div className="w-full text-center py-10 border border-hairline border-dashed rounded-[12px] bg-surface-soft/30 shrink-0">
+                <p className="text-sm text-muted">No reviews match your filters.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedRatingFilter(null);
+                    setSelectedTag(null);
+                    setSearchQuery("");
+                  }}
+                  className="text-xs text-rausch font-semibold mt-1.5 hover:underline"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            ) : (
+              filteredReviews.map((r) => (
+                <div
+                  key={r.id}
+                  className="bg-canvas border border-hairline rounded-[12px] p-4 transition-all duration-200 hover:border-hairline hover:shadow-sm w-[280px] sm:w-[320px] shrink-0 snap-start flex flex-col justify-between"
+                >
+                  <div className="flex items-center gap-2.5 mb-2">
+                    {/* Dynamic colored avatar */}
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${getAvatarBg(r.name)}`}>
+                      {r.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-ink leading-tight truncate">{r.name}</p>
+                      <p className="text-[10px] text-muted mt-0.5">{r.date}</p>
+                    </div>
+                    <div className="ml-auto flex gap-0.5 text-rausch shrink-0">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i} className={i < r.rating ? "text-rausch" : "text-muted-soft opacity-30"}>
+                          <StarIcon size={10} />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-xs text-body leading-relaxed mb-3.5 whitespace-pre-line">{r.text}</p>
+                  
+                  {/* Footer actions */}
+                  <div className="flex items-center justify-between border-t border-hairline-soft pt-2.5 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => handleHelpfulClick(r.id)}
+                      className={`flex items-center gap-1.5 font-medium transition-all active:scale-90 focus:outline-none ${
+                        votedReviews[r.id] ? "text-rausch font-bold" : "text-muted hover:text-ink"
+                      }`}
+                    >
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill={votedReviews[r.id] ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        className="transition-transform duration-200"
+                      >
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                      </svg>
+                      Helpful {r.helpfulCount > 0 ? `(${r.helpfulCount})` : ""}
+                    </button>
+                    <button type="button" className="text-muted hover:text-error transition-colors focus:outline-none">
+                      Report
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function ListingDetail() {
   const params = useParams();
   const id = Number(params.id);
@@ -196,6 +731,14 @@ export default function ListingDetail() {
   const category = getCategory(listing.category);
   const facts = buildFacts(listing);
   const [saved, setSaved] = useState(false);
+  const [reviewsList, setReviewsList] = useState<Review[]>(DEFAULT_REVIEWS);
+
+  const currentReviewsCount = reviewsList.length;
+  const currentRating = useMemo(() => {
+    if (reviewsList.length === 0) return 0;
+    const total = reviewsList.reduce((acc, r) => acc + r.rating, 0);
+    return Number((total / reviewsList.length).toFixed(1));
+  }, [reviewsList]);
 
   const galleryImages = useMemo(() => {
     if (!category) return [];
@@ -248,7 +791,7 @@ export default function ListingDetail() {
       {/* Two-column: content + sticky contact card */}
       <div className="lg:grid lg:grid-cols-[1fr_360px] lg:gap-8 lg:items-start">
         {/* Main content */}
-        <div>
+        <div className="min-w-0">
           {/* Header */}
           <section className="mb-5">
             <div className="flex items-start justify-between gap-4 mb-2">
@@ -278,8 +821,8 @@ export default function ListingDetail() {
               </span>
               <div className="flex items-center gap-0.5 text-xs text-ink">
                 <span className="text-ink"><StarIcon size={12} /></span>
-                <span className="font-semibold">{listing.rating}</span>
-                <span className="text-muted">({listing.reviewCount} reviews)</span>
+                <span className="font-semibold">{currentRating}</span>
+                <span className="text-muted">({currentReviewsCount} reviews)</span>
               </div>
             </div>
           </section>
@@ -298,16 +841,33 @@ export default function ListingDetail() {
 
           {/* Amenities — from this listing */}
           <section className="mb-6 pb-6 border-b border-hairline-soft">
-            <h2 className="text-lg font-bold text-ink mb-3">Amenities</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {listing.amenities.map((a) => (
-                <div key={a} className="flex items-center gap-2 text-sm text-body py-1.5">
-                  <span className="text-base">{amenityIcons[a] ?? "✅"}</span>
-                  <span>{a}</span>
-                </div>
-              ))}
+            <h2 className="text-lg font-bold text-ink mb-4">Amenities</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+              {listing.amenities.map((a) => {
+                const IconComponent = amenityLucideIcons[a] || HelpCircle;
+                return (
+                  <div
+                    key={a}
+                    className="flex items-center gap-3 p-3 bg-surface-soft/60 border border-hairline-soft rounded-[12px] hover:bg-rausch/5 hover:border-rausch/30 hover:scale-[1.02] hover:shadow-sm transition-all duration-300 group cursor-default"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-canvas border border-hairline-soft flex items-center justify-center text-muted group-hover:text-rausch group-hover:border-rausch/30 transition-colors shrink-0">
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-semibold text-body group-hover:text-ink transition-colors truncate">
+                      {a}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </section>
+
+          {/* Room types & pricing — visible for lodging-style listings and any explicit room type data */}
+          {(["pg", "coliving", "flatmate", "homestay", "service-apartment", "hotel"].includes(listing.category) || (listing.roomTypes?.length ?? 0) > 0) && (
+            <div className="mb-6">
+              <RoomTypesPricing roomTypes={listing.roomTypes} />
+            </div>
+          )}
 
           {/* AI Nest Insight Card — the housing × jobs differentiator */}
           <section className="mb-6">
@@ -363,54 +923,30 @@ export default function ListingDetail() {
           </section>
 
           {/* Reviews & Ratings */}
-          <section className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold text-ink">Reviews</h2>
-              <div className="flex items-center gap-1 text-sm text-ink">
-                <span className="text-ink"><StarIcon size={14} /></span>
-                <span className="font-semibold">{listing.rating}</span>
-                <span className="text-muted">· {listing.reviewCount} reviews</span>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              {reviews.map((r) => (
-                <div key={r.name} className="bg-canvas border border-hairline rounded-[14px] p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-8 h-8 rounded-full bg-surface-strong flex items-center justify-center text-[11px] font-semibold text-muted">
-                      {r.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-ink leading-tight">{r.name}</p>
-                      <p className="text-[11px] text-muted">{r.date}</p>
-                    </div>
-                    <div className="ml-auto flex gap-0.5 text-ink">
-                      {Array.from({ length: r.rating }).map((_, i) => (
-                        <StarIcon key={i} size={11} />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-[13px] text-body leading-relaxed">{r.text}</p>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="text-sm text-ink font-medium underline underline-offset-2 mt-3 hover:text-rausch transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink rounded-sm"
-            >
-              Show all {listing.reviewCount} reviews
-            </button>
-          </section>
+          <ReviewsSection reviewsList={reviewsList} setReviewsList={setReviewsList} />
 
           {/* Contact card — inline below lg breakpoint */}
           <section className="mb-24 lg:hidden">
-            <ContactCard listing={listing} saved={saved} onToggleSave={() => setSaved(!saved)} />
+            <ContactCard
+              listing={listing}
+              saved={saved}
+              onToggleSave={() => setSaved(!saved)}
+              currentRating={currentRating}
+              currentReviewsCount={currentReviewsCount}
+            />
           </section>
         </div>
 
         {/* Sticky contact card — desktop */}
         <aside className="hidden lg:block">
           <div className="lg:sticky lg:top-24">
-            <ContactCard listing={listing} saved={saved} onToggleSave={() => setSaved(!saved)} />
+            <ContactCard
+              listing={listing}
+              saved={saved}
+              onToggleSave={() => setSaved(!saved)}
+              currentRating={currentRating}
+              currentReviewsCount={currentReviewsCount}
+            />
           </div>
         </aside>
       </div>
