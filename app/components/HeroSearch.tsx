@@ -137,7 +137,7 @@ function CityDropdown({ onSelect, value }: CityDropdownProps) {
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-soft border border-hairline rounded-[8px] text-sm font-medium text-ink hover:bg-surface-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-1 whitespace-nowrap"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="hidden sm:inline-block shrink-0">
           <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
           <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -189,12 +189,12 @@ function SearchButton({ onClick, label = "Search" }: SearchButtonProps) {
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="flex items-center justify-center gap-2 h-11 px-5 bg-white text-ink rounded-full hover:bg-surface-soft active:scale-95 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ink font-semibold text-sm whitespace-nowrap shadow-airbnb"
+      className="flex items-center justify-center gap-2 h-11 px-3 sm:px-5 bg-white text-ink rounded-full hover:bg-surface-soft active:scale-95 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ink font-semibold text-sm whitespace-nowrap shadow-airbnb"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
-      <span>{label}</span>
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }

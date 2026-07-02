@@ -295,9 +295,9 @@ export default function PostListing() {
   };
 
   const renderFieldGroup = (fields: FieldDef[]) => (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5">
       {fields.map((f) => (
-        <div key={f.key} className={f.half ? "col-span-1" : "col-span-2"}>
+        <div key={f.key} className={f.half ? "col-span-1" : "col-span-1 sm:col-span-2"}>
           <label className={labelCls}>
             {f.label}
             {f.required && <span className="text-rausch"> *</span>}
@@ -503,7 +503,7 @@ export default function PostListing() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
         {/* Left: step nav — matching elevated 3D frame */}
-        <nav className="relative bg-canvas border border-hairline-soft rounded-[18px] overflow-hidden shadow-3d-soft h-fit lg:sticky lg:top-24" aria-label="Posting steps">
+        <nav className="hidden lg:block relative bg-canvas border border-hairline-soft rounded-[18px] overflow-hidden shadow-3d-soft h-fit lg:sticky lg:top-24" aria-label="Posting steps">
           <div className={`h-1.5 w-full bg-gradient-to-r ${theme.barGradient} transition-colors duration-500`} />
           <div className="p-2">
           {WIZARD_STEPS.map((s, i) => {

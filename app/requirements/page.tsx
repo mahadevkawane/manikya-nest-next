@@ -134,9 +134,9 @@ export default function RequirementsPage() {
   };
 
   const renderFieldGroup = (fields: FieldDef[]) => (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5">
       {fields.map((f) => (
-        <div key={f.key} className={f.half ? "col-span-1" : "col-span-2"}>
+        <div key={f.key} className={f.half ? "col-span-1" : "col-span-1 sm:col-span-2"}>
           <label className={labelCls}>{f.label}{f.required && <span className="text-rausch"> *</span>}</label>
           {renderField(f)}
         </div>

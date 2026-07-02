@@ -180,7 +180,7 @@ export default function HomePage() {
       {/* Why FindWay */}
       <section className="mb-10">
         <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink mb-4">Why FindWay?</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {whyCards.map((card) => (
             <div
               key={card.title}
