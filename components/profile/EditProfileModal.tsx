@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { updateSession, type DemoSession } from "../../lib/demoAuth";
+import { updateSession, type DemoSession } from "@/lib/demoAuth";
 
 /**
  * Edit-profile modal — same chrome as the original, but writes through

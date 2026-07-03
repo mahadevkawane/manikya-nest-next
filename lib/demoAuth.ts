@@ -68,6 +68,9 @@ export interface DemoSession {
   /** Enabled capabilities. New members start with none and pick from the
    *  profile's capability hub. */
   roles: Role[];
+  /** Active view mode. Just like Instagram, users can switch between their
+   *  Personal Profile and Business Profile. */
+  activeView?: "personal" | "business";
 }
 
 /** Input collected by the sign-up form. Mirrors a future backend payload. */
@@ -128,6 +131,7 @@ export function signUp(input: SignUpInput): DemoSession {
     phone: normalizePhone(input.phone),
     city: input.city?.trim() || undefined,
     roles: [],
+    activeView: "personal",
   };
   persist(session);
   return session;
@@ -142,6 +146,7 @@ export function signIn(account: DemoAccount): void {
     phone: account.phone,
     city: account.city,
     roles: [...account.roles],
+    activeView: "personal",
   });
 }
 
@@ -181,6 +186,8 @@ export function getSession(): DemoSession | null {
       const parsed = raw ? (JSON.parse(raw) as DemoSession) : null;
       // Sessions written before the capability model lack `roles`.
       if (parsed && !Array.isArray(parsed.roles)) parsed.roles = [];
+      // Set default active view if not defined.
+      if (parsed && !parsed.activeView) parsed.activeView = "personal";
       cachedSession = parsed;
     } catch {
       cachedSession = null;
@@ -203,4 +210,13 @@ export function signOut(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(SESSION_KEY);
   notify();
+}
+
+/** Switch the active profile mode between personal and business. */
+export function switchProfileMode(mode: "personal" | "business"): DemoSession | null {
+  const current = getSession();
+  if (!current) return null;
+  const next = { ...current, activeView: mode };
+  persist(next);
+  return next;
 }

@@ -7,7 +7,7 @@ import {
   categoriesForWorld,
   CategoryDef,
   World,
-} from "../lib/categories";
+} from "@/lib/categories";
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 

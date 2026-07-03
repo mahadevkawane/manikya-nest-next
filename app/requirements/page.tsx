@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import PageLayout from "../components/PageLayout";
-import RequirementCard from "../components/RequirementCard";
-import RespondModal from "../components/RespondModal";
-import { Role, roleList, getRole, Requirement, REQUIREMENTS } from "../lib/requirements";
-import { World, categoriesForWorld } from "../lib/categories";
+import PageLayout from "@/components/PageLayout";
+import RequirementCard from "@/components/RequirementCard";
+import RespondModal from "@/components/RespondModal";
+import { Role, roleList, getRole, Requirement, REQUIREMENTS } from "@/lib/requirements";
+import { World, categoriesForWorld } from "@/lib/categories";
 
 const cities = ["Bengaluru", "Hyderabad", "Chennai", "Mumbai", "Pune", "Delhi NCR", "Kolkata"];
 const field = "w-full border border-hairline rounded-[8px] px-3 h-12 text-sm text-ink outline-none focus:border-ink focus:border-2 transition-colors bg-canvas";

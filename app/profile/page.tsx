@@ -1,20 +1,28 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import PageLayout from "../components/PageLayout";
-import { signOut } from "../lib/demoAuth";
-import { useHydrated, useSession } from "../lib/useSession";
-import AccountBlock from "../components/profile/AccountBlock";
-import ApplicationsBlock from "../components/profile/ApplicationsBlock";
-import CandidateBlock from "../components/profile/CandidateBlock";
-import EditProfileModal from "../components/profile/EditProfileModal";
-import MenuBlock, { type MenuItem } from "../components/profile/MenuBlock";
-import NotificationsBlock from "../components/profile/NotificationsBlock";
-import ProfileHeader from "../components/profile/ProfileHeader";
-import ResumeBlock from "../components/profile/ResumeBlock";
-import StatGrid from "../components/profile/StatGrid";
-import { SectionSkeleton } from "../components/profile/ui";
-import { DEMO_STAT_VALUES, PROFILE_STATS } from "../components/profile/mockData";
+import PageLayout from "@/components/PageLayout";
+import { signOut, switchProfileMode } from "@/lib/demoAuth";
+import { useHydrated, useSession } from "@/lib/useSession";
+import BusinessDashboard from "@/components/profile/BusinessDashboard";
+import AccountBlock from "@/components/profile/AccountBlock";
+import ApplicationsBlock from "@/components/profile/ApplicationsBlock";
+import CandidateBlock from "@/components/profile/CandidateBlock";
+import EditProfileModal from "@/components/profile/EditProfileModal";
+import MenuBlock, { type MenuItem } from "@/components/profile/MenuBlock";
+import NotificationsBlock from "@/components/profile/NotificationsBlock";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import ResumeBlock from "@/components/profile/ResumeBlock";
+import StatGrid from "@/components/profile/StatGrid";
+import { SectionSkeleton } from "@/components/profile/ui";
+import {
+  PROPERTY_STATS,
+  DEMO_PROPERTY_STAT_VALUES,
+  CAREER_STATS,
+  DEMO_CAREER_STAT_VALUES,
+  DEMO_SAVED_NESTS,
+} from "@/components/profile/mockData";
+import SavedNestsGrid from "@/components/profile/SavedNestsGrid";
 
 const NEST_MENU: MenuItem[] = [
   {
@@ -79,6 +87,7 @@ export default function UserProfile() {
   const session = useSession();
   const hydrated = useHydrated();
   const [editOpen, setEditOpen] = useState(false);
+  const [activeSegment, setActiveSegment] = useState<"property" | "career">("property");
 
   // Visitors who arrive without a session go to /login. Users who HAD a
   // session (i.e. just logged out) are routed by the logout handler instead,
@@ -121,28 +130,112 @@ export default function UserProfile() {
     );
   }
 
+
   // Demo accounts carry a stable "demo-…" id and show sample activity;
   // sign-ups get a UUID, start fresh and see real empty states.
   const isDemo = session.id.startsWith("demo-");
-  const stats = PROFILE_STATS.map((s, i) => ({
+
+  const activeStatsDef = activeSegment === "property" ? PROPERTY_STATS : CAREER_STATS;
+  const activeStatValues = activeSegment === "property" ? DEMO_PROPERTY_STAT_VALUES : DEMO_CAREER_STAT_VALUES;
+
+  const stats = activeStatsDef.map((s, i) => ({
     ...s,
-    value: isDemo ? DEMO_STAT_VALUES[i] : 0,
+    value: isDemo ? activeStatValues[i] : 0,
     sub: isDemo ? s.sub : "—",
   }));
 
+  const handleSwitchMode = (mode: "personal" | "business") => {
+    switchProfileMode(mode);
+  };
+
   return (
     <PageLayout>
-      <ProfileHeader session={session} verified={isDemo} onEdit={() => setEditOpen(true)} />
+      <ProfileHeader
+        session={session}
+        verified={isDemo}
+        onEdit={() => setEditOpen(true)}
+        onSwitchMode={handleSwitchMode}
+      />
 
       <div className="max-w-[720px] mx-auto">
-        <StatGrid stats={stats} />
-        <ResumeBlock initialUploaded={isDemo} />
-        <CandidateBlock hasData={isDemo} />
-        <ApplicationsBlock hasData={isDemo} />
-        <MenuBlock title="My Nest" items={NEST_MENU} />
-        <MenuBlock title="My Next" items={NEXT_MENU} />
-        <NotificationsBlock />
-        <AccountBlock />
+        {session.activeView === "business" ? (
+          <BusinessDashboard session={session} />
+        ) : (
+          <>
+            {/* Promo banner for Business Profile */}
+            <div className="mb-6 p-5 rounded-[16px] border border-hairline bg-gradient-to-r from-rausch/10 via-violet/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-3d-soft">
+              <div className="space-y-1">
+                <h3 className="font-bold text-ink text-sm sm:text-base flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rausch animate-pulse" />
+                  List property & find tenants?
+                </h3>
+                <p className="text-xs sm:text-sm text-muted max-w-[480px]">
+                  Switch to your Business Profile to list spaces, access matching leads, and view performance insights.
+                </p>
+              </div>
+              <button
+                onClick={() => handleSwitchMode("business")}
+                className="shrink-0 text-xs font-semibold text-white bg-ink rounded-full px-4 py-2 hover:opacity-90 transition-all shadow-airbnb"
+              >
+                Switch to Business
+              </button>
+            </div>
+
+            {/* Hub Workspace Selector Segment Controls */}
+            <div className="flex border-b border-hairline mb-6 gap-6 justify-center sm:justify-start">
+              <button
+                onClick={() => setActiveSegment("property")}
+                className={`pb-3 text-sm font-semibold capitalize transition-all relative flex items-center gap-2 ${
+                  activeSegment === "property" ? "text-ink font-bold" : "text-muted hover:text-ink"
+                }`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+                <span>My Property Hub</span>
+                {activeSegment === "property" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-rausch rounded-full" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveSegment("career")}
+                className={`pb-3 text-sm font-semibold capitalize transition-all relative flex items-center gap-2 ${
+                  activeSegment === "career" ? "text-ink font-bold" : "text-muted hover:text-ink"
+                }`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1">
+                  <path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span>My Jobs & Career</span>
+                {activeSegment === "career" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-rausch rounded-full" />
+                )}
+              </button>
+            </div>
+
+            {/* Conditional Workspace Renders */}
+            {activeSegment === "property" ? (
+              <div className="space-y-6">
+                <StatGrid stats={stats} />
+                <SavedNestsGrid nests={isDemo ? DEMO_SAVED_NESTS : []} />
+                <MenuBlock title="My Nest" items={NEST_MENU} />
+                <NotificationsBlock />
+                <AccountBlock />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <StatGrid stats={stats} />
+                <ResumeBlock initialUploaded={isDemo} />
+                <CandidateBlock hasData={isDemo} />
+                <ApplicationsBlock hasData={isDemo} />
+                <MenuBlock title="My Next" items={NEXT_MENU} />
+                <NotificationsBlock />
+                <AccountBlock />
+              </div>
+            )}
+          </>
+        )}
 
         <button
           onClick={handleLogout}

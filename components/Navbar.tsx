@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "./Logo";
-import { signOut } from "../lib/demoAuth";
-import { useHydrated, useSession } from "../lib/useSession";
-import { initialsOf } from "../lib/roleTheme";
+import { signOut, switchProfileMode } from "@/lib/demoAuth";
+import { useHydrated, useSession } from "@/lib/useSession";
+import { initialsOf } from "@/lib/roleTheme";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -98,7 +98,11 @@ export default function Navbar() {
                     pathname === "/profile" ? "border-rausch ring-1 ring-rausch" : "border-hairline"
                   }`}
                 >
-                  <span className="w-8 h-8 rounded-full bg-rausch/10 text-rausch flex items-center justify-center text-[12px] font-bold">
+                  <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold ${
+                    session.activeView === "business"
+                      ? "bg-gradient-to-r from-rausch to-tab-rent text-white"
+                      : "bg-rausch/10 text-rausch"
+                  }`}>
                     {initialsOf(session.name)}
                   </span>
                   <span className="text-sm font-medium text-ink max-w-[120px] truncate">
@@ -139,6 +143,32 @@ export default function Navbar() {
                       </svg>
                       Profile
                     </Link>
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        switchProfileMode(session.activeView === "business" ? "personal" : "business");
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-body hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset text-left font-medium"
+                    >
+                      {session.activeView === "business" ? (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                          </svg>
+                          Switch to Personal
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M9 17V9l6 4-6 4z" />
+                          </svg>
+                          Switch to Business
+                        </>
+                      )}
+                    </button>
                     <button
                       role="menuitem"
                       onClick={handleLogout}
@@ -201,7 +231,11 @@ export default function Navbar() {
                 onClick={() => setDrawerOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 border-b border-hairline hover:bg-surface-soft transition-colors"
               >
-                <span className="w-9 h-9 rounded-full bg-rausch/10 text-rausch flex items-center justify-center text-[13px] font-bold shrink-0">
+                <span className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0 ${
+                  session.activeView === "business"
+                    ? "bg-gradient-to-r from-rausch to-tab-rent text-white"
+                    : "bg-rausch/10 text-rausch"
+                }`}>
                   {initialsOf(session.name)}
                 </span>
                 <span className="min-w-0">
@@ -238,6 +272,15 @@ export default function Navbar() {
                   <Link href="/profile" onClick={() => setDrawerOpen(false)} className="w-full py-2.5 text-center text-base font-medium text-ink border border-ink rounded-[8px]">
                     Profile
                   </Link>
+                  <button
+                    onClick={() => {
+                      switchProfileMode(session.activeView === "business" ? "personal" : "business");
+                      setDrawerOpen(false);
+                    }}
+                    className="w-full py-2.5 text-center text-base font-semibold text-white bg-gradient-to-r from-rausch to-tab-rent rounded-[8px] hover:opacity-90 transition-opacity"
+                  >
+                    {session.activeView === "business" ? "Switch to Personal" : "Switch to Business"}
+                  </button>
                   <button onClick={handleLogout} className="w-full py-2.5 text-center text-base font-medium text-error border border-error/40 rounded-[8px] hover:bg-error/5 transition-colors">
                     Log out
                   </button>

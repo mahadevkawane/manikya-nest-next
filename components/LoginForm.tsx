@@ -6,7 +6,7 @@ import {
   verifyEmailLogin,
   signIn,
   type DemoAccount,
-} from "../lib/demoAuth";
+} from "@/lib/demoAuth";
 
 type Mode = "phone" | "email";
 type Step = "phone" | "otp";

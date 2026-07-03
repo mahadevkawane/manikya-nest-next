@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { signUp, type DemoSession } from "../lib/demoAuth";
+import { signUp, type DemoSession } from "@/lib/demoAuth";
 
 interface Errors {
   name?: string;

@@ -11,7 +11,7 @@
  */
 
 import { useState } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 export default function HomestayHero({ city = "Bengaluru" }: { city?: string }) {
   const cat = getCategory("homestay");

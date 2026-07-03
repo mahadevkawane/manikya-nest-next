@@ -1,5 +1,5 @@
 "use client";
-import { Requirement, getRole } from "../lib/requirements";
+import { Requirement, getRole } from "@/lib/requirements";
 
 export default function RequirementCard({ req, onRespond }: { req: Requirement; onRespond: (req: Requirement) => void }) {
   const roleDef = getRole(req.role)!;

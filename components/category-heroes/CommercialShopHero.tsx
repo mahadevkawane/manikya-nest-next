@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 const RETAIL_CHIPS = ["High street", "Mall", "Ground floor", "Main road"];
 

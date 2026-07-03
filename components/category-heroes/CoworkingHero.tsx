@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 type DeskType = "Hot desk" | "Dedicated desk" | "Private cabin";
 

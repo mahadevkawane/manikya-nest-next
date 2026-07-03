@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 const STATS = [
   { value: "₹85/sqft", label: "avg rent" },

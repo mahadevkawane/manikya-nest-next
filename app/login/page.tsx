@@ -2,9 +2,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import Logo from "../components/Logo";
-import LoginForm from "../components/LoginForm";
-import SignupForm from "../components/SignupForm";
+import Logo from "@/components/Logo";
+import LoginForm from "@/components/LoginForm";
+import SignupForm from "@/components/SignupForm";
 
 type AuthMode = "login" | "signup";
 

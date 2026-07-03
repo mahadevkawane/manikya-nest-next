@@ -14,7 +14,7 @@
  */
 
 import { useState } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 type StarFilter = "3★" | "4★" | "5★";
 

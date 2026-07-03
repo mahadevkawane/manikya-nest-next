@@ -2,10 +2,10 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import PageLayout from "../components/PageLayout";
-import PublishRoleModal, { type ListingRole } from "../components/PublishRoleModal";
-import PublishAuthModal from "../components/PublishAuthModal";
-import { World, categoriesForWorld, getCategory } from "../lib/categories";
+import PageLayout from "@/components/PageLayout";
+import PublishRoleModal, { type ListingRole } from "@/components/PublishRoleModal";
+import PublishAuthModal from "@/components/PublishAuthModal";
+import { World, categoriesForWorld, getCategory } from "@/lib/categories";
 
 const cities = ["Bengaluru", "Hyderabad", "Chennai", "Mumbai", "Pune", "Delhi NCR", "Kolkata"];
 

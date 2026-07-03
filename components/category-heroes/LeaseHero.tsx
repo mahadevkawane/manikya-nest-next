@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 const TENANT_CHIPS = ["Bank tenant", "MNC tenant", "High yield"];
 

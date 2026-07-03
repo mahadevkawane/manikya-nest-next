@@ -2,15 +2,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import PageLayout from "../../components/PageLayout";
-import ListingCard from "../../components/ListingCard";
-import FiltersDrawer from "../../components/FiltersDrawer";
-import CategoryHero from "../../components/category-heroes/CategoryHero";
+import PageLayout from "@/components/PageLayout";
+import ListingCard from "@/components/ListingCard";
+import FiltersDrawer from "@/components/FiltersDrawer";
+import CategoryHero from "@/components/category-heroes/CategoryHero";
 import {
   getCategory,
   listingsForCategory,
   Listing,
-} from "../../lib/categories";
+} from "@/lib/categories";
 
 const CITY = "Bengaluru";
 

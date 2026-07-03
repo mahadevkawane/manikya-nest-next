@@ -1,5 +1,5 @@
 "use client";
-import { Requirement, matchScore, getRole } from "../lib/requirements";
+import { Requirement, matchScore, getRole } from "@/lib/requirements";
 
 export default function RespondModal({ req, onClose, onSent }: { req: Requirement; onClose: () => void; onSent: (id: number) => void }) {
   const isAgent = req.role === "agent";

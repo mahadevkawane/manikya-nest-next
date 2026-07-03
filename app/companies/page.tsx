@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import PageLayout from "../components/PageLayout";
+import PageLayout from "@/components/PageLayout";
 
 const companies = [
   { name: "Flipkart", industry: "E-commerce", location: "Bengaluru", size: "10,000+", rating: 4.2, openRoles: 24, about: "India's leading e-commerce marketplace." },

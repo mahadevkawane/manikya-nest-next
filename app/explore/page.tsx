@@ -2,9 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import SearchBar from "../components/SearchBar";
-import ListingCard from "../components/ListingCard";
-import PageLayout from "../components/PageLayout";
+import SearchBar from "@/components/SearchBar";
+import ListingCard from "@/components/ListingCard";
+import PageLayout from "@/components/PageLayout";
 import {
   World,
   CategoryDef,
@@ -12,7 +12,7 @@ import {
   categoryCount,
   getCategory,
   LISTINGS,
-} from "../lib/categories";
+} from "@/lib/categories";
 
 // Trust proof-points — mirrors the home page strip so Explore feels of-a-piece.
 const trustPoints = [

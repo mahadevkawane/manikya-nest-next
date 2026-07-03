@@ -11,13 +11,52 @@ export interface Stat {
   sub: string;
 }
 
-export const PROFILE_STATS: { label: string; sub: string }[] = [
+export const PROPERTY_STATS: { label: string; sub: string }[] = [
   { label: "Saved nests", sub: "+2 this week" },
-  { label: "Job applies", sub: "1 in interview" },
   { label: "Visits scheduled", sub: "next on Sat" },
+  { label: "Flatmate matches", sub: "3 new profiles" },
 ];
 
-export const DEMO_STAT_VALUES = [12, 5, 3];
+export const DEMO_PROPERTY_STAT_VALUES = [12, 3, 5];
+
+export const CAREER_STATS: { label: string; sub: string }[] = [
+  { label: "Job applies", sub: "1 in interview" },
+  { label: "Saved jobs", sub: "+3 active roles" },
+  { label: "Upskill courses", sub: "1 in progress" },
+];
+
+export const DEMO_CAREER_STAT_VALUES = [5, 8, 2];
+
+export interface MockSavedNest {
+  id: number;
+  title: string;
+  location: string;
+  price: string;
+  image: string;
+  badge: string;
+  rating: number;
+}
+
+export const DEMO_SAVED_NESTS: MockSavedNest[] = [
+  {
+    id: 1,
+    title: "Green Meadows PG for Men",
+    location: "Koramangala, Bengaluru",
+    price: "₹8,500/mo",
+    image: "/categories/pg.jpg",
+    badge: "PG",
+    rating: 4.5,
+  },
+  {
+    id: 2,
+    title: "Lakeside 1BHK Rental Flat",
+    location: "Indiranagar, Bengaluru",
+    price: "₹18,500/mo",
+    image: "/categories/rent.jpg",
+    badge: "Flat",
+    rating: 4.3,
+  },
+];
 
 export interface MockApplication {
   role: string;

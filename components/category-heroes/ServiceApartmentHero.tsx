@@ -17,7 +17,7 @@
  */
 
 import { useState } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 type StayDuration = "Short stay" | "Long stay";
 

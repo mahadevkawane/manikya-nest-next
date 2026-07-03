@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { getCategory } from "../../lib/categories";
+import { getCategory } from "@/lib/categories";
 
 function scrollToResults() {
   document.getElementById("results")?.scrollIntoView({ behavior: "smooth" });
