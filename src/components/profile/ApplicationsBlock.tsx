@@ -1,4 +1,4 @@
-import { DEMO_APPLICATIONS, type MockApplication } from "./mockdata";
+import { DEMO_APPLICATIONS, type MockApplication } from "./mockData";
 import { Card, EmptyState, SectionLabel } from "./ui";
 
 const STAGE_STYLE: Record<MockApplication["stage"], string> = {

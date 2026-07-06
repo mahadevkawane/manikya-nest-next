@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import PageLayout from "@/components/pagelayout";
+import PageLayout from "@/components/PageLayout";
 
 const jobs: Record<string, {
   title: string; company: string; location: string; type: string;

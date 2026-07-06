@@ -1,4 +1,4 @@
-import { DEMO_EDUCATION, DEMO_EXPERIENCE, DEMO_SKILLS } from "./mockdata";
+import { DEMO_EDUCATION, DEMO_EXPERIENCE, DEMO_SKILLS } from "./mockData";
 import { Card, EmptyState, SectionLabel } from "./ui";
 
 /** Skills, experience and education. */

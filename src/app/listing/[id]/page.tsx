@@ -3,9 +3,9 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import PageLayout from "@/components/pagelayout";
-import ListingGallery from "@/components/listinggallery";
-import RoomTypesPricing from "@/components/roomtypespricing";
+import PageLayout from "@/components/PageLayout";
+import ListingGallery from "@/components/ListingGallery";
+import RoomTypesPricing from "@/components/RoomTypesPricing";
 import { LISTINGS, getCategory, Listing } from "@/lib/categories";
 import {
   Wifi,

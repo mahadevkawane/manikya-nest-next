@@ -2,9 +2,9 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import SearchBar from "@/components/searchbar";
-import ListingCard from "@/components/listingcard";
-import PageLayout from "@/components/pagelayout";
+import SearchBar from "@/components/SearchBar";
+import ListingCard from "@/components/ListingCard";
+import PageLayout from "@/components/PageLayout";
 
 const filterChips = [
   "PG/Hostel", "1 BHK", "2 BHK", "Co-living", "Homestay",

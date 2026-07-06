@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Logo from "./logo";
+import Logo from "./Logo";
 
 const companyLinks = [
   { label: "About us", href: "#" },

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "./logo";
+import Logo from "./Logo";
 import { signOut, switchProfileMode } from "@/lib/demoAuth";
 import { useHydrated, useSession } from "@/lib/useSession";
 import { initialsOf } from "@/lib/roleTheme";

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
-import LoginForm from "./loginform";
-import type { ListingRole } from "./publishrolemodal";
+import LoginForm from "./LoginForm";
+import type { ListingRole } from "./PublishRoleModal";
 
 const ROLE_LABEL: Record<ListingRole, string> = {
   owner: "Owner",

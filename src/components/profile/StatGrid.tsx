@@ -1,4 +1,4 @@
-import type { Stat } from "./mockdata";
+import type { Stat } from "./mockData";
 
 /**
  * Elevated stat cards: number in the brand accent, a sublabel/trend line and

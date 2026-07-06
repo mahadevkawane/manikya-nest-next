@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import PageLayout from "@/components/pagelayout";
-import RequirementCard from "@/components/requirementcard";
-import RespondModal from "@/components/respondmodal";
+import PageLayout from "@/components/PageLayout";
+import RequirementCard from "@/components/RequirementCard";
+import RespondModal from "@/components/RespondModal";
 import { Role, roleList, getRole, Requirement, REQUIREMENTS, fetchRequirementsApi, createRequirementApi, updateRequirementApi } from "@/lib/requirements";
 import { World, categoriesForWorld } from "@/lib/categories";
 

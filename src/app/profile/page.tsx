@@ -1,20 +1,20 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import PageLayout from "@/components/pagelayout";
+import PageLayout from "@/components/PageLayout";
 import { signOut, switchProfileMode, enableRole, type Role } from "@/lib/demoAuth";
 import { useHydrated, useSession } from "@/lib/useSession";
-import BusinessDashboard from "@/components/profile/businessdashboard";
-import AccountBlock from "@/components/profile/accountblock";
-import ApplicationsBlock from "@/components/profile/applicationsblock";
-import CandidateBlock from "@/components/profile/candidateblock";
-import EditProfileModal from "@/components/profile/editprofilemodal";
-import ShareProfileModal from "@/components/profile/shareprofilemodal";
-import MenuBlock, { type MenuItem } from "@/components/profile/menublock";
-import NotificationsBlock from "@/components/profile/notificationsblock";
-import ProfileHeader from "@/components/profile/profileheader";
-import ResumeBlock from "@/components/profile/resumeblock";
-import StatGrid from "@/components/profile/statgrid";
+import BusinessDashboard from "@/components/profile/BusinessDashboard";
+import AccountBlock from "@/components/profile/AccountBlock";
+import ApplicationsBlock from "@/components/profile/ApplicationsBlock";
+import CandidateBlock from "@/components/profile/CandidateBlock";
+import EditProfileModal from "@/components/profile/EditProfileModal";
+import ShareProfileModal from "@/components/profile/ShareProfileModal";
+import MenuBlock, { type MenuItem } from "@/components/profile/MenuBlock";
+import NotificationsBlock from "@/components/profile/NotificationsBlock";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import ResumeBlock from "@/components/profile/ResumeBlock";
+import StatGrid from "@/components/profile/StatGrid";
 import { SectionSkeleton } from "@/components/profile/ui";
 import {
   PROPERTY_STATS,
@@ -22,9 +22,9 @@ import {
   CAREER_STATS,
   DEMO_CAREER_STAT_VALUES,
   DEMO_SAVED_NESTS,
-} from "@/components/profile/mockdata";
-import SavedNestsGrid from "@/components/profile/savednestsgrid";
-import RequirementsBlock from "@/components/profile/requirementsblock";
+} from "@/components/profile/mockData";
+import SavedNestsGrid from "@/components/profile/SavedNestsGrid";
+import RequirementsBlock from "@/components/profile/RequirementsBlock";
 
 const NEST_MENU: MenuItem[] = [
   {
