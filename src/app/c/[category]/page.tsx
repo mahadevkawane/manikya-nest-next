@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import PageLayout from "@/components/PageLayout";
-import ListingCard from "@/components/ListingCard";
-import FiltersDrawer from "@/components/FiltersDrawer";
-import CategoryHero from "@/components/category-heroes/CategoryHero";
+import PageLayout from "@/components/pagelayout";
+import ListingCard from "@/components/listingcard";
+import FiltersDrawer from "@/components/filtersdrawer";
+import CategoryHero from "@/components/category-heroes/categoryhero";
 import {
   getCategory,
   listingsForCategory,

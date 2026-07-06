@@ -67,7 +67,7 @@ export default function ListingCard({
                 src={image}
                 alt={`${title} — ${badge} in ${location}`}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                sizes="(max-width: 640px) 280px, (max-width: 768px) 340px, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover photo-enhance transition-transform duration-500 ease-out group-hover:scale-105"
                 onLoad={() => setImgLoaded(true)}
                 loading="lazy"

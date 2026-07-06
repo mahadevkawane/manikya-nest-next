@@ -10,21 +10,21 @@
  * injected at the call site (defaults to "Bengaluru").
  */
 
-import RentHero from "./RentHero";
-import BuyHero from "./BuyHero";
-import PgHero from "./PgHero";
-import ColivingHero from "./ColivingHero";
-import FlatmateHero from "./FlatmateHero";
-import CommercialOfficeHero from "./CommercialOfficeHero";
-import CommercialShopHero from "./CommercialShopHero";
-import CoworkingHero from "./CoworkingHero";
-import WarehouseHero from "./WarehouseHero";
-import LandHero from "./LandHero";
-import LeaseHero from "./LeaseHero";
-import HomestayHero from "./HomestayHero";
-import ResortHero from "./ResortHero";
-import ServiceApartmentHero from "./ServiceApartmentHero";
-import HotelHero from "./HotelHero";
+import RentHero from "./renthero";
+import BuyHero from "./buyhero";
+import PgHero from "./pghero";
+import ColivingHero from "./colivinghero";
+import FlatmateHero from "./flatmatehero";
+import CommercialOfficeHero from "./commercialofficehero";
+import CommercialShopHero from "./commercialshophero";
+import CoworkingHero from "./coworkinghero";
+import WarehouseHero from "./warehousehero";
+import LandHero from "./landhero";
+import LeaseHero from "./leasehero";
+import HomestayHero from "./homestayhero";
+import ResortHero from "./resorthero";
+import ServiceApartmentHero from "./serviceapartmenthero";
+import HotelHero from "./hotelhero";
 
 interface CategoryHeroProps {
   slug: string;

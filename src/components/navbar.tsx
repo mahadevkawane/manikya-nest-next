@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "./Logo";
+import Logo from "./logo";
 import { signOut, switchProfileMode } from "@/lib/demoAuth";
 import { useHydrated, useSession } from "@/lib/useSession";
 import { initialsOf } from "@/lib/roleTheme";
@@ -70,22 +70,19 @@ export default function Navbar() {
 
   // Dynamic classes for translucent/transparent overlay styling
   const navClass = isHome
-    ? `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-canvas/95 backdrop-blur-md border-b border-hairline shadow-sm py-0"
-          : "bg-transparent border-b border-transparent py-2"
-      }`
-    : "sticky top-0 z-50 bg-canvas border-b border-hairline py-0";
+    ? `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+      ? "bg-canvas/95 backdrop-blur-md border-b border-hairline shadow-sm py-0"
+      : "bg-transparent border-b border-transparent py-2"
+    }`
+    : "sticky top-0 z-50 bg-canvas  py-0";
 
   const navLinkClass = (isActive: boolean) => {
     if (isHome && !scrolled) {
-      return `relative text-base font-semibold pb-1 transition-colors ${
-        isActive ? "text-white" : "text-white/70 hover:text-white"
-      }`;
+      return `relative text-base font-semibold pb-1 transition-colors ${isActive ? "text-white" : "text-white/70 hover:text-white"
+        }`;
     }
-    return `relative text-base font-semibold pb-1 transition-colors ${
-      isActive ? "text-ink" : "text-muted hover:text-ink"
-    }`;
+    return `relative text-base font-semibold pb-1 transition-colors ${isActive ? "text-ink" : "text-muted hover:text-ink"
+      }`;
   };
 
   const activeUnderlineClass = isHome && !scrolled ? "bg-white" : "bg-ink";
@@ -104,9 +101,8 @@ export default function Navbar() {
 
   const avatarPillClass = isHome && !scrolled
     ? "flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border border-white/20 hover:bg-white/10 text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-    : `flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border transition-all hover:shadow-airbnb focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${
-        pathname === "/profile" ? "border-rausch ring-1 ring-rausch" : "border-hairline"
-      } text-ink`;
+    : `flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border transition-all hover:shadow-airbnb focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${pathname === "/profile" ? "border-rausch ring-1 ring-rausch" : "border-hairline"
+    } text-ink`;
 
   const avatarCircleClass = isHome && !scrolled
     ? "bg-white/20 text-white"
@@ -161,9 +157,17 @@ export default function Navbar() {
                   aria-label="Account menu"
                   className={avatarPillClass}
                 >
-                  <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold ${avatarCircleClass}`}>
-                    {initialsOf(session.name)}
-                  </span>
+                  {session.avatarUrl ? (
+                    <img
+                      src={session.avatarUrl}
+                      alt={session.name}
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold ${avatarCircleClass}`}>
+                      {initialsOf(session.name)}
+                    </span>
+                  )}
                   <span className={`text-sm font-medium max-w-[120px] truncate ${avatarTextClass}`}>
                     {session.name.split(" ")[0]}
                   </span>
@@ -290,12 +294,20 @@ export default function Navbar() {
                 onClick={() => setDrawerOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 border-b border-hairline hover:bg-surface-soft transition-colors"
               >
-                <span className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0 ${session.activeView === "business"
+                {session.avatarUrl ? (
+                  <img
+                    src={session.avatarUrl}
+                    alt={session.name}
+                    className="w-9 h-9 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <span className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0 ${session.activeView === "business"
                     ? "bg-gradient-to-r from-rausch to-tab-rent text-white"
                     : "bg-rausch/10 text-rausch"
-                  }`}>
-                  {initialsOf(session.name)}
-                </span>
+                    }`}>
+                    {initialsOf(session.name)}
+                  </span>
+                )}
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-ink truncate">{session.name}</span>
                   <span className="block text-[11px] text-muted truncate">{session.email}</span>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import PageLayout from "@/components/PageLayout";
+import PageLayout from "@/components/pagelayout";
 
 const filters = ["All", "Full-time", "Internship", "Freelance", "Remote", "0–2 yrs", "Fresher"];
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import ListingCard from "@/components/ListingCard";
-import PageLayout from "@/components/PageLayout";
-import HeroSearch from "@/components/HeroSearch";
+import ListingCard from "@/components/listingcard";
+import PageLayout from "@/components/pagelayout";
+import HeroSearch from "@/components/herosearch";
 
 const trustPoints = [
   {

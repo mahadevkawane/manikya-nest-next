@@ -12,11 +12,13 @@ export default function ProfileHeader({
   verified,
   onEdit,
   onSwitchMode,
+  onShare,
 }: {
   session: DemoSession;
   verified: boolean;
   onEdit: () => void;
   onSwitchMode?: (mode: "personal" | "business") => void;
+  onShare?: () => void;
 }) {
   const isBusiness = session.activeView === "business";
 
@@ -37,12 +39,20 @@ export default function ProfileHeader({
             <div className={`p-[3px] rounded-full bg-gradient-to-br transition-all duration-500 ${
               isBusiness ? "from-violet to-indigo" : "from-rausch to-tab-rent"
             }`}>
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-canvas flex items-center justify-center">
-                <span className={`text-xl md:text-2xl font-bold transition-colors duration-500 ${
-                  isBusiness ? "text-indigo" : "text-rausch"
-                }`}>
-                  {initialsOf(session.name)}
-                </span>
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-canvas flex items-center justify-center overflow-hidden">
+                {session.avatarUrl ? (
+                  <img
+                    src={session.avatarUrl}
+                    alt={session.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className={`text-xl md:text-2xl font-bold transition-colors duration-500 ${
+                    isBusiness ? "text-indigo" : "text-rausch"
+                  }`}>
+                    {initialsOf(session.name)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -111,28 +121,45 @@ export default function ProfileHeader({
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <button
-            onClick={() => onSwitchMode?.(session.activeView === "business" ? "personal" : "business")}
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white bg-gradient-to-r from-rausch to-tab-rent rounded-full px-4 py-2.5 shadow-airbnb hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
-          >
-            {session.activeView === "business" ? (
-              <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                </svg>
-                <span>Switch to Personal</span>
-              </>
-            ) : (
-              <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <path d="M9 17V9l6 4-6 4z" />
-                </svg>
-                <span>Switch to Business</span>
-              </>
-            )}
-          </button>
+          {(session.roles?.includes("owner") || session.roles?.includes("agent") || session.roles?.includes("builder")) && (
+            <button
+              onClick={() => onSwitchMode?.(session.activeView === "business" ? "personal" : "business")}
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white bg-gradient-to-r from-rausch to-tab-rent rounded-full px-4 py-2.5 shadow-airbnb hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 animate-scale-in"
+            >
+              {session.activeView === "business" ? (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                  </svg>
+                  <span>Switch to Personal</span>
+                </>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 17V9l6 4-6 4z" />
+                  </svg>
+                  <span>Switch to Business</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {isBusiness && onShare && (
+            <button
+              onClick={onShare}
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink bg-canvas border border-hairline rounded-full px-4 py-2.5 shadow-airbnb hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 animate-scale-in"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+              </svg>
+              <span>Share Profile</span>
+            </button>
+          )}
 
           <button
             onClick={onEdit}

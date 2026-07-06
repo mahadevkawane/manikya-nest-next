@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import type { MockSavedNest } from "./mockData";
+import type { MockSavedNest } from "./mockdata";
 
 export default function SavedNestsGrid({ nests }: { nests: MockSavedNest[] }) {
   if (nests.length === 0) {

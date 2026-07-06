@@ -1,19 +1,20 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import PageLayout from "@/components/PageLayout";
-import { signOut, switchProfileMode } from "@/lib/demoAuth";
+import PageLayout from "@/components/pagelayout";
+import { signOut, switchProfileMode, enableRole } from "@/lib/demoAuth";
 import { useHydrated, useSession } from "@/lib/useSession";
-import BusinessDashboard from "@/components/profile/BusinessDashboard";
-import AccountBlock from "@/components/profile/AccountBlock";
-import ApplicationsBlock from "@/components/profile/ApplicationsBlock";
-import CandidateBlock from "@/components/profile/CandidateBlock";
-import EditProfileModal from "@/components/profile/EditProfileModal";
-import MenuBlock, { type MenuItem } from "@/components/profile/MenuBlock";
-import NotificationsBlock from "@/components/profile/NotificationsBlock";
-import ProfileHeader from "@/components/profile/ProfileHeader";
-import ResumeBlock from "@/components/profile/ResumeBlock";
-import StatGrid from "@/components/profile/StatGrid";
+import BusinessDashboard from "@/components/profile/businessdashboard";
+import AccountBlock from "@/components/profile/accountblock";
+import ApplicationsBlock from "@/components/profile/applicationsblock";
+import CandidateBlock from "@/components/profile/candidateblock";
+import EditProfileModal from "@/components/profile/editprofilemodal";
+import ShareProfileModal from "@/components/profile/shareprofilemodal";
+import MenuBlock, { type MenuItem } from "@/components/profile/menublock";
+import NotificationsBlock from "@/components/profile/notificationsblock";
+import ProfileHeader from "@/components/profile/profileheader";
+import ResumeBlock from "@/components/profile/resumeblock";
+import StatGrid from "@/components/profile/statgrid";
 import { SectionSkeleton } from "@/components/profile/ui";
 import {
   PROPERTY_STATS,
@@ -21,8 +22,9 @@ import {
   CAREER_STATS,
   DEMO_CAREER_STAT_VALUES,
   DEMO_SAVED_NESTS,
-} from "@/components/profile/mockData";
-import SavedNestsGrid from "@/components/profile/SavedNestsGrid";
+} from "@/components/profile/mockdata";
+import SavedNestsGrid from "@/components/profile/savednestsgrid";
+import RequirementsBlock from "@/components/profile/requirementsblock";
 
 const NEST_MENU: MenuItem[] = [
   {
@@ -87,7 +89,9 @@ export default function UserProfile() {
   const session = useSession();
   const hydrated = useHydrated();
   const [editOpen, setEditOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [activeSegment, setActiveSegment] = useState<"property" | "career">("property");
+  const [showUpgradeOptions, setShowUpgradeOptions] = useState(false);
 
   // Visitors who arrive without a session go to /login. Users who HAD a
   // session (i.e. just logged out) are routed by the logout handler instead,
@@ -155,6 +159,7 @@ export default function UserProfile() {
         verified={isDemo}
         onEdit={() => setEditOpen(true)}
         onSwitchMode={handleSwitchMode}
+        onShare={() => setShareOpen(true)}
       />
 
       <div className="max-w-[720px] mx-auto">
@@ -162,24 +167,88 @@ export default function UserProfile() {
           <BusinessDashboard session={session} />
         ) : (
           <>
-            {/* Promo banner for Business Profile */}
-            <div className="mb-6 p-5 rounded-[16px] border border-hairline bg-gradient-to-r from-rausch/10 via-violet/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-3d-soft">
-              <div className="space-y-1">
-                <h3 className="font-bold text-ink text-sm sm:text-base flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rausch animate-pulse" />
-                  List property & find tenants?
-                </h3>
-                <p className="text-xs sm:text-sm text-muted max-w-[480px]">
-                  Switch to your Business Profile to list spaces, access matching leads, and view performance insights.
-                </p>
-              </div>
-              <button
-                onClick={() => handleSwitchMode("business")}
-                className="shrink-0 text-xs font-semibold text-white bg-ink rounded-full px-4 py-2 hover:opacity-90 transition-all shadow-airbnb"
-              >
-                Switch to Business
-              </button>
-            </div>
+            {(() => {
+              const hasBusinessRole = session.roles?.includes("owner") || session.roles?.includes("agent") || session.roles?.includes("builder");
+              return hasBusinessRole ? (
+                /* Promo banner for Business Profile */
+                <div className="mb-6 p-5 rounded-[16px] border border-hairline bg-gradient-to-r from-rausch/10 via-violet/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-3d-soft animate-scale-in">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-ink text-sm sm:text-base flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rausch animate-pulse" />
+                      List property & find tenants?
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted max-w-[480px]">
+                      Switch to your Business Profile to list spaces, access matching leads, and view performance insights.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleSwitchMode("business")}
+                    className="shrink-0 text-xs font-semibold text-white bg-ink rounded-full px-4 py-2 hover:opacity-90 transition-all shadow-airbnb animate-scale-in"
+                  >
+                    Switch to Business
+                  </button>
+                </div>
+              ) : (
+                /* Upgrade to partner banner & roles intake view */
+                <div className="mb-6 p-5 rounded-[16px] border border-hairline bg-surface-soft flex flex-col gap-4 shadow-sm animate-scale-in">
+                  {!showUpgradeOptions ? (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <h3 className="font-bold text-ink text-sm sm:text-base flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+                          Want to act as a Seller, Builder, or Agent?
+                        </h3>
+                        <p className="text-xs sm:text-sm text-muted max-w-[480px]">
+                          Enable business/partner features on your account to list properties, manage client leads, and view sales pipelines.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowUpgradeOptions(true)}
+                        className="shrink-0 text-xs font-semibold text-white bg-blue-600 rounded-full px-4 py-2.5 hover:bg-blue-750 transition-all shadow-md"
+                      >
+                        Start Listing / Partner up
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 animate-fade-up">
+                      <div>
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-ink text-sm">Choose how you want to act with this account:</h4>
+                          <button 
+                            onClick={() => setShowUpgradeOptions(false)}
+                            className="text-[11px] font-semibold text-muted hover:text-ink"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        <p className="text-xs text-muted mt-0.5">You can switch modes instantly at any time from your header.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[
+                          { role: "owner", title: "Property Owner / Landlord", desc: "List PGs, rooms, flats, or commercial spaces for rent/sale." },
+                          { role: "agent", title: "Real Estate Agent", desc: "Manage client leads, matching notifications, and site visits." },
+                          { role: "builder", title: "Property Builder", desc: "List multi-tower projects, track unit inventory booking stages, and view sales charts." }
+                        ].map((opt) => (
+                          <button
+                            key={opt.role}
+                            onClick={() => {
+                              enableRole(opt.role as any);
+                              setShowUpgradeOptions(false);
+                              handleSwitchMode("business");
+                            }}
+                            className="text-left p-3.5 rounded-xl border border-hairline hover:border-blue-500 hover:bg-blue-50/10 transition-all space-y-1.5 focus:outline-none bg-canvas"
+                          >
+                            <span className="font-bold text-xs text-ink block">{opt.title}</span>
+                            <span className="text-[11px] text-muted block leading-snug">{opt.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Hub Workspace Selector Segment Controls */}
             <div className="flex border-b border-hairline mb-6 gap-6 justify-center sm:justify-start">
@@ -217,6 +286,7 @@ export default function UserProfile() {
               <div className="space-y-6">
                 <StatGrid stats={stats} />
                 <SavedNestsGrid nests={isDemo ? DEMO_SAVED_NESTS : []} />
+                <RequirementsBlock userName={session.name} />
                 <MenuBlock title="My Nest" items={NEST_MENU} />
                 <NotificationsBlock />
                 <AccountBlock />
@@ -244,6 +314,7 @@ export default function UserProfile() {
       </div>
 
       {editOpen && <EditProfileModal session={session} onClose={() => setEditOpen(false)} />}
+      {shareOpen && <ShareProfileModal session={session} onClose={() => setShareOpen(false)} />}
     </PageLayout>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
-import PageLayout from "@/components/PageLayout";
-import RequirementCard from "@/components/RequirementCard";
-import RespondModal from "@/components/RespondModal";
-import { Role, roleList, getRole, Requirement, REQUIREMENTS } from "@/lib/requirements";
+import { useEffect, useState } from "react";
+import PageLayout from "@/components/pagelayout";
+import RequirementCard from "@/components/requirementcard";
+import RespondModal from "@/components/respondmodal";
+import { Role, roleList, getRole, Requirement, REQUIREMENTS, fetchRequirementsApi, createRequirementApi, updateRequirementApi } from "@/lib/requirements";
 import { World, categoriesForWorld } from "@/lib/categories";
 
 const cities = ["Bengaluru", "Hyderabad", "Chennai", "Mumbai", "Pune", "Delhi NCR", "Kolkata"];
@@ -60,6 +60,11 @@ function requirementFields(role: Role, slug: string): FieldDef[] {
 
 export default function RequirementsPage() {
   const [requirements, setRequirements] = useState<Requirement[]>(REQUIREMENTS);
+
+  useEffect(() => {
+    fetchRequirementsApi().then(setRequirements);
+  }, []);
+
   const [role, setRole] = useState<Role>("tenant");
   const [world, setWorld] = useState<World>("residential");
   const [slug, setSlug] = useState("rent");
@@ -171,12 +176,14 @@ export default function RequirementsPage() {
       postedAt: "Just now",
       responseCount: 0,
     };
-    setRequirements((p) => [req, ...p]);
-    setSubmitted(true);
-    setFilterRole("all");
-    if (typeof document !== "undefined") {
-      document.getElementById("requirements-feed")?.scrollIntoView({ behavior: "smooth" });
-    }
+    createRequirementApi(req).then((savedReq) => {
+      setRequirements((prev) => [savedReq, ...prev]);
+      setSubmitted(true);
+      setFilterRole("all");
+      if (typeof document !== "undefined") {
+        document.getElementById("requirements-feed")?.scrollIntoView({ behavior: "smooth" });
+      }
+    });
   };
 
   const roleDef = getRole(role)!;
@@ -188,7 +195,7 @@ export default function RequirementsPage() {
       {/* Themed hero band — demand-side, mirrors the /post hero pattern */}
       <section
         aria-label="Post your requirement"
-        className="relative overflow-hidden bg-gradient-to-br from-surface-soft via-rausch/5 to-violet/20 -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-8 md:pt-12 pb-8 md:pb-10 mb-8 rounded-b-[32px]"
+        className="relative overflow-hidden bg-gradient-to-br from-surface-soft via-rausch/5 to-violet/20 -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-8 md:pt-12 pb-8 md:pb-10 mb-8"
       >
         {/* Decorative themed background */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -346,7 +353,17 @@ export default function RequirementsPage() {
         <RespondModal
           req={respondTarget}
           onClose={() => setRespondTarget(null)}
-          onSent={(id) => setRequirements((p) => p.map((r) => (r.id === id ? { ...r, responseCount: r.responseCount + 1 } : r)))}
+          onSent={(id) => {
+            const target = requirements.find((r) => r.id === id);
+            if (target) {
+              const updated = { ...target, responseCount: target.responseCount + 1 };
+              updateRequirementApi(updated).then((ok) => {
+                if (ok) {
+                  setRequirements((prev) => prev.map((r) => (r.id === id ? updated : r)));
+                }
+              });
+            }
+          }}
         />
       )}
     </PageLayout>

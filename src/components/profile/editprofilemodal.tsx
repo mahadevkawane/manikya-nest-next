@@ -2,6 +2,42 @@
 import { useEffect, useRef, useState } from "react";
 import { updateSession, type DemoSession } from "@/lib/demoAuth";
 
+const compressImage = (base64Str: string, maxWidth = 200, maxHeight = 200): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      } else {
+        resolve(base64Str);
+      }
+    };
+    img.onerror = () => resolve(base64Str);
+  });
+};
+
 /**
  * Edit-profile modal — same chrome as the original, but writes through
  * updateSession, which notifies the session store; every subscriber
@@ -16,6 +52,7 @@ export default function EditProfileModal({
 }) {
   const [name, setName] = useState(session.name);
   const [city, setCity] = useState(session.city ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(session.avatarUrl ?? "");
   const [error, setError] = useState("");
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +70,11 @@ export default function EditProfileModal({
       setError("Name can't be empty.");
       return;
     }
-    updateSession({ name: name.trim(), city: city.trim() || undefined });
+    updateSession({
+      name: name.trim(),
+      city: city.trim() || undefined,
+      avatarUrl: avatarUrl || undefined,
+    });
     onClose();
   };
 
@@ -54,6 +95,55 @@ export default function EditProfileModal({
         <h2 id="edit-profile-title" className="text-base font-semibold text-ink mb-4">
           Edit profile
         </h2>
+
+        {/* Profile Photo Upload */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative group">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Profile Preview"
+                className="w-20 h-20 rounded-full object-cover border border-hairline shadow-sm"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-rausch/10 text-rausch flex items-center justify-center font-bold text-xl uppercase border border-hairline shadow-sm">
+                {name ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "B"}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-3 mt-2">
+            <label className="cursor-pointer text-xs font-semibold text-rausch hover:text-rausch-active transition-colors">
+              Change Photo
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const rawBase64 = reader.result as string;
+                      compressImage(rawBase64).then((compressed) => {
+                        setAvatarUrl(compressed);
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="hidden"
+              />
+            </label>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={() => setAvatarUrl("")}
+                className="text-xs font-semibold text-error hover:text-error-hover transition-colors"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
 
         <div className="space-y-4">
           <div>

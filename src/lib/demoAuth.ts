@@ -5,6 +5,7 @@
 // reflects who is logged in across navigations. Swapping in MongoDB later
 // only means replacing the bodies of signUp / signIn / enableRole /
 // disableRole / getSession / signOut.
+import { apiClient } from "./apiClient";
 
 export type Role = "tenant" | "owner" | "agent" | "builder";
 
@@ -63,6 +64,7 @@ export interface DemoSession {
   email: string;
   phone: string;
   city?: string;
+  avatarUrl?: string;
   /** Accent hex for the avatar chip; follows the first enabled capability. */
   avatarColor?: string;
   /** Enabled capabilities. New members start with none and pick from the
@@ -157,6 +159,12 @@ export function enableRole(role: Role): DemoSession | null {
   if (current.roles.includes(role)) return current;
   const next = { ...current, roles: [...current.roles, role] };
   persist(next);
+
+  // Sync to backend mock database
+  apiClient.patch("/auth/session", { roles: next.roles }).catch((e: any) => {
+    console.error("Error updating enabled role on backend:", e);
+  });
+
   return next;
 }
 
@@ -167,6 +175,12 @@ export function disableRole(role: Role): DemoSession | null {
   if (!current.roles.includes(role)) return current;
   const next = { ...current, roles: current.roles.filter((r) => r !== role) };
   persist(next);
+
+  // Sync to backend mock database
+  apiClient.patch("/auth/session", { roles: next.roles }).catch((e: any) => {
+    console.error("Error updating disabled role on backend:", e);
+  });
+
   return next;
 }
 
@@ -197,11 +211,17 @@ export function getSession(): DemoSession | null {
 }
 
 /** Patch the current session (e.g. edits from the profile modal). */
-export function updateSession(patch: Partial<Pick<DemoSession, "name" | "city">>): DemoSession | null {
+export function updateSession(patch: Partial<Pick<DemoSession, "name" | "city" | "avatarUrl">>): DemoSession | null {
   const current = getSession();
   if (!current) return null;
   const next = { ...current, ...patch };
   persist(next);
+  
+  // Call backend in background to update mock database file
+  apiClient.patch("/auth/session", patch).catch((e: any) => {
+    console.error("Error saving updated session to backend:", e);
+  });
+
   return next;
 }
 
@@ -218,5 +238,29 @@ export function switchProfileMode(mode: "personal" | "business"): DemoSession | 
   if (!current) return null;
   const next = { ...current, activeView: mode };
   persist(next);
+
+  // Call backend in background to update mock database file
+  apiClient.post("/auth/session/switch", { mode }).catch((e: any) => {
+    console.error("Error saving profile mode switch to backend:", e);
+  });
+
   return next;
+}
+
+export async function syncSession(): Promise<DemoSession | null> {
+  try {
+    const res = await apiClient.get<{ success: boolean; data: DemoSession }>("/auth/session");
+    if (res.data.success && res.data.data) {
+      persist(res.data.data);
+      return res.data.data;
+    }
+  } catch (e) {
+    console.error("Error syncing session with backend:", e);
+  }
+  return getSession();
+}
+
+if (typeof window !== "undefined") {
+  // Sync the local storage session with the backend database upon script mount
+  syncSession().catch(console.error);
 }
