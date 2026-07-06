@@ -509,7 +509,7 @@ function ReviewsSection({
               <span className="text-[11px] text-muted font-medium">Sort by</span>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as "recent" | "highest" | "lowest")}
                 className="text-xs bg-canvas border border-hairline rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-rausch text-ink font-medium select-none"
               >
                 <option value="recent">Newest</option>
@@ -769,7 +769,7 @@ export default function ListingDetail() {
           ];
     const unique = [category.image, ...pool.filter((img) => img !== category.image)];
     return unique.slice(0, 5);
-  }, [category]);
+  }, [category, listing]);
 
   return (
     <PageLayout

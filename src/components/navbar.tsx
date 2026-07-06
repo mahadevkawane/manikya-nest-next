@@ -31,6 +31,7 @@ export default function Navbar() {
   // Check scroll position to dynamically adapt navbar on home page
   useEffect(() => {
     if (!isHome) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScrolled(false);
       return;
     }

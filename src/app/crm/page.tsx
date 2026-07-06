@@ -141,6 +141,7 @@ export default function FindWayCRM() {
   // Side Effects & Handlers
   // -------------------------------------------------------------
   const triggerToast = (text: string, type: "success" | "info" = "success") => {
+    // eslint-disable-next-line react-hooks/purity
     const id = Date.now().toString();
     setToasts((prev) => [...prev, { id, text, type }]);
     setTimeout(() => {
@@ -220,6 +221,7 @@ export default function FindWayCRM() {
       return;
     }
     const newL: Lead = {
+      // eslint-disable-next-line react-hooks/purity
       id: `L-${Date.now().toString().slice(-3)}`,
       name: newLeadForm.name,
       phone: newLeadForm.phone,
@@ -393,7 +395,7 @@ export default function FindWayCRM() {
           {/* Sidebar Footer */}
           <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-xs text-slate-400">
             <p className="font-semibold">FindWay CRM v1.0</p>
-            <p className="mt-1">Mahadev's Admin Session</p>
+            <p className="mt-1">Mahadev&apos;s Admin Session</p>
           </div>
         </aside>
 

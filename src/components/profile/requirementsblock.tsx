@@ -97,7 +97,7 @@ export default function RequirementsBlock({ userName }: { userName: string }) {
                 </p>
                 {req.notes && (
                   <p className="text-xs text-muted italic mt-2 border-l-2 border-hairline pl-2">
-                    "{req.notes}"
+                    &ldquo;{req.notes}&rdquo;
                   </p>
                 )}
               </div>

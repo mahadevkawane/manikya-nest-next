@@ -266,6 +266,7 @@ export interface Listing {
   area?: string;
   /** Secondary spec line tailored to the intent (e.g. "Triple sharing", "Bank tenant"). */
   spec?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   roomTypes?: any[];
 }
 

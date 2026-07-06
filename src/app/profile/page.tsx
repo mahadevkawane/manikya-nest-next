@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PageLayout from "@/components/pagelayout";
-import { signOut, switchProfileMode, enableRole } from "@/lib/demoAuth";
+import { signOut, switchProfileMode, enableRole, type Role } from "@/lib/demoAuth";
 import { useHydrated, useSession } from "@/lib/useSession";
 import BusinessDashboard from "@/components/profile/businessdashboard";
 import AccountBlock from "@/components/profile/accountblock";
@@ -233,7 +233,7 @@ export default function UserProfile() {
                           <button
                             key={opt.role}
                             onClick={() => {
-                              enableRole(opt.role as any);
+                              enableRole(opt.role as Role);
                               setShowUpgradeOptions(false);
                               handleSwitchMode("business");
                             }}

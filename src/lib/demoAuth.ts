@@ -161,7 +161,7 @@ export function enableRole(role: Role): DemoSession | null {
   persist(next);
 
   // Sync to backend mock database
-  apiClient.patch("/auth/session", { roles: next.roles }).catch((e: any) => {
+  apiClient.patch("/auth/session", { roles: next.roles }).catch((e: unknown) => {
     console.error("Error updating enabled role on backend:", e);
   });
 
@@ -177,7 +177,7 @@ export function disableRole(role: Role): DemoSession | null {
   persist(next);
 
   // Sync to backend mock database
-  apiClient.patch("/auth/session", { roles: next.roles }).catch((e: any) => {
+  apiClient.patch("/auth/session", { roles: next.roles }).catch((e: unknown) => {
     console.error("Error updating disabled role on backend:", e);
   });
 
@@ -218,7 +218,7 @@ export function updateSession(patch: Partial<Pick<DemoSession, "name" | "city" |
   persist(next);
   
   // Call backend in background to update mock database file
-  apiClient.patch("/auth/session", patch).catch((e: any) => {
+  apiClient.patch("/auth/session", patch).catch((e: unknown) => {
     console.error("Error saving updated session to backend:", e);
   });
 
@@ -240,7 +240,7 @@ export function switchProfileMode(mode: "personal" | "business"): DemoSession | 
   persist(next);
 
   // Call backend in background to update mock database file
-  apiClient.post("/auth/session/switch", { mode }).catch((e: any) => {
+  apiClient.post("/auth/session/switch", { mode }).catch((e: unknown) => {
     console.error("Error saving profile mode switch to backend:", e);
   });
 

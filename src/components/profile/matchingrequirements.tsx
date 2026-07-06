@@ -184,7 +184,7 @@ export default function MatchingRequirements({
                   </p>
                   {requirement.notes && (
                     <p className="text-xs text-muted italic mt-1.5 border-l border-hairline pl-2">
-                      "{requirement.notes}"
+                      &ldquo;{requirement.notes}&rdquo;
                     </p>
                   )}
                 </div>
