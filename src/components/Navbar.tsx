@@ -26,9 +26,10 @@ export default function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [scrolled, setScrolled] = useState(false);
-  const isHome = pathname === "/";
+  // Pages with a full-bleed hero video that the navbar floats over
+  const isHome = pathname === "/" || pathname === "/explore";
 
-  // Check scroll position to dynamically adapt navbar on home page
+  // Check scroll position to dynamically adapt navbar on hero-video pages
   useEffect(() => {
     if (!isHome) {
       // eslint-disable-next-line react-hooks/set-state-in-effect

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
@@ -112,6 +112,16 @@ export default function ExplorePage() {
   const [world, setWorld] = useState<World>("residential");
   const [listings, setListings] = useState<Listing[]>(LISTINGS);
 
+  // Force muted autoplay on mount — React doesn't reliably apply the `muted`
+  // property on first render, which makes browsers block autoplay.
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => { });
+  }, []);
+
   useEffect(() => {
     apiClient.get("/listings")
       .then((res) => {
@@ -139,32 +149,38 @@ export default function ExplorePage() {
   }, [listings]);
 
   return (
-    <PageLayout>
-      {/* Hero search band */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-surface-soft via-violet/10 to-violet/25 -mx-4 md:-mx-6 lg:-mx-10 px-4 md:px-6 lg:px-10 pt-8 md:pt-12 pb-8 md:pb-10 mb-7 rounded-b-[32px] md:rounded-b-none">
-        {/* Decorative themed background */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full bg-violet/25 blur-3xl" />
-          <div className="absolute -bottom-28 -right-20 w-80 h-80 rounded-full bg-indigo/20 blur-3xl" />
-          <div className="absolute top-10 left-1/4 w-20 h-20 rounded-[20px] rotate-12 bg-violet/15" />
-          <div className="absolute bottom-8 right-1/4 w-14 h-14 rounded-full border border-violet/30" />
-        </div>
-        <div className="relative z-10 max-w-[900px] mx-auto text-center mb-6">
-          <h1 className="text-[clamp(28px,4.5vw,44px)] font-bold text-ink tracking-tight leading-[1.08] mb-3">
-            Explore homes & spaces near you
-          </h1>
-          <p className="text-base text-body max-w-[560px] mx-auto">
-            Pick what you&apos;re looking for — rentals, PGs, offices and more.
-            Verified listings, zero brokerage, jobs and commute built in.
-          </p>
-        </div>
-        <div className="relative z-10 max-w-[820px] mx-auto">
-          <SearchBar />
+    <>
+      {/* Full-bleed hero video — runs behind the transparent navbar, like the home hero */}
+      <section
+        aria-label="Explore FindWay"
+        className="relative overflow-hidden w-full h-[78vh] min-h-[480px] bg-ink"
+      >
+        <video
+          ref={videoRef}
+          src="/videos/explore-hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 w-full h-full object-cover bg-ink"
+        />
+        {/* Soft scrim so the search bar stays legible over the video */}
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20 pointer-events-none" />
+        {/* Dark band behind the transparent navbar so its white links stay readable */}
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/65 via-black/30 to-transparent pointer-events-none" />
+        {/* Search bar inside the video frame, hugging its bottom edge */}
+        <div className="absolute inset-x-0 bottom-3 md:bottom-4 z-10 px-4 md:px-6 lg:px-10">
+          <div className="max-w-[680px] mx-auto">
+            <SearchBar lightText />
+          </div>
         </div>
       </section>
 
+      <PageLayout>
       {/* Residential | Commercial | Stays segmented toggle */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center pt-7 mb-6">
         <div
           role="group"
           aria-label="Choose property world"
@@ -234,6 +250,7 @@ export default function ExplorePage() {
           ))}
         </div>
       </section>
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

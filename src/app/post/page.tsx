@@ -44,7 +44,28 @@ const WORLD_THEME: Record<World, Theme> = {
 
 const heroPills = ["Verified seekers", "Number stays masked", "Promoted free"];
 
-const amenityOptions = ["Wi-Fi", "AC", "Meals", "Laundry", "Security", "Parking", "Power backup", "Hot water", "Gym", "Housekeeping", "Lift", "Gas pipeline"];
+// Amenities are specific to what's being listed — a warehouse shouldn't offer
+// "Meals" and a PG doesn't need a "Loading dock".
+const RESIDENTIAL_AMENITIES = ["Parking", "Lift", "Power backup", "Security", "Gym", "Swimming pool", "Clubhouse", "Gas pipeline", "Wi-Fi", "AC", "Water supply 24×7", "Children's play area"];
+const OFFICE_AMENITIES = ["Lift", "Power backup", "Central AC", "Parking", "Cafeteria", "Meeting rooms", "24/7 access", "CCTV / Security", "Fire safety", "Wi-Fi / Internet", "Reception", "Pantry"];
+const AMENITIES_BY_CATEGORY: Record<string, string[]> = {
+  rent: RESIDENTIAL_AMENITIES,
+  buy: RESIDENTIAL_AMENITIES,
+  flatmate: RESIDENTIAL_AMENITIES,
+  pg: ["Wi-Fi", "AC", "Meals", "Laundry", "Housekeeping", "Hot water", "CCTV / Security", "Power backup", "Attached washroom", "Fridge", "TV", "Warden"],
+  coliving: ["Wi-Fi", "AC", "Meals", "Housekeeping", "Laundry", "Gym", "Community events", "Gaming zone", "Power backup", "Security", "Hot water", "Netflix / OTT"],
+  "commercial-office": OFFICE_AMENITIES,
+  coworking: OFFICE_AMENITIES,
+  lease: OFFICE_AMENITIES,
+  "commercial-shop": ["Parking", "Power backup", "Washroom", "Main road facing", "Storage room", "CCTV / Security", "Fire safety", "Lift"],
+  warehouse: ["Loading dock", "Power backup", "CCTV / Security", "Fire safety", "Weighbridge", "Office cabin", "Labour quarters", "Truck parking"],
+  land: ["Boundary wall", "Gated access", "Water connection", "Electricity connection", "Road access", "Drainage", "Corner plot", "Street lighting"],
+  homestay: ["Wi-Fi", "Home-cooked meals", "AC", "Hot water", "Parking", "TV", "Kitchen access", "Laundry", "Pet-friendly", "Garden / Sit-out"],
+  resort: ["Swimming pool", "Spa", "Restaurant", "Bar", "Gym", "Kids' play area", "Indoor games", "Bonfire", "Room service", "Wi-Fi", "Parking", "Conference hall"],
+  "service-apartment": ["Wi-Fi", "Housekeeping", "Kitchen", "AC", "Washing machine", "TV", "Power backup", "Lift", "Parking", "Security", "Gym"],
+  hotel: ["Wi-Fi", "Breakfast", "Room service", "AC", "Restaurant", "Swimming pool", "Gym", "Parking", "Laundry", "Bar", "Airport shuttle", "Conference hall"],
+};
+const amenitiesFor = (slug: string) => AMENITIES_BY_CATEGORY[slug] ?? RESIDENTIAL_AMENITIES;
 const visitDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // ─── Wizard step definitions ────────────────────────────────────────────────
@@ -151,6 +172,35 @@ function detailFields(slug: string): FieldDef[] {
         { key: "corner", label: "Corner plot", type: "pills", options: ["Yes", "No"] },
         { key: "boundary", label: "Boundary wall", type: "pills", options: ["Yes", "No"] },
       ];
+    case "homestay":
+      return [
+        { key: "stayName", label: "Homestay name", type: "text", placeholder: "e.g. Hillside Homestay", required: true },
+        { key: "stayType", label: "Guests get", type: "pills", options: ["Entire place", "Private room", "Shared room"], required: true },
+        { key: "maxGuests", label: "Max guests", type: "number", placeholder: "e.g. 4", half: true },
+        { key: "rooms", label: "Rooms available", type: "number", placeholder: "e.g. 2", half: true },
+        { key: "meals", label: "Meals available", type: "pills", options: ["Yes", "No"] },
+      ];
+    case "resort":
+      return [
+        { key: "resortName", label: "Resort name", type: "text", placeholder: "e.g. Misty Hills Resort", required: true },
+        { key: "resortType", label: "Resort type", type: "select", options: ["Beach", "Hill", "Lakefront", "Wildlife", "City"], required: true, half: true },
+        { key: "totalRooms", label: "Total rooms / cottages", type: "number", placeholder: "e.g. 32", half: true },
+        { key: "mealPlan", label: "Meal plan", type: "pills", options: ["Room only", "Breakfast included", "All meals"] },
+      ];
+    case "service-apartment":
+      return [
+        { key: "saName", label: "Property name", type: "text", placeholder: "e.g. Skyline Serviced Stays", required: true },
+        { key: "unitType", label: "Unit type", type: "select", options: ["Studio", "1 BHK", "2 BHK", "3 BHK"], required: true, half: true },
+        { key: "area", label: "Built-up area (sq ft)", type: "number", placeholder: "e.g. 650", half: true },
+        { key: "housekeeping", label: "Housekeeping", type: "pills", options: ["Daily", "Weekly", "On request"] },
+      ];
+    case "hotel":
+      return [
+        { key: "hotelName", label: "Hotel name", type: "text", placeholder: "e.g. The Grand Central", required: true },
+        { key: "starRating", label: "Star rating", type: "select", options: ["Budget", "3 star", "4 star", "5 star"], required: true, half: true },
+        { key: "totalRooms", label: "Total rooms", type: "number", placeholder: "e.g. 60", half: true },
+        { key: "roomTypes", label: "Room types offered", type: "pills", options: ["Standard", "Deluxe", "Suite"] },
+      ];
     default:
       // rent, buy, homestay, flatmate — residential unit
       return [
@@ -172,6 +222,13 @@ function pricingFields(slug: string): FieldDef[] {
       { key: "price", label: "Expected price (₹)", type: "number", placeholder: "e.g. 11500000", required: true },
       { key: "negotiable", label: "Price negotiable", type: "pills", options: ["Yes", "No"] },
       { key: "possession", label: "Possession", type: "select", options: ["Ready to move", "Within 3 months", "Within 6 months", "Under construction"] },
+    ];
+  }
+  if (getCategory(slug)?.world === "stay") {
+    return [
+      { key: "tariff", label: "Tariff per night (₹)", type: "number", placeholder: "e.g. 3500", required: true, half: true },
+      { key: "monthlyTariff", label: "Monthly / long-stay rate (₹)", type: "number", placeholder: "e.g. 45000", half: true },
+      { key: "available", label: "Open for bookings from", type: "date", half: true },
     ];
   }
   const isBed = slug === "pg" || slug === "coliving";
@@ -236,11 +293,16 @@ export default function PostListing() {
   const publishListing = async (role: ListingRole) => {
     try {
       // Determine title based on category config
+      const isStay = getCategory(slug)?.world === "stay";
       let title = "";
       if (slug === "pg") {
         title = form.pgName || "Premium PG Stay";
       } else if (slug === "coliving") {
         title = form.spaceName || "Premium Co-living Space";
+      } else if (isStay) {
+        title =
+          form.stayName || form.resortName || form.saName || form.hotelName ||
+          `${getCategory(slug)?.label ?? "Stay"} in ${form.locality || form.city || "Bengaluru"}`;
       } else {
         const typeStr = form.apartmentType || getCategory(slug)?.label || "Property";
         const bhkStr = form.bhk ? `${form.bhk} ` : "";
@@ -249,9 +311,9 @@ export default function PostListing() {
 
       // Determine price and label
       const isSale = slug === "buy" || slug === "land" || slug === "lease";
-      const rawPrice = isSale ? form.price : form.rent;
+      const rawPrice = isSale ? form.price : isStay ? form.tariff : form.rent;
       const numericPrice = parseInt(rawPrice || "0", 10) || 0;
-      
+
       let priceStr = "";
       if (isSale) {
         if (numericPrice >= 10000000) {
@@ -262,7 +324,7 @@ export default function PostListing() {
           priceStr = `₹${numericPrice.toLocaleString("en-IN")}`;
         }
       } else {
-        priceStr = `₹${numericPrice.toLocaleString("en-IN")}/mo`;
+        priceStr = `₹${numericPrice.toLocaleString("en-IN")}${isStay ? "/night" : "/mo"}`;
       }
 
       const defaultImage = `/categories/${slug}.jpg`;
@@ -275,7 +337,7 @@ export default function PostListing() {
         priceValue: numericPrice,
         image: images.length > 0 ? images[0] : defaultImage,
         images: images.length > 0 ? images : [defaultImage],
-        badge: slug === "pg" || slug === "coliving" ? "PG" : "Flat",
+        badge: slug === "pg" || slug === "coliving" ? "PG" : isStay ? getCategory(slug)?.label ?? "Stay" : "Flat",
         rating: 5.0,
         category: slug,
         metroDistance: "300m from metro",
@@ -341,9 +403,16 @@ export default function PostListing() {
   const toggleDay = (d: string) =>
     setDays((p) => (p.includes(d) ? p.filter((x) => x !== d) : [...p, d]));
 
+  const chooseSlug = (s: string) => {
+    setSlug(s);
+    // Drop selected amenities that don't apply to the new category.
+    const allowed = amenitiesFor(s);
+    setAmenities((p) => p.filter((a) => allowed.includes(a)));
+  };
+
   const chooseWorld = (w: World) => {
     setWorld(w);
-    setSlug(categoriesForWorld(w)[0].slug); // reset to first category of that world
+    chooseSlug(categoriesForWorld(w)[0].slug); // reset to first category of that world
   };
 
   const progress = Math.round((active / (WIZARD_STEPS.length - 1)) * 100);
@@ -660,9 +729,9 @@ export default function PostListing() {
             <div className="space-y-6">
               {/* Residential | Commercial */}
               <div>
-                <label className={labelCls}>Property type</label>
-                <div role="group" aria-label="Property type" className="inline-flex items-center gap-1 bg-surface-soft border border-hairline-soft rounded-full p-1 w-full">
-                  {(["residential", "commercial"] as World[]).map((w) => {
+                <label className={labelCls}>Property category</label>
+                <div role="group" aria-label="Property category" className="inline-flex items-center gap-1 bg-surface-soft border border-hairline-soft rounded-full p-1 w-full">
+                  {(["residential", "commercial", "stay"] as World[]).map((w) => {
                     const on = world === w;
                     return (
                       <button
@@ -691,7 +760,7 @@ export default function PostListing() {
                       <button
                         key={c.slug}
                         type="button"
-                        onClick={() => setSlug(c.slug)}
+                        onClick={() => chooseSlug(c.slug)}
                         aria-pressed={on}
                         className={`px-3 py-1.5 text-sm font-medium rounded-[8px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${
                           on ? `${theme.chip} border-transparent` : "bg-canvas text-body border-hairline hover:border-ink"
@@ -737,9 +806,9 @@ export default function PostListing() {
           {/* Step: amenities */}
           {active === 3 && (
             <div>
-              <label className={labelCls}>Select the amenities available</label>
+              <label className={labelCls}>Select the amenities available for your {category?.label ?? "property"} listing</label>
               <div className="flex flex-wrap gap-2 mt-2">
-                {amenityOptions.map((a) => (
+                {amenitiesFor(slug).map((a) => (
                   <button key={a} type="button" onClick={() => toggleAmenity(a)} aria-pressed={amenities.includes(a)} className={`px-3 py-1.5 text-sm rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${amenities.includes(a) ? "bg-rausch/10 border-rausch text-rausch" : "bg-canvas border-hairline text-body hover:border-ink"}`}>
                     {a}
                   </button>

@@ -6,9 +6,11 @@ const budgetOptions = ["Any budget", "Under ₹5k", "₹5k – ₹10k", "₹10k 
 
 interface SearchBarProps {
   onSearch?: (location: string, budget: string, propertyType: string) => void;
+  /** White tab text for placement over dark/video backgrounds. */
+  lightText?: boolean;
 }
 
-export default function SearchBar({ onSearch }: SearchBarProps) {
+export default function SearchBar({ onSearch, lightText = false }: SearchBarProps) {
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState("Any budget");
   const [propertyType, setPropertyType] = useState("PG/Hostel");
@@ -36,13 +38,15 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
               role="tab"
               aria-selected={active}
               onClick={() => setPropertyType(tab)}
-              className={`relative whitespace-nowrap px-3 py-2 text-sm font-medium rounded-[8px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft ${
-                active ? "text-ink" : "text-muted hover:text-ink"
+              className={`relative whitespace-nowrap px-3 py-2 text-sm font-medium rounded-[8px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                lightText
+                  ? `focus-visible:ring-white focus-visible:ring-offset-transparent [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] ${active ? "text-white" : "text-white/75 hover:text-white"}`
+                  : `focus-visible:ring-ink focus-visible:ring-offset-surface-soft ${active ? "text-ink" : "text-muted hover:text-ink"}`
               }`}
             >
               {tab}
               {active && (
-                <span className="absolute -bottom-0.5 left-3 right-3 h-[2px] bg-ink rounded-full" />
+                <span className={`absolute -bottom-0.5 left-3 right-3 h-[2px] rounded-full ${lightText ? "bg-white" : "bg-ink"}`} />
               )}
             </button>
           );
