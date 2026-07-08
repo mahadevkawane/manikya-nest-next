@@ -150,10 +150,43 @@ export default function ExplorePage() {
 
   return (
     <>
-      {/* Full-bleed hero video — runs behind the transparent navbar, like the home hero */}
+      {/* SVG filter definition for the line-art effect */}
+      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+        <filter id="line-art">
+          {/* Step 1: Grayscale conversion */}
+          <feColorMatrix
+            type="matrix"
+            values="0.2126 0.7152 0.0722 0 0
+                    0.2126 0.7152 0.0722 0 0
+                    0.2126 0.7152 0.0722 0 0
+                    0      0      0      1 0"
+          />
+          {/* Step 2: Smooth out noise */}
+          <feGaussianBlur stdDeviation="0.8" result="blurred" />
+          {/* Step 3: Edge detection (doubled strength to make lines thicker) */}
+          <feConvolveMatrix
+            order="3"
+            kernelMatrix="-2 -2 -2
+                          -2 16 -2
+                          -2 -2 -2"
+            preserveAlpha="true"
+            in="blurred"
+            result="edges"
+          />
+          {/* Step 4: Increase contrast and thickness of lines */}
+          <feComponentTransfer in="edges">
+            <feFuncR type="linear" slope="4.5" intercept="-0.1" />
+            <feFuncG type="linear" slope="4.5" intercept="-0.1" />
+            <feFuncB type="linear" slope="4.5" intercept="-0.1" />
+          </feComponentTransfer>
+        </filter>
+      </svg>
+
+      {/* Full-bleed hero video — rendered as dark line-art on a warm light yellow background */}
       <section
         aria-label="Explore FindWay"
-        className="relative overflow-hidden w-full h-[78vh] min-h-[480px] bg-ink"
+        className="relative overflow-hidden w-full h-[78vh] min-h-[480px]"
+        style={{ backgroundColor: "#FFFDD0" }}
       >
         <video
           ref={videoRef}
@@ -164,16 +197,19 @@ export default function ExplorePage() {
           playsInline
           preload="auto"
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 w-full h-full object-cover bg-ink"
+          className="pointer-events-none absolute inset-0 w-full h-full object-cover bg-transparent"
+          style={{ filter: "url(#line-art) invert(1) contrast(200%)", mixBlendMode: "multiply", opacity: 0.95 }}
         />
-        {/* Soft scrim so the search bar stays legible over the video */}
-        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/20 pointer-events-none" />
-        {/* Dark band behind the transparent navbar so its white links stay readable */}
-        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/65 via-black/30 to-transparent pointer-events-none" />
+        {/* Soft warm scrim so the bottom transition is seamless and clean */}
+        <div 
+          aria-hidden="true" 
+          className="absolute inset-0 pointer-events-none" 
+          style={{ backgroundImage: "linear-gradient(to top, #FFFDD0 0%, rgba(255, 253, 208, 0.2) 60%, transparent 100%)" }}
+        />
         {/* Search bar inside the video frame, hugging its bottom edge */}
         <div className="absolute inset-x-0 bottom-3 md:bottom-4 z-10 px-4 md:px-6 lg:px-10">
           <div className="max-w-[680px] mx-auto">
-            <SearchBar lightText />
+            <SearchBar hideTabs />
           </div>
         </div>
       </section>

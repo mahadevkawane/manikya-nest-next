@@ -4,42 +4,36 @@ import { sessionFromSupabaseUser, setSession, type Session } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginForm({ onSuccess }: { onSuccess: (session: Session) => void }) {
-  const [identifier, setIdentifier] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const loginWithEmailOrPhone = async () => {
+  const handleLogin = async () => {
     setError("");
-    const inputVal = identifier.trim();
+    const cleanPhone = phone.trim().replace(/\D/g, "");
 
-    if (!inputVal || !password) {
-      setError("Please enter both email/phone and password.");
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      setError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+    if (!password) {
+      setError("Please enter your password.");
       return;
     }
 
     setLoading(true);
     try {
-      const isEmail = inputVal.includes("@");
-      const res = isEmail
-        ? await supabase.auth.signInWithPassword({ email: inputVal.toLowerCase(), password })
-        : await (async () => {
-            const cleanPhone = inputVal.replace(/\D/g, "");
-            const formattedPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : `+${cleanPhone}`;
-            return supabase.auth.signInWithPassword({ phone: formattedPhone, password });
-          })();
+      const virtualEmail = `phone-${cleanPhone}@findway.temp`;
+      const res = await supabase.auth.signInWithPassword({ email: virtualEmail, password });
 
       if (res.error) {
-        setError(
-          /email not confirmed/i.test(res.error.message)
-            ? "Please verify your email address before logging in. Check your inbox for the confirmation link."
-            : res.error.message
-        );
+        setError(res.error.message);
         return;
       }
 
       if (res.data.user) {
-        const session = sessionFromSupabaseUser(res.data.user);
+        const session = sessionFromSupabaseUser(res.data.user, { phone: cleanPhone });
         setSession(session);
         onSuccess(session);
       }
@@ -54,16 +48,23 @@ export default function LoginForm({ onSuccess }: { onSuccess: (session: Session)
     <div className="space-y-4">
       <div>
         <label className="text-[13px] text-muted block mb-1.5 font-medium">
-          Email or Mobile number
+          Mobile number
         </label>
-        <input
-          type="text"
-          placeholder="you@example.com or 90000 00001"
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && loginWithEmailOrPhone()}
-          className="w-full border border-hairline rounded-[10px] h-14 px-3.5 text-base text-ink placeholder-muted outline-none focus:border-ink focus:border-2 transition-colors"
-        />
+        <div className="flex items-center border border-hairline rounded-[10px] h-14 px-3.5 transition-colors focus-within:border-ink focus-within:border-2">
+          <span className="flex items-center gap-1 text-[15px] text-ink pr-2.5 border-r border-hairline shrink-0">
+            +91
+          </span>
+          <input
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            placeholder="98765 43210"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            className="flex-1 min-w-0 text-base text-ink placeholder-muted outline-none bg-transparent pl-2.5"
+          />
+        </div>
       </div>
 
       <div>
@@ -75,13 +76,13 @@ export default function LoginForm({ onSuccess }: { onSuccess: (session: Session)
           placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && loginWithEmailOrPhone()}
+          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           className="w-full border border-hairline rounded-[10px] h-14 px-3.5 text-base text-ink placeholder-muted outline-none focus:border-ink focus:border-2 transition-colors"
         />
       </div>
 
       <button
-        onClick={loginWithEmailOrPhone}
+        onClick={handleLogin}
         disabled={loading}
         className="w-full h-12 mt-2 bg-rausch text-white text-base font-medium rounded-[10px] hover:bg-rausch-active transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2 disabled:opacity-50"
       >

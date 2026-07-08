@@ -70,16 +70,19 @@ export default function Navbar() {
 
   const loggedIn = hydrated && session;
 
+  // Use dark text/lines for transparent navbar over light yellow backgrounds
+  const isDarkTheme = isHome && !scrolled && pathname !== "/explore";
+
   // Dynamic classes for translucent/transparent overlay styling
   const navClass = isHome
-    ? `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+    ? `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${(scrolled || pathname === "/explore")
       ? "bg-canvas/95 backdrop-blur-md border-b border-hairline shadow-sm py-0"
       : "bg-transparent border-b border-transparent py-2"
     }`
     : "sticky top-0 z-50 bg-canvas  py-0";
 
   const navLinkClass = (isActive: boolean) => {
-    if (isHome && !scrolled) {
+    if (isDarkTheme) {
       return `relative text-base font-semibold pb-1 transition-colors ${isActive ? "text-white" : "text-white/70 hover:text-white"
         }`;
     }
@@ -87,34 +90,32 @@ export default function Navbar() {
       }`;
   };
 
-  const activeUnderlineClass = isHome && !scrolled ? "bg-white" : "bg-ink";
+  const activeUnderlineClass = isDarkTheme ? "bg-white" : "bg-ink";
 
-  const listBtnClass = isHome && !scrolled
-    ? "px-4 py-2.5 text-base font-medium text-white rounded-full hover:bg-white/10 transition-colors"
-    : "px-4 py-2.5 text-base font-medium text-ink rounded-full hover:bg-surface-soft transition-colors";
+  const listBtnClass = "group relative inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-rausch to-[#e8385d] rounded-full shadow-md hover:shadow-lg hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2";
 
-  const loginBtnClass = isHome && !scrolled
+  const loginBtnClass = isDarkTheme
     ? "px-4 py-2.5 text-base font-medium text-white rounded-[8px] hover:bg-white/10 transition-colors"
     : "px-4 py-2.5 text-base font-medium text-ink rounded-[8px] hover:bg-surface-soft transition-colors";
 
-  const signupBtnClass = isHome && !scrolled
+  const signupBtnClass = isDarkTheme
     ? "px-5 py-2.5 text-base font-medium text-ink bg-white rounded-[8px] hover:bg-white/90 transition-colors"
     : "px-5 py-2.5 text-base font-medium text-white bg-rausch rounded-[8px] hover:bg-rausch-active transition-colors";
 
-  const avatarPillClass = isHome && !scrolled
+  const avatarPillClass = isDarkTheme
     ? "flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border border-white/20 hover:bg-white/10 text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
     : `flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border transition-all hover:shadow-airbnb focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${pathname === "/profile" ? "border-rausch ring-1 ring-rausch" : "border-hairline"
     } text-ink`;
 
-  const avatarCircleClass = isHome && !scrolled
+  const avatarCircleClass = isDarkTheme
     ? "bg-white/20 text-white"
     : session?.activeView === "business"
       ? "bg-gradient-to-r from-rausch to-tab-rent text-white"
       : "bg-rausch/10 text-rausch";
 
-  const avatarTextClass = isHome && !scrolled ? "text-white" : "text-ink";
-  const arrowColorClass = isHome && !scrolled ? "text-white/85" : "text-muted";
-  const hamburgerLineClass = isHome && !scrolled ? "block w-5 h-[2px] bg-white" : "block w-5 h-[2px] bg-ink";
+  const avatarTextClass = isDarkTheme ? "text-white" : "text-ink";
+  const arrowColorClass = isDarkTheme ? "text-white/85" : "text-muted";
+  const hamburgerLineClass = isDarkTheme ? "block w-5 h-[2px] bg-white" : "block w-5 h-[2px] bg-ink";
 
   return (
     <>
@@ -122,7 +123,7 @@ export default function Navbar() {
         <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 md:px-6 lg:px-10 h-20">
           {/* Logo */}
           <Link href="/" aria-label="FindWay home">
-            <Logo size={34} lightText={isHome && !scrolled} />
+            <Logo size={34} lightText={isDarkTheme} />
           </Link>
 
           {/* Desktop nav links */}
@@ -147,6 +148,7 @@ export default function Navbar() {
           {/* Desktop auth area */}
           <div className="hidden md:flex items-center gap-2">
             <Link href="/post" className={listBtnClass}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0"><path d="M12 5v14m-7-7h14" /></svg>
               List your property
             </Link>
 
@@ -259,16 +261,25 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden flex flex-col gap-1 p-2"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open menu"
-          >
-            <span className={hamburgerLineClass} />
-            <span className={hamburgerLineClass} />
-            <span className={hamburgerLineClass} />
-          </button>
+          {/* Mobile: List your property CTA + hamburger */}
+          <div className="md:hidden flex items-center gap-2">
+            <Link
+              href="/post"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-rausch to-[#e8385d] rounded-full shadow-md hover:shadow-lg active:scale-[0.97] transition-all duration-200"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0"><path d="M12 5v14m-7-7h14" /></svg>
+              List
+            </Link>
+            <button
+              className="flex flex-col gap-1 p-2"
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Open menu"
+            >
+              <span className={hamburgerLineClass} />
+              <span className={hamburgerLineClass} />
+              <span className={hamburgerLineClass} />
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -335,7 +346,8 @@ export default function Navbar() {
             </div>
 
             <div className="flex flex-col gap-2 px-4 mt-4">
-              <Link href="/post" onClick={() => setDrawerOpen(false)} className="w-full py-2.5 text-center text-base font-medium text-ink rounded-[8px] hover:bg-surface-soft">
+              <Link href="/post" onClick={() => setDrawerOpen(false)} className="w-full flex items-center justify-center gap-2 py-3 text-base font-semibold text-white bg-gradient-to-r from-rausch to-[#e8385d] rounded-[10px] shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0"><path d="M12 5v14m-7-7h14" /></svg>
                 List your property
               </Link>
               {loggedIn ? (

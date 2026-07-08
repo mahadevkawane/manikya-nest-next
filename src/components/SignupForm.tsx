@@ -4,69 +4,36 @@ import { sessionFromSupabaseUser, setSession, type Session } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { apiClient } from "@/lib/apiClient";
 
-interface Errors {
-  name?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-}
-
 type Banner = { type: "error" | "info"; text: string };
-
-/**
- * Translate a raw Supabase Auth error into a clear, actionable message and
- * decide whether it belongs to a specific field or the top-level banner.
- */
-function mapSignupError(message: string): { banner?: Banner; field?: Partial<Errors> } {
-  const msg = (message || "").toLowerCase();
-
-  if (msg.includes("rate limit") || msg.includes("over_email_send")) {
-    return {
-      banner: {
-        type: "error",
-        text: "Too many sign-up attempts right now. Please wait a few minutes and try again — email verification is temporarily rate-limited.",
-      },
-    };
-  }
-  if (msg.includes("already registered") || msg.includes("already been registered") || msg.includes("user already exists")) {
-    return { field: { email: "An account with this email already exists. Try logging in instead." } };
-  }
-  if (msg.includes("password")) {
-    return { field: { password: message } };
-  }
-  if (msg.includes("email")) {
-    return { field: { email: message } };
-  }
-  return { banner: { type: "error", text: message || "We couldn't create your account. Please try again." } };
-}
 
 export default function SignupForm({ onSuccess }: { onSuccess: (session: Session) => void }) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Errors>({});
+  const [errors, setErrors] = useState<{ name?: string; phone?: string; password?: string }>({});
   const [banner, setBanner] = useState<Banner | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const clearError = (key: keyof Errors) =>
-    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+  const clearError = (key: string) =>
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
 
   const handleSignup = async () => {
     setBanner(null);
-    const next: Errors = {};
+    const next: { name?: string; phone?: string; password?: string } = {};
     if (!name.trim()) next.name = "Enter your full name.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = "Enter a valid email address.";
-    if (phone.replace(/\D/g, "").length !== 10) next.phone = "Enter a valid 10-digit mobile number.";
+    const cleanPhone = phone.replace(/\D/g, "");
+    if (cleanPhone.length !== 10) next.phone = "Enter a valid 10-digit mobile number.";
     if (password.length < 6) next.password = "Password must be at least 6 characters.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
     setLoading(true);
     try {
+      const virtualEmail = `phone-${cleanPhone}@findway.temp`;
+
       const { data, error: supabaseError } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: virtualEmail,
         password,
         options: {
           data: {
@@ -77,9 +44,14 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
       });
 
       if (supabaseError) {
-        const { banner: b, field } = mapSignupError(supabaseError.message);
-        if (field) setErrors(field);
-        if (b) setBanner(b);
+        const msg = supabaseError.message.toLowerCase();
+        if (msg.includes("already registered") || msg.includes("user already exists")) {
+          setErrors({ phone: "An account with this number already exists. Try logging in." });
+        } else if (msg.includes("password")) {
+          setErrors({ password: supabaseError.message });
+        } else {
+          setBanner({ type: "error", text: supabaseError.message });
+        }
         return;
       }
 
@@ -88,34 +60,30 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
         return;
       }
 
-      // Persist the profile record in PostgreSQL via Express immediately.
+      // Persist the profile record in PostgreSQL via Express
       try {
         await apiClient.post("/auth/signup", {
           id: data.user.id,
-          email: email.trim().toLowerCase(),
+          email: virtualEmail,
           name: name.trim(),
           phone: phone.trim(),
         });
       } catch (dbErr) {
-        // Auth succeeded but the profile write failed — don't hard-block the
-        // user; the backend re-provisions on first authenticated request.
         console.error("Failed to persist profile to backend:", dbErr);
       }
 
       if (data.session) {
-        // Immediate session (email confirmation disabled) → log the user in.
         const session = sessionFromSupabaseUser(data.user, { name: name.trim(), phone: phone.trim() });
         setSession(session);
         onSuccess(session);
       } else {
-        // Email confirmation required → account exists but isn't active yet.
         setBanner({
           type: "info",
-          text: "Account created! We've sent a verification link to your email. Please confirm it, then log in.",
+          text: "Account created! You can now log in with your mobile number and password.",
         });
       }
     } catch (err: any) {
-      setBanner({ type: "error", text: err?.message || "An unexpected error occurred. Please try again." });
+      setBanner({ type: "error", text: err?.message || "An unexpected error occurred." });
     } finally {
       setLoading(false);
     }
@@ -170,41 +138,12 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             autoComplete="name"
             placeholder="Aditya Sharma"
             value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              clearError("name");
-            }}
+            onChange={(e) => { setName(e.target.value); clearError("name"); }}
             aria-invalid={!!errors.name}
             className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"
           />
         </div>
         {errors.name && <p className="text-[12px] text-error mt-1">{errors.name}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="signup-email" className="text-[13px] text-muted block mb-1.5">
-          Email
-        </label>
-        <div className={fieldClass(errors.email)}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-muted shrink-0" aria-hidden="true">
-            <rect x="3" y="5" width="18" height="14" rx="2" />
-            <path d="M3 7l9 6 9-6" />
-          </svg>
-          <input
-            id="signup-email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              clearError("email");
-            }}
-            aria-invalid={!!errors.email}
-            className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"
-          />
-        </div>
-        {errors.email && <p className="text-[12px] text-error mt-1">{errors.email}</p>}
       </div>
 
       <div>
@@ -225,10 +164,7 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             autoComplete="tel-national"
             placeholder="98765 43210"
             value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              clearError("phone");
-            }}
+            onChange={(e) => { setPhone(e.target.value); clearError("phone"); }}
             aria-invalid={!!errors.phone}
             className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"
           />
@@ -251,10 +187,7 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             autoComplete="new-password"
             placeholder="At least 6 characters"
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              clearError("password");
-            }}
+            onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
             onKeyDown={(e) => e.key === "Enter" && handleSignup()}
             aria-invalid={!!errors.password}
             className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"

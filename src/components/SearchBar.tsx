@@ -8,9 +8,11 @@ interface SearchBarProps {
   onSearch?: (location: string, budget: string, propertyType: string) => void;
   /** White tab text for placement over dark/video backgrounds. */
   lightText?: boolean;
+  /** Hide the property-type tabs (PG/Hostel, Rental flat, etc.) */
+  hideTabs?: boolean;
 }
 
-export default function SearchBar({ onSearch, lightText = false }: SearchBarProps) {
+export default function SearchBar({ onSearch, lightText = false, hideTabs = false }: SearchBarProps) {
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState("Any budget");
   const [propertyType, setPropertyType] = useState("PG/Hostel");
@@ -24,6 +26,7 @@ export default function SearchBar({ onSearch, lightText = false }: SearchBarProp
   return (
     <div className="w-full">
       {/* Property-type tabs — controlled, ink underline like the navbar */}
+      {!hideTabs && (
       <div
         role="tablist"
         aria-label="What are you looking for"
@@ -52,6 +55,7 @@ export default function SearchBar({ onSearch, lightText = false }: SearchBarProp
           );
         })}
       </div>
+      )}
 
       {/* The search bar */}
       <div className="w-full bg-canvas border border-hairline rounded-[32px] md:rounded-full shadow-airbnb flex flex-col md:flex-row items-stretch md:items-center md:pr-2 overflow-hidden md:overflow-visible">

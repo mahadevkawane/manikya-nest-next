@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PageLayout from "@/components/PageLayout";
 import PublishRoleModal, { type ListingRole } from "@/components/PublishRoleModal";
+import { useSession } from "@/lib/useSession";
 import { World, categoriesForWorld, getCategory } from "@/lib/categories";
 import { apiClient } from "@/lib/apiClient";
 
@@ -245,6 +246,19 @@ export default function PostListing() {
   const [world, setWorld] = useState<World>("residential");
   const [slug, setSlug] = useState("rent");
 
+  const session = useSession();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Auto show registration prompt after 5 seconds if not logged in
+  useEffect(() => {
+    if (!session) {
+      const timer = setTimeout(() => {
+        setShowAuthModal(true);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [session]);
+
   // Wizard state
   const [active, setActive] = useState(0);
   const [form, setForm] = useState<Record<string, string>>({});
@@ -366,19 +380,6 @@ export default function PostListing() {
     }
   };
 
-  // Full-page brand intro video — plays muted on entry, then reveals the wizard.
-  const [showIntro, setShowIntro] = useState(true);
-
-  // Autoplay intro video safely
-  const introVideoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (!showIntro) return;
-    const v = introVideoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.play().catch(() => {});
-  }, [showIntro]);
-
   // Urgency countdown (kicks off as soon as the wizard loads)
   const [secondsLeft, setSecondsLeft] = useState(120);
   useEffect(() => {
@@ -391,9 +392,7 @@ export default function PostListing() {
   const theme = WORLD_THEME[world];
   const heroSrc = category?.image ?? "/categories/rent.jpg";
 
-  // Hero photo loading: track which src has loaded so the skeleton shows
-  // automatically whenever the selected category (and image) changes — derived,
-  // no effect needed.
+  // Hero photo loading
   const [heroLoadedSrc, setHeroLoadedSrc] = useState<string | null>(null);
   const heroLoaded = heroLoadedSrc === heroSrc;
 
@@ -405,14 +404,13 @@ export default function PostListing() {
 
   const chooseSlug = (s: string) => {
     setSlug(s);
-    // Drop selected amenities that don't apply to the new category.
     const allowed = amenitiesFor(s);
     setAmenities((p) => p.filter((a) => allowed.includes(a)));
   };
 
   const chooseWorld = (w: World) => {
     setWorld(w);
-    chooseSlug(categoriesForWorld(w)[0].slug); // reset to first category of that world
+    chooseSlug(categoriesForWorld(w)[0].slug);
   };
 
   const progress = Math.round((active / (WIZARD_STEPS.length - 1)) * 100);
@@ -422,7 +420,6 @@ export default function PostListing() {
     "w-full border border-hairline rounded-[8px] px-3 h-12 text-sm text-ink outline-none focus:border-ink focus:border-2 transition-colors bg-canvas";
   const labelCls = "text-[13px] font-medium text-ink block mb-1.5";
 
-  // Generic field renderer driven by the category config
   const renderField = (f: FieldDef) => {
     if (f.type === "select") {
       return (
@@ -479,75 +476,6 @@ export default function PostListing() {
       ))}
     </div>
   );
-
-  // ─── Full-page brand intro video — framed inside a retro "TV box" ─────────
-  if (showIntro) {
-    return (
-      <div
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-gradient-to-br from-rausch/30 via-violet/30 to-indigo/40"
-        role="dialog"
-        aria-label="FindWay intro"
-      >
-        {/* Colourful decorative blobs */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-32 -left-24 w-[26rem] h-[26rem] rounded-full bg-rausch/30 blur-3xl" />
-          <div className="absolute -bottom-40 -right-24 w-[26rem] h-[26rem] rounded-full bg-indigo/30 blur-3xl" />
-          <div className="absolute top-1/4 right-1/3 w-40 h-40 rounded-full bg-violet/25 blur-2xl" />
-        </div>
-
-        {/* TV set */}
-        <div className="relative z-10 w-full max-w-[860px]">
-          {/* TV body — chunky dark bezel */}
-          <div className="relative rounded-[28px] p-4 sm:p-5 bg-gradient-to-b from-[#33333a] to-[#161617] border border-white/10 shadow-[0_30px_70px_-18px_rgba(0,0,0,0.65)]">
-            {/* Screen — video is scaled from the top-left so the bottom-right
-                corner (the Gemini watermark) is cropped out of view. */}
-            <div className="relative rounded-[18px] overflow-hidden bg-black ring-1 ring-white/10 aspect-video">
-              <video
-                ref={introVideoRef}
-                src="/post-intro.mp4"
-                autoPlay
-                muted
-                playsInline
-                onEnded={() => setShowIntro(false)}
-                className="absolute inset-0 w-full h-full object-cover object-left-top origin-top-left scale-[1.14]"
-              />
-              {/* Screen glare */}
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-white/10" />
-            </div>
-
-            {/* Nameplate row — brand, power LED, knobs */}
-            <div className="flex items-center justify-between px-1.5 pt-3">
-              <span className="text-white/85 text-sm font-bold tracking-[0.2em] uppercase">FindWay</span>
-              <div className="flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-rausch shadow-[0_0_8px_2px_rgba(255,56,92,0.7)]" aria-hidden="true" />
-                <span className="w-3.5 h-3.5 rounded-full bg-white/15 ring-1 ring-white/10" aria-hidden="true" />
-                <span className="w-3.5 h-3.5 rounded-full bg-white/15 ring-1 ring-white/10" aria-hidden="true" />
-              </div>
-            </div>
-          </div>
-
-          {/* TV stand + shadow */}
-          <div className="mx-auto h-3.5 w-28 bg-[#161617] rounded-b-[10px]" />
-          <div className="mx-auto mt-1 h-2 w-56 max-w-[70%] rounded-full bg-black/25 blur-md" />
-
-          {/* Caption under the set */}
-          <p className="text-center text-white/90 text-sm font-medium mt-5 drop-shadow">
-            A home near work, and the job to go with it.
-          </p>
-        </div>
-
-        {/* Skip — top right */}
-        <button
-          type="button"
-          onClick={() => setShowIntro(false)}
-          className="absolute top-5 right-5 z-20 h-10 px-4 inline-flex items-center gap-1.5 rounded-full bg-white text-ink text-sm font-semibold hover:bg-white/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        >
-          Skip intro
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-        </button>
-      </div>
-    );
-  }
 
   // ─── Published success state ──────────────────────────────────────────────
   if (published) {
@@ -684,7 +612,13 @@ export default function PostListing() {
             return (
               <button
                 key={s.key}
-                onClick={() => setActive(i)}
+                onClick={() => {
+                  if (!session) {
+                    setShowAuthModal(true);
+                    return;
+                  }
+                  setActive(i);
+                }}
                 aria-current={isActive ? "step" : undefined}
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-[10px] text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
                   isActive ? "bg-surface-soft text-ink" : "text-muted hover:bg-surface-soft hover:text-ink"
@@ -894,7 +828,17 @@ export default function PostListing() {
               ← Back
             </button>
             <button
-              onClick={() => (last ? setPublishStage("role") : setActive((i) => i + 1))}
+              onClick={() => {
+                if (!session) {
+                  setShowAuthModal(true);
+                  return;
+                }
+                if (last) {
+                  setPublishStage("role");
+                } else {
+                  setActive((i) => i + 1);
+                }
+              }}
               className={`px-6 h-11 text-white text-sm font-semibold rounded-[8px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${theme.solid} ${theme.ring}`}
             >
               {last ? "Publish listing" : "Save & continue"}
@@ -910,6 +854,45 @@ export default function PostListing() {
           onClose={() => setPublishStage(null)}
           onSelect={(role) => publishListing(role)}
         />
+      )}
+
+      {/* Unregistered Prompt Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+          <div className="bg-canvas border border-hairline rounded-[24px] max-w-[420px] w-full p-6 shadow-3d animate-scale-up relative">
+            <button 
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 text-muted hover:text-ink p-1 rounded-full hover:bg-surface-soft transition-colors"
+              aria-label="Close dialog"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <div className="flex flex-col items-center text-center mt-2">
+              <div className="w-14 h-14 rounded-full bg-rausch/10 flex items-center justify-center text-rausch mb-4">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6M23 11h-6" /></svg>
+              </div>
+              <h3 id="auth-modal-title" className="text-xl font-bold text-ink tracking-tight mb-2">Registration Required</h3>
+              <p className="text-sm text-body leading-relaxed mb-6">
+                You must first get registered for listing the property on FindWay. Creating an account takes less than a minute!
+              </p>
+              <div className="flex flex-col w-full gap-2.5">
+                <Link
+                  href="/login?mode=signup"
+                  className="w-full h-12 flex items-center justify-center bg-rausch text-white text-base font-semibold rounded-[12px] hover:bg-rausch-active transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2 shadow-sm"
+                >
+                  Register Now
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowAuthModal(false)}
+                  className="w-full h-12 flex items-center justify-center border border-hairline text-ink text-sm font-medium rounded-[12px] hover:bg-surface-soft transition-colors"
+                >
+                  Explore fields first
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </PageLayout>
   );
