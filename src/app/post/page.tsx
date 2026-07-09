@@ -304,7 +304,14 @@ export default function PostListing() {
     }
   };
 
+  // Track submission state to prevent duplicate listings from rapid multi-clicks
+  const [submitting, setSubmitting] = useState(false);
+
   const publishListing = async (role: ListingRole) => {
+    // If a request is already in progress, reject subsequent clicks
+    if (submitting) return;
+    setSubmitting(true);
+
     try {
       // Determine title based on category config
       const isStay = getCategory(slug)?.world === "stay";
@@ -377,6 +384,9 @@ export default function PostListing() {
     } catch (err: any) {
       console.error("Error publishing listing:", err);
       alert("Failed to connect to the backend server to publish listing.");
+    } finally {
+      // Release submission lock after request completes
+      setSubmitting(false);
     }
   };
 
@@ -529,7 +539,7 @@ export default function PostListing() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,360px)] gap-6 lg:gap-10 items-center max-w-[1100px] mx-auto">
           {/* Left: headline + trust pills */}
           <div>
-            <p className={`text-sm font-semibold uppercase tracking-wider mb-3 ${theme.accent}`}>Free listing · Zero brokerage</p>
+            <p className={`text-sm font-semibold uppercase tracking-wider mb-3 ${theme.accent}`}>Free listing · Direct deals</p>
             <h1 className="text-[clamp(26px,4vw,42px)] font-bold text-ink tracking-tight leading-[1.1] mb-3">
               List your property <span className={theme.accent}>in minutes</span>
             </h1>

@@ -16,7 +16,7 @@ function scrollToResults() {
 export default function RentHero({ city = "Bengaluru" }: { city?: string }) {
   const cat = getCategory("rent");
   const headline = cat?.headline.replace("{city}", city) ?? `Flats & houses for rent in ${city}`;
-  const subline = cat?.subtitle ?? "20K+ flats · zero brokerage";
+  const subline = cat?.subtitle ?? "20K+ flats · verified hosts";
 
   const chips = ["1 BHK", "2 BHK", "3 BHK", "Furnished", "Near metro"];
 

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { sessionFromSupabaseUser, setSession, type Session } from "@/lib/auth";
+import { sessionFromSupabaseUser, setSession, syncSession, type Session } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginForm({ onSuccess }: { onSuccess: (session: Session) => void }) {
@@ -35,6 +35,16 @@ export default function LoginForm({ onSuccess }: { onSuccess: (session: Session)
       if (res.data.user) {
         const session = sessionFromSupabaseUser(res.data.user, { phone: cleanPhone });
         setSession(session);
+        // Sync with backend immediately to get the latest database fields (avatarUrl, city, roles)
+        try {
+          const synced = await syncSession();
+          if (synced) {
+            onSuccess(synced);
+            return;
+          }
+        } catch (syncErr) {
+          console.error("Error syncing session on login:", syncErr);
+        }
         onSuccess(session);
       }
     } catch (err: any) {

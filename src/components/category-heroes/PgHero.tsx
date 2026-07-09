@@ -72,7 +72,7 @@ export default function PgHero({ city = "Bengaluru" }: { city?: string }) {
             </h1>
 
             <ul className="space-y-2" aria-label="Key features">
-              {["1,800+ rooms available now", "Meals & Wi-Fi included", "Zero brokerage"].map((feat) => (
+              {["1,800+ rooms available now", "Meals & Wi-Fi included", "Gated security"].map((feat) => (
                 <li key={feat} className="flex items-center gap-2.5 text-sm text-white/80">
                   <span className="w-4 h-4 rounded-full bg-[#38ef7d]/20 border border-[#38ef7d]/40 flex items-center justify-center shrink-0" aria-hidden="true">
                     <svg width="8" height="8" viewBox="0 0 12 12" fill="none" aria-hidden="true">

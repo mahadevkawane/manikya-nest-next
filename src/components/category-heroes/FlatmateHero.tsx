@@ -69,7 +69,7 @@ export default function FlatmateHero({ city = "Bengaluru" }: { city?: string }) 
             </h1>
 
             <p className="text-white/75 text-sm md:text-base font-normal mb-7">
-              640+ rooms open today · Verified profiles · No brokerage
+              640+ rooms open today · Verified profiles · Clean stays
             </p>
 
             {/* Search card — big rounded, white */}

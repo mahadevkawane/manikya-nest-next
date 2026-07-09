@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { sessionFromSupabaseUser, setSession, type Session } from "@/lib/auth";
+import { sessionFromSupabaseUser, setSession, syncSession, type Session } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { apiClient } from "@/lib/apiClient";
 
@@ -75,6 +75,16 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
       if (data.session) {
         const session = sessionFromSupabaseUser(data.user, { name: name.trim(), phone: phone.trim() });
         setSession(session);
+        // Sync with backend immediately to get the latest database fields (avatarUrl, city, roles)
+        try {
+          const synced = await syncSession();
+          if (synced) {
+            onSuccess(synced);
+            return;
+          }
+        } catch (syncErr) {
+          console.error("Error syncing session on signup:", syncErr);
+        }
         onSuccess(session);
       } else {
         setBanner({

@@ -197,7 +197,9 @@ export default function Navbar() {
                   >
                     <div className="px-4 py-2 border-b border-hairline-soft mb-1">
                       <p className="text-sm font-semibold text-ink truncate">{session.name}</p>
-                      <p className="text-[11px] text-muted truncate">{session.email}</p>
+                      <p className="text-[11px] text-muted truncate">
+                        {session.email && !session.email.endsWith("@findway.temp") ? session.email : session.phone ? `+91 ${session.phone}` : ""}
+                      </p>
                     </div>
                     <Link
                       href="/profile"
@@ -210,6 +212,20 @@ export default function Navbar() {
                       </svg>
                       Profile
                     </Link>
+                    {session.roles.includes("admin") && (
+                      <Link
+                        href="/admin"
+                        role="menuitem"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-body hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset text-left font-medium text-rausch"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                          <circle cx="12" cy="12" r="3" />
+                          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+                        </svg>
+                        Admin Panel
+                      </Link>
+                    )}
                     <button
                       role="menuitem"
                       onClick={() => {
@@ -323,7 +339,9 @@ export default function Navbar() {
                 )}
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-ink truncate">{session.name}</span>
-                  <span className="block text-[11px] text-muted truncate">{session.email}</span>
+                  <span className="block text-[11px] text-muted truncate">
+                    {session.email && !session.email.endsWith("@findway.temp") ? session.email : session.phone ? `+91 ${session.phone}` : ""}
+                  </span>
                 </span>
               </Link>
             )}

@@ -35,7 +35,7 @@ export default function Footer() {
               <Logo size={32} className="mb-4" />
             </Link>
             <p className="text-sm leading-relaxed text-muted mb-6 max-w-[260px]">
-              NestNext is a clean housing-first platform for students and professionals. Find verified listings near work, plan your daily commute, and search matching jobs with zero brokerage.
+              NestNext is a clean housing-first platform for students and professionals. Find verified listings near work, plan your daily commute, and search matching jobs directly.
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-4 mt-auto">
@@ -112,7 +112,7 @@ export default function Footer() {
           <div>
             <h3 className="text-ink text-sm font-semibold tracking-wider uppercase mb-4">Stay Updated</h3>
             <p className="text-sm text-muted mb-4 leading-relaxed">
-              Subscribe to get notified about zero-brokerage listings in your neighborhood.
+              Subscribe to get notified about new verified listings in your neighborhood.
             </p>
             <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-2">
               <label htmlFor="newsletter-email" className="sr-only">Email address</label>

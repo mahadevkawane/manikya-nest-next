@@ -17,7 +17,7 @@ const trustPoints = [
     ),
   },
   {
-    title: "Zero brokerage",
+    title: "Direct deals",
     sub: "Deal direct with owners",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">

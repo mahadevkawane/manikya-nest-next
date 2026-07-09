@@ -62,6 +62,7 @@ export function sessionFromSupabaseUser(
     email: (user.email ?? "").toLowerCase(),
     phone: normalizePhone(extra?.phone || meta.phone || user.phone || ""),
     city: extra?.city?.trim() || meta.city || "Bengaluru",
+    avatarUrl: meta.avatar_url || meta.avatarUrl || undefined,
     roles: (Array.isArray(meta.roles) ? meta.roles : []) as Role[],
     activeView: "personal",
   };
