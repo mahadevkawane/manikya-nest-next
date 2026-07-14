@@ -114,22 +114,22 @@ export default function RequirementsBlock({ userName }: { userName: string }) {
               )}
             </div>
 
-            <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-hairline-soft">
+            <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 border-t md:border-t-0 pt-3 md:pt-0 border-hairline/60">
               <div className="text-left md:text-right shrink-0">
-                <p className="text-lg font-black text-ink">{req.responseCount}</p>
-                <p className="text-[11px] text-muted">Responses received</p>
+                <p className="text-base md:text-lg font-black text-ink">{req.responseCount}</p>
+                <p className="text-[10px] md:text-[11px] text-muted">Responses received</p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleDelete(req.id)}
-                  className="px-3.5 py-2 text-xs font-semibold text-error border border-error/20 rounded-[8px] hover:bg-error/5 transition-all"
+                  className="flex-1 sm:flex-initial px-3 py-1.5 text-xs font-semibold text-error border border-error/20 rounded-[8px] hover:bg-error/5 transition-all text-center"
                 >
                   Close Req
                 </button>
                 <Link
                   href="/requirements"
-                  className="px-3.5 py-2 text-xs font-semibold text-white bg-ink rounded-[8px] hover:opacity-90 transition-all text-center"
+                  className="flex-1 sm:flex-initial px-3 py-1.5 text-xs font-semibold text-white bg-ink rounded-[8px] hover:opacity-90 transition-all text-center"
                 >
                   View Feed
                 </Link>

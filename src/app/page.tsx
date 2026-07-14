@@ -46,14 +46,6 @@ const trustPoints = [
   },
 ];
 
-const trendingListings = [
-  { id: 1, title: "Green Meadows PG for Men", location: "Koramangala, Bengaluru", metroDistance: "500m from metro", price: "₹8,500/mo", rating: 4.5, reviewCount: 128, badge: "PG", amenities: ["AC", "Meals", "Wi-Fi"], verified: true, noBrokerage: true, image: "/categories/pg.jpg" },
-  { id: 2, title: "Sunrise Co-living Space", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹12,000/mo", rating: 4.7, reviewCount: 89, badge: "Co-living", amenities: ["AC", "Wi-Fi", "Gym"], verified: true, furnishing: "Furnished", image: "/categories/coliving.jpg" },
-  { id: 3, title: "Lakeside 1BHK Rental Flat", location: "Indiranagar, Bengaluru", metroDistance: "300m from metro", price: "₹18,500/mo", rating: 4.3, reviewCount: 56, badge: "Flat", amenities: ["AC", "Parking", "Security"], noBrokerage: true, availableFrom: "Available now", image: "/categories/rent.jpg" },
-  { id: 4, title: "StudyNest Girls Hostel", location: "BTM Layout, Bengaluru", metroDistance: "800m from metro", price: "₹6,200/mo", rating: 4.6, reviewCount: 204, badge: "Hostel", amenities: ["Meals", "Wi-Fi", "Laundry"], verified: true, noBrokerage: true, image: "/categories/pg.jpg" },
-  { id: 5, title: "Urban Nest 2BHK", location: "Whitefield, Bengaluru", price: "₹22,000/mo", rating: 4.4, reviewCount: 42, badge: "Flat", amenities: ["AC", "Parking", "Power backup"], furnishing: "Semi-furnished", image: "/categories/rent.jpg" },
-  { id: 6, title: "Cozy Homestay near MG Road", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹15,000/mo", rating: 4.8, reviewCount: 31, badge: "Homestay", amenities: ["AC", "Wi-Fi", "Meals"], verified: true, noBrokerage: true, image: "/categories/homestay.jpg" },
-];
 
 const whyCards = [
   {
@@ -83,15 +75,6 @@ const whyCards = [
       </svg>
     ),
   },
-  {
-    title: "Flatmate finder",
-    description: "Match with compatible flatmates based on lifestyle and preferences",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-rausch" aria-hidden="true">
-        <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    ),
-  },
 ];
 
 const nextCards = [
@@ -118,17 +101,17 @@ const nextCards = [
 ];
 
 export default function HomePage() {
-  const [listings, setListings] = useState<any[]>(trendingListings);
+  const [listings, setListings] = useState<any[]>([]);
 
   useEffect(() => {
     apiClient.get("/listings")
       .then((res) => {
-        if (res.data && res.data.success && res.data.data.length > 0) {
+        if (res.data && res.data.success) {
           setListings(res.data.data.slice(0, 6));
         }
       })
       .catch((err) => {
-        console.error("Failed to fetch trending listings, using fallback:", err);
+        console.error("Failed to fetch trending listings:", err);
       });
   }, []);
 
@@ -163,14 +146,24 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* Horizontal scroll on mobile, 3-col grid on desktop */}
-        <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible scrollbar-hide">
-          {listings.map((listing) => (
-            <div key={listing.id} className="min-w-[260px] md:min-w-0">
-              <ListingCard {...listing} />
-            </div>
-          ))}
-        </div>
+        {/* Horizontal scroll on mobile, 3-col grid on desktop or empty state */}
+        {listings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 bg-canvas border border-hairline border-dashed rounded-[14px] text-center px-4">
+            <p className="text-sm font-semibold text-ink">No trending properties yet</p>
+            <p className="text-xs text-muted mt-1 max-w-xs">Be the first to list a property and see it featured here.</p>
+            <Link href="/post" className="mt-4 bg-rausch hover:bg-rausch/90 text-white font-semibold text-xs px-6 py-2.5 rounded-full shadow-sm transition-all">
+              Post a Property
+            </Link>
+          </div>
+        ) : (
+          <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible scrollbar-hide">
+            {listings.map((listing) => (
+              <div key={listing.id} className="min-w-[260px] md:min-w-0">
+                <ListingCard {...listing} />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* How FindWay works — story wheel + Our Mission */}

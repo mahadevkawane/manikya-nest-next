@@ -129,7 +129,7 @@ export default function ListingCard({
           <span className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-airbnb select-none ${
             badge.toLowerCase().includes("pg") ? "bg-rausch text-white" :
             badge.toLowerCase().includes("co-living") ? "bg-indigo text-white" :
-            badge.toLowerCase().includes("flat") || badge.toLowerCase().includes("rent") || badge.toLowerCase().includes("hostel") || badge.toLowerCase().includes("flatmate") ? "bg-emerald-600 text-white" :
+            badge.toLowerCase().includes("flat") || badge.toLowerCase().includes("rent") || badge.toLowerCase().includes("hostel") ? "bg-emerald-600 text-white" :
             badge.toLowerCase().includes("stay") || badge.toLowerCase().includes("resort") || badge.toLowerCase().includes("hotel") || badge.toLowerCase().includes("serviced") ? "bg-amber-600 text-white" :
             "bg-ink text-white"
           }`}>

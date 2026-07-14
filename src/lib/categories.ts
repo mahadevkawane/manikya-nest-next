@@ -131,19 +131,7 @@ export const CATEGORIES: Record<string, CategoryDef> = {
     headline: "Hotels in {city}",
     image: "/categories/hotel.jpg",
   },
-  flatmate: {
-    slug: "flatmate",
-    world: "residential",
-    label: "Flatmate",
-    subtitle: "Find someone to share with",
-    gradient: "from-[#ff5f6d] to-[#ffc371]",
-    glyph: "people",
-    chips: ["Male", "Female", "Working professional", "Student", "Vegetarian", "Non-smoker", "Pet-friendly"],
-    searchPlaceholder: "Area you want to live in…",
-    resultNoun: "flatmates",
-    headline: "Flatmates looking to share in {city}",
-    image: "/categories/flatmate.jpg",
-  },
+
   "commercial-office": {
     slug: "commercial-office",
     world: "commercial",
@@ -224,7 +212,7 @@ export const CATEGORIES: Record<string, CategoryDef> = {
   },
 };
 
-export const RESIDENTIAL_ORDER = ["rent", "buy", "pg", "coliving", "flatmate"];
+export const RESIDENTIAL_ORDER = ["rent", "buy", "pg", "coliving"];
 export const COMMERCIAL_ORDER = ["commercial-office", "commercial-shop", "coworking", "warehouse", "land", "lease"];
 export const STAY_ORDER = ["homestay", "resort", "service-apartment", "hotel"];
 
@@ -271,62 +259,7 @@ export interface Listing {
   image?: string;
 }
 
-export const LISTINGS: Listing[] = [
-  // --- Residential: rent ---
-  { id: 1, category: "rent", title: "Lakeside 1BHK Rental Flat", location: "Indiranagar, Bengaluru", metroDistance: "300m from metro", price: "₹18,500/mo", priceValue: 18500, rating: 4.3, reviewCount: 56, badge: "Flat", amenities: ["AC", "Parking", "Security"], noBrokerage: true, furnishing: "Furnished", availableFrom: "Available now", area: "650 sq ft", spec: "1 BHK" },
-  { id: 2, category: "rent", title: "Urban Nest 2BHK", location: "Whitefield, Bengaluru", price: "₹22,000/mo", priceValue: 22000, rating: 4.4, reviewCount: 42, badge: "Flat", amenities: ["AC", "Parking", "Power backup"], furnishing: "Semi-furnished", area: "1,050 sq ft", spec: "2 BHK" },
-  { id: 3, category: "rent", title: "Skyline 3BHK with Balcony", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹34,000/mo", priceValue: 34000, rating: 4.6, reviewCount: 38, badge: "Flat", amenities: ["AC", "Gym", "Parking"], verified: true, furnishing: "Furnished", area: "1,480 sq ft", spec: "3 BHK" },
-
-  // --- Residential: buy ---
-  { id: 4, category: "buy", title: "Prestige Lakeview 2BHK", location: "Marathahalli, Bengaluru", price: "₹1.15 Cr", priceValue: 11500000, rating: 4.5, reviewCount: 22, badge: "Apartment", amenities: ["Clubhouse", "Pool", "Parking"], verified: true, availableFrom: "Ready to move", area: "1,180 sq ft", spec: "2 BHK · Resale" },
-  { id: 5, category: "buy", title: "Brigade New Project 3BHK", location: "Sarjapur Road, Bengaluru", price: "₹1.85 Cr", priceValue: 18500000, rating: 4.7, reviewCount: 14, badge: "New project", amenities: ["Clubhouse", "Pool", "Gym"], verified: true, noBrokerage: true, availableFrom: "Dec 2027", area: "1,650 sq ft", spec: "3 BHK · RERA approved" },
-
-  // --- Residential: pg ---
-  { id: 6, category: "pg", title: "Green Meadows PG for Men", location: "Koramangala, Bengaluru", metroDistance: "500m from metro", price: "₹8,500/mo", priceValue: 8500, rating: 4.5, reviewCount: 128, badge: "PG", amenities: ["AC", "Meals", "Wi-Fi"], verified: true, noBrokerage: true, spec: "Triple sharing · Men" },
-  { id: 7, category: "pg", title: "StudyNest Girls Hostel", location: "BTM Layout, Bengaluru", metroDistance: "800m from metro", price: "₹6,200/mo", priceValue: 6200, rating: 4.6, reviewCount: 204, badge: "Hostel", amenities: ["Meals", "Wi-Fi", "Laundry"], verified: true, noBrokerage: true, spec: "Double sharing · Women" },
-  { id: 8, category: "pg", title: "TechPark PG – Triple Sharing", location: "Electronic City, Bengaluru", metroDistance: "1km from metro", price: "₹5,800/mo", priceValue: 5800, rating: 4.2, reviewCount: 176, badge: "PG", amenities: ["Meals", "Wi-Fi", "Laundry"], noBrokerage: true, spec: "Triple sharing · Men" },
-
-  // --- Residential: coliving ---
-  { id: 9, category: "coliving", title: "Sunrise Co-living Space", location: "HSR Layout, Bengaluru", metroDistance: "1.2km from metro", price: "₹12,000/mo", priceValue: 12000, rating: 4.7, reviewCount: 89, badge: "Co-living", amenities: ["AC", "Wi-Fi", "Gym"], verified: true, furnishing: "Furnished", spec: "Single room · All-inclusive" },
-  { id: 10, category: "coliving", title: "Elite Co-living Studio", location: "Marathahalli, Bengaluru", price: "₹14,500/mo", priceValue: 14500, rating: 4.6, reviewCount: 63, badge: "Co-living", amenities: ["AC", "Gym", "Wi-Fi"], verified: true, furnishing: "Furnished", spec: "Studio · Community" },
-
-  // --- Residential: homestay ---
-  { id: 11, category: "homestay", title: "Cozy Homestay near MG Road", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹15,000/mo", priceValue: 15000, rating: 4.8, reviewCount: 31, badge: "Homestay", amenities: ["AC", "Wi-Fi", "Meals"], verified: true, noBrokerage: true, spec: "Private room" },
-
-  // --- Residential: flatmate ---
-  { id: 12, category: "flatmate", title: "Flatmate wanted – 2BHK Indiranagar", location: "Indiranagar, Bengaluru", price: "₹11,000/mo", priceValue: 11000, rating: 4.4, reviewCount: 18, badge: "Flatmate", amenities: ["Wi-Fi", "Furnished", "Parking"], noBrokerage: true, spec: "Working professional · Non-smoker" },
-
-  // --- Commercial: office ---
-  { id: 13, category: "commercial-office", title: "Grade-A Office, Embassy Tech", location: "Outer Ring Road, Bengaluru", price: "₹1.2L/mo", priceValue: 120000, rating: 4.6, reviewCount: 12, badge: "Office", amenities: ["Furnished", "Parking", "Power backup"], verified: true, area: "3,200 sq ft", spec: "Furnished · 45 seats" },
-  { id: 14, category: "commercial-office", title: "Bare-Shell Office Floor", location: "Whitefield, Bengaluru", price: "₹85,000/mo", priceValue: 85000, rating: 4.3, reviewCount: 8, badge: "Office", amenities: ["Parking", "Power backup", "Lift"], noBrokerage: true, area: "2,400 sq ft", spec: "Bare shell · 6th floor" },
-
-  // --- Commercial: shop ---
-  { id: 15, category: "commercial-shop", title: "High-Street Showroom", location: "Jayanagar 4th Block, Bengaluru", price: "₹95,000/mo", priceValue: 95000, rating: 4.5, reviewCount: 9, badge: "Showroom", amenities: ["Washroom", "Parking", "Main road"], verified: true, area: "1,800 sq ft", spec: "Ground floor · High street" },
-
-  // --- Commercial: coworking ---
-  { id: 16, category: "coworking", title: "WeNest Co-working – Dedicated Desk", location: "Koramangala, Bengaluru", metroDistance: "600m from metro", price: "₹9,500/mo", priceValue: 9500, rating: 4.7, reviewCount: 54, badge: "Co-working", amenities: ["24/7 access", "Meeting rooms", "Cafeteria"], verified: true, spec: "Dedicated desk" },
-
-  // --- Commercial: warehouse ---
-  { id: 17, category: "warehouse", title: "Logistics Warehouse, Hoskote", location: "Hoskote, Bengaluru", price: "₹2.4L/mo", priceValue: 240000, rating: 4.2, reviewCount: 5, badge: "Warehouse", amenities: ["Loading dock", "High ceiling", "Highway access"], noBrokerage: true, area: "18,000 sq ft", spec: "Loading dock · 24ft ceiling" },
-
-  // --- Commercial: land ---
-  { id: 18, category: "land", title: "Corner Commercial Plot", location: "Devanahalli, Bengaluru", price: "₹3.2 Cr", priceValue: 32000000, rating: 4.4, reviewCount: 3, badge: "Plot", amenities: ["Corner plot", "Main road", "Gated"], verified: true, area: "6,000 sq ft", spec: "Corner · Clear title" },
-
-  // --- Commercial: lease ---
-  { id: 19, category: "lease", title: "Pre-Leased Bank Branch", location: "MG Road, Bengaluru", price: "₹6.5 Cr", priceValue: 65000000, rating: 4.6, reviewCount: 4, badge: "Pre-leased", amenities: ["Bank tenant", "Long lease", "High yield"], verified: true, area: "4,500 sq ft", spec: "Bank tenant · 9yr lease" },
-
-  // --- Stay: resort ---
-  { id: 20, category: "resort", title: "Misty Hills Resort & Spa", location: "Nandi Hills, Bengaluru", price: "₹6,500/night", priceValue: 6500, rating: 4.7, reviewCount: 212, badge: "Resort", amenities: ["Pool", "Spa", "Restaurant"], verified: true, spec: "Hill resort · Breakfast included" },
-  { id: 21, category: "resort", title: "Lakeside Leisure Resort", location: "Hesaraghatta, Bengaluru", price: "₹4,200/night", priceValue: 4200, rating: 4.4, reviewCount: 98, badge: "Resort", amenities: ["Pool", "Restaurant", "Parking"], spec: "Lakefront · Family-friendly" },
-
-  // --- Stay: service-apartment ---
-  { id: 22, category: "service-apartment", title: "Skyline Serviced Studio", location: "Indiranagar, Bengaluru", metroDistance: "400m from metro", price: "₹3,200/night", priceValue: 3200, rating: 4.6, reviewCount: 74, badge: "Serviced", amenities: ["Wi-Fi", "Housekeeping", "Kitchen"], verified: true, area: "520 sq ft", spec: "Studio · Daily housekeeping" },
-  { id: 23, category: "service-apartment", title: "Executive 2BHK Service Apartment", location: "Whitefield, Bengaluru", price: "₹5,800/night", priceValue: 5800, rating: 4.5, reviewCount: 51, badge: "Serviced", amenities: ["Wi-Fi", "Kitchen", "Gym"], area: "1,100 sq ft", spec: "2 BHK · Long stay" },
-
-  // --- Stay: hotel ---
-  { id: 24, category: "hotel", title: "The Grand Central Hotel", location: "MG Road, Bengaluru", metroDistance: "200m from metro", price: "₹4,900/night", priceValue: 4900, rating: 4.6, reviewCount: 1340, badge: "Hotel", amenities: ["Breakfast", "Pool", "Gym"], verified: true, spec: "4 star · Business" },
-  { id: 25, category: "hotel", title: "Cozy Stay Budget Hotel", location: "Majestic, Bengaluru", price: "₹1,800/night", priceValue: 1800, rating: 4.1, reviewCount: 560, badge: "Hotel", amenities: ["Wi-Fi", "Breakfast", "Parking"], spec: "Budget · Free Wi-Fi" },
-];
+export const LISTINGS: Listing[] = [];
 
 export function listingsForCategory(slug: string): Listing[] {
   return LISTINGS.filter((l) => l.category === slug);

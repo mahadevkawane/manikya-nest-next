@@ -61,7 +61,6 @@ const OFFICE_AMENITIES = ["Lift", "Power backup", "Central AC", "Parking", "Cafe
 const AMENITIES_BY_CATEGORY: Record<string, string[]> = {
   rent: RESIDENTIAL_AMENITIES,
   buy: RESIDENTIAL_AMENITIES,
-  flatmate: RESIDENTIAL_AMENITIES,
   pg: ["Wi-Fi", "AC", "Meals", "Laundry", "Housekeeping", "Hot water", "CCTV / Security", "Power backup", "Attached washroom", "Fridge", "TV", "Warden"],
   coliving: ["Wi-Fi", "AC", "Meals", "Housekeeping", "Laundry", "Gym", "Community events", "Gaming zone", "Power backup", "Security", "Hot water", "Netflix / OTT"],
   "commercial-office": OFFICE_AMENITIES,

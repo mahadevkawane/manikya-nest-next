@@ -11,7 +11,6 @@ export interface Stat {
 export const PROPERTY_STATS: { label: string; sub: string }[] = [
   { label: "Saved nests", sub: "—" },
   { label: "Visits scheduled", sub: "—" },
-  { label: "Flatmate matches", sub: "—" },
 ];
 
 export const CAREER_STATS: { label: string; sub: string }[] = [

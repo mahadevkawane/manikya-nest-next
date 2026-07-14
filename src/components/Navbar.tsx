@@ -247,17 +247,19 @@ export default function Navbar() {
                         {session.email && !session.email.endsWith("@findway.temp") ? session.email : session.phone ? `+91 ${session.phone}` : ""}
                       </p>
                     </div>
-                    <Link
-                      href="/profile"
-                      role="menuitem"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-body hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Profile
-                    </Link>
+                    {!session.roles.includes("admin") && (
+                      <Link
+                        href="/profile"
+                        role="menuitem"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-body hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                          <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Profile
+                      </Link>
+                    )}
                     {session.roles.includes("admin") && (
                       <Link
                         href="/admin"
@@ -272,32 +274,34 @@ export default function Navbar() {
                         Admin Panel
                       </Link>
                     )}
-                    <button
-                      role="menuitem"
-                      onClick={() => {
-                        switchProfileMode(session.activeView === "business" ? "personal" : "business");
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-body hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset text-left font-medium"
-                    >
-                      {session.activeView === "business" ? (
-                        <>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                          </svg>
-                          Switch to Personal
-                        </>
-                      ) : (
-                        <>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                            <path d="M9 17V9l6 4-6 4z" />
-                          </svg>
-                          Switch to Business
-                        </>
-                      )}
-                    </button>
+                    {!session.roles.includes("admin") && (
+                      <button
+                        role="menuitem"
+                        onClick={() => {
+                          switchProfileMode(session.activeView === "business" ? "personal" : "business");
+                          setMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-body hover:bg-surface-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset text-left font-medium"
+                      >
+                        {session.activeView === "business" ? (
+                          <>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                              <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                              <circle cx="9" cy="7" r="4" />
+                            </svg>
+                            Switch to Personal
+                          </>
+                        ) : (
+                          <>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <path d="M9 17V9l6 4-6 4z" />
+                            </svg>
+                            Switch to Business
+                          </>
+                        )}
+                      </button>
+                    )}
                     <button
                       role="menuitem"
                       onClick={handleLogout}
@@ -420,18 +424,24 @@ export default function Navbar() {
               </Link>
               {loggedIn ? (
                 <>
-                  <Link href="/profile" onClick={() => setDrawerOpen(false)} className="w-full py-2.5 text-center text-base font-medium text-ink border border-ink rounded-[8px]">
-                    Profile
-                  </Link>
-                  <button
-                    onClick={() => {
-                      switchProfileMode(session.activeView === "business" ? "personal" : "business");
-                      setDrawerOpen(false);
-                    }}
-                    className="w-full py-2.5 text-center text-base font-semibold text-white bg-gradient-to-r from-rausch to-tab-rent rounded-[8px] hover:opacity-90 transition-opacity"
+                  <Link
+                    href={session.roles.includes("admin") ? "/admin" : "/profile"}
+                    onClick={() => setDrawerOpen(false)}
+                    className="w-full py-2.5 text-center text-base font-medium text-ink border border-ink rounded-[8px]"
                   >
-                    {session.activeView === "business" ? "Switch to Personal" : "Switch to Business"}
-                  </button>
+                    {session.roles.includes("admin") ? "Admin Panel" : "Profile"}
+                  </Link>
+                  {!session.roles.includes("admin") && (
+                    <button
+                      onClick={() => {
+                        switchProfileMode(session.activeView === "business" ? "personal" : "business");
+                        setDrawerOpen(false);
+                      }}
+                      className="w-full py-2.5 text-center text-base font-semibold text-white bg-gradient-to-r from-rausch to-tab-rent rounded-[8px] hover:opacity-90 transition-opacity"
+                    >
+                      {session.activeView === "business" ? "Switch to Personal" : "Switch to Business"}
+                    </button>
+                  )}
                   <button onClick={handleLogout} className="w-full py-2.5 text-center text-base font-medium text-error border border-error/40 rounded-[8px] hover:bg-error/5 transition-colors">
                     Log out
                   </button>

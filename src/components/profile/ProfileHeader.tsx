@@ -117,7 +117,7 @@ export default function ProfileHeader({
           </div>
         </div>
 
-        {/* The morphing A+C switch lives inside the hero */}
+        {!session.roles?.includes("admin") && (
         <div className="w-full sm:w-auto">
           <ProfileSwitch
             activeView={session.activeView}
@@ -126,6 +126,7 @@ export default function ProfileHeader({
             onActivate={onActivate}
           />
         </div>
+      )}
       </div>
     </section>
   );

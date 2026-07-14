@@ -27,33 +27,33 @@ const furnishings = ["Fully furnished", "Semi furnished", "Unfurnished"];
 function requirementFields(role: Role, slug: string): FieldDef[] {
   if (role === "agent") {
     return [
-      { key: "specialities", label: "Specialities", type: "pills", options: ["Residential", "Commercial", "Luxury", "Leasing", "Stay"] },
-      { key: "years", label: "Years active", type: "number", placeholder: "e.g. 8", half: true },
-      { key: "inventory", label: "Live properties", type: "number", placeholder: "e.g. 120", half: true },
-      { key: "languages", label: "Languages", type: "text", placeholder: "English, Hindi, Kannada" },
+      { key: "specialities", label: "Specialities", type: "pills", options: ["Residential", "Commercial", "Luxury", "Leasing", "Stay"], required: true },
+      { key: "years", label: "Years active", type: "number", placeholder: "e.g. 8", half: true, required: true },
+      { key: "inventory", label: "Live properties", type: "number", placeholder: "e.g. 120", half: true, required: true },
+      { key: "languages", label: "Languages", type: "text", placeholder: "English, Hindi, Kannada", required: true },
     ];
   }
   if (role === "seller") {
     return [
-      { key: "bhk", label: "Configuration", type: "select", options: bhkTypes },
-      { key: "area", label: "Built-up area (sq ft)", type: "number", placeholder: "e.g. 1200", half: true },
-      { key: "howSoon", label: "Sell within", type: "select", options: ["ASAP", "30 days", "60 days", "3 months"], half: true },
-      { key: "openToAgents", label: "Open to agents", type: "pills", options: ["Yes", "No"] },
+      { key: "bhk", label: "Configuration", type: "select", options: bhkTypes, required: true },
+      { key: "area", label: "Built-up area (sq ft)", type: "number", placeholder: "e.g. 1200", half: true, required: true },
+      { key: "howSoon", label: "Sell within", type: "select", options: ["ASAP", "30 days", "60 days", "3 months"], half: true, required: true },
+      { key: "openToAgents", label: "Open to agents", type: "pills", options: ["Yes", "No"], required: true },
     ];
   }
   // tenant + buyer
   const isBuy = role === "buyer";
   const fields: FieldDef[] = [];
   if (slug !== "pg" && slug !== "coliving") {
-    fields.push({ key: "bhk", label: "BHK type", type: "select", options: bhkTypes });
+    fields.push({ key: "bhk", label: "BHK type", type: "select", options: bhkTypes, required: true });
   }
   if (isBuy) {
-    fields.push({ key: "possession", label: "Possession", type: "pills", options: ["Ready to move", "Under construction", "Any"] });
-    fields.push({ key: "loan", label: "Loan needed", type: "pills", options: ["Yes", "No"] });
+    fields.push({ key: "possession", label: "Possession", type: "pills", options: ["Ready to move", "Under construction", "Any"], required: true });
+    fields.push({ key: "loan", label: "Loan needed", type: "pills", options: ["Yes", "No"], required: true });
   } else {
-    fields.push({ key: "moveIn", label: "Move-in", type: "select", options: ["Immediate", "Within 2 weeks", "Within 1 month", "Flexible"], half: true });
-    fields.push({ key: "furnishing", label: "Furnishing", type: "select", options: furnishings, half: true });
-    fields.push({ key: "occupancy", label: "Occupancy", type: "pills", options: ["Family", "Bachelors", "Students"] });
+    fields.push({ key: "moveIn", label: "Move-in", type: "select", options: ["Immediate", "Within 2 weeks", "Within 1 month", "Flexible"], half: true, required: true });
+    fields.push({ key: "furnishing", label: "Furnishing", type: "select", options: furnishings, half: true, required: true });
+    fields.push({ key: "occupancy", label: "Occupancy", type: "pills", options: ["Family", "Bachelors", "Students"], required: true });
   }
   return fields;
 }
@@ -71,7 +71,10 @@ export default function RequirementsPage() {
 
   // Category-aware field values
   const [form, setForm] = useState<Record<string, string>>({});
-  const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: string, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    setErrorMsg("");
+  };
 
   // Shared inputs
   const [name, setName] = useState("");
@@ -82,6 +85,7 @@ export default function RequirementsPage() {
   const [budgetMax, setBudgetMax] = useState("");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
 
   // Feed filters + respond flow
@@ -96,10 +100,12 @@ export default function RequirementsPage() {
     setWorld(w);
     setSlug(categoriesForWorld(w)[0].slug);
     setForm({});
+    setErrorMsg("");
   };
   const chooseWorld = (w: World) => {
     setWorld(w);
     setSlug(categoriesForWorld(w)[0].slug);
+    setErrorMsg("");
   };
 
   const addArea = () => {
@@ -157,13 +163,57 @@ export default function RequirementsPage() {
     return `₹${lakh(n(min))}–${lakh(n(max))}`;
   };
 
+  const handleNextStep = () => {
+    setErrorMsg("");
+    if (step === 1) {
+      if (showCategory && !slug) {
+        setErrorMsg("Please select a category.");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      const fields = requirementFields(role, slug);
+      for (const f of fields) {
+        if (f.required && !form[f.key]) {
+          setErrorMsg(`Please fill in "${f.label}".`);
+          return;
+        }
+      }
+      if (role !== "agent") {
+        if (!budgetMin || !budgetMax) {
+          setErrorMsg("Please provide both minimum and maximum budget.");
+          return;
+        }
+        if (Number(budgetMin) > Number(budgetMax)) {
+          setErrorMsg("Minimum budget cannot be higher than maximum budget.");
+          return;
+        }
+      }
+      setStep(3);
+    }
+  };
+
   const handleSubmit = () => {
+    setErrorMsg("");
+    if (!name.trim()) {
+      setErrorMsg("Please enter your name.");
+      return;
+    }
+    if (areas.length === 0) {
+      setErrorMsg("Please add at least one preferred area/locality.");
+      return;
+    }
+    if (!notes.trim()) {
+      setErrorMsg("Please provide description details in notes.");
+      return;
+    }
+
     const tags = [form.occupancy, form.possession === "Ready to move" ? "Ready to move" : undefined, form.loan === "Yes" ? "Loan needed" : undefined, form.openToAgents === "Yes" ? "Open to agents" : undefined].filter(Boolean) as string[];
     const req: Requirement = {
       id: Date.now(),
       role,
       category: role === "agent" ? undefined : slug,
-      name: name || "You",
+      name: name.trim(),
       city,
       areas,
       budgetMin: Number(budgetMin) || 0,
@@ -172,7 +222,7 @@ export default function RequirementsPage() {
       moveIn: form.moveIn,
       bhk: form.bhk,
       furnishing: form.furnishing,
-      notes,
+      notes: notes.trim(),
       tags,
       postedAt: "Just now",
       responseCount: 0,
@@ -213,7 +263,7 @@ export default function RequirementsPage() {
         </div>
 
         <div className="relative z-10 max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          {/* Left Text Column: Onboarding steps */}
+          {/* Left Text Column */}
           <div className="md:col-span-7 flex flex-col items-start text-left">
             <span className="inline-block bg-rausch/20 text-rausch border border-rausch/30 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-4">
               Real-time Matchmaking
@@ -221,109 +271,70 @@ export default function RequirementsPage() {
             <h1 className="text-[clamp(28px,4.5vw,40px)] font-bold text-white tracking-tight leading-[1.1] mb-4">
               Requirement Matchboard
             </h1>
-            <p className="text-sm md:text-base text-white/80 max-w-[550px] mb-6 leading-relaxed">
+            <p className="text-sm md:text-base text-white/80 max-w-[550px] leading-relaxed">
               Post what you want to rent, buy, or lease. Skip scrolling through listings — let landlords, sellers, and verified agents come to you with matching offers.
             </p>
-
-            {/* 3 Step onboarding list */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-              <div className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-sm">
-                <span className="w-6 h-6 rounded-full bg-rausch text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
-                <div>
-                  <h3 className="text-xs font-bold text-white">Post Details</h3>
-                  <p className="text-[10px] text-white/60 mt-0.5">Specify configuration, budget, and areas.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-sm">
-                <span className="w-6 h-6 rounded-full bg-violet-500 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
-                <div>
-                  <h3 className="text-xs font-bold text-white">Instant Alert</h3>
-                  <p className="text-[10px] text-white/60 mt-0.5">Matching owners get notified instantly.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl p-3.5 backdrop-blur-sm">
-                <span className="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
-                <div>
-                  <h3 className="text-xs font-bold text-white">Direct Deals</h3>
-                  <p className="text-[10px] text-white/60 mt-0.5">Compare matching offers and seal the deal.</p>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Right Vector Illustration Column */}
-          <div className="md:col-span-5 flex justify-center items-center relative h-[220px] md:h-[260px] overflow-visible">
-            <div className="absolute w-[200px] h-[200px] md:w-[240px] md:h-[240px] rounded-full border border-white/5 bg-white/[0.02] flex items-center justify-center">
-              {/* Pulsing ring 1 */}
-              <div className="absolute inset-4 rounded-full border border-rausch/20 animate-ping opacity-60" style={{ animationDuration: '3s' }} />
-              {/* Pulsing ring 2 */}
-              <div className="absolute inset-12 rounded-full border border-violet-500/20 animate-ping opacity-60" style={{ animationDuration: '4.5s' }} />
-              
-              {/* Central radar core */}
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-rausch to-violet-600 shadow-lg flex items-center justify-center z-10 border border-white/20 animate-pulse">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-white">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          {/* Right Vector Flowchart Column */}
+          <div className="md:col-span-5 flex justify-center items-center relative py-6">
+            <div className="w-full max-w-[340px] flex flex-col gap-6 relative">
+              {/* Connecting vertical path lines */}
+              <div className="absolute left-[22px] top-6 bottom-6 w-0.5 border-l-2 border-dashed border-white/20 z-0" />
+
+              {/* Step 1 Node */}
+              <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm relative z-10 animate-fade-up">
+                <div className="w-11 h-11 rounded-xl bg-rausch/20 border border-rausch/40 text-rausch flex items-center justify-center shrink-0 shadow-lg">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-white">1. Post Your Custom Requirement</h4>
+                  <p className="text-[10px] text-white/60 mt-0.5 truncate">Define your budget, configuration & preferred areas</p>
+                </div>
+              </div>
+
+              {/* Connecting animated arrow 1 */}
+              <div className="absolute left-[16px] top-[54px] z-10 animate-bounce">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-rausch">
+                  <path d="M12 5v14M19 12l-7 7-7-7" />
                 </svg>
               </div>
 
-              {/* Custom CSS Style Injection for smooth float animations */}
-              <style>{`
-                @keyframes float-slow {
-                  0%, 100% { transform: translateY(0) rotate(0deg); }
-                  50% { transform: translateY(-12px) rotate(1.5deg); }
-                }
-                .float-bubble-1 { animation: float-slow 4.5s ease-in-out infinite; }
-                .float-bubble-2 { animation: float-slow 5.5s ease-in-out infinite; animation-delay: 0.8s; }
-                .float-bubble-3 { animation: float-slow 5s ease-in-out infinite; animation-delay: 0.4s; }
-                .float-bubble-4 { animation: float-slow 6s ease-in-out infinite; animation-delay: 1.2s; }
-              `}</style>
-
-              {/* Floating Match Bubble 1 */}
-              <div className="absolute top-0 -left-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-1 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rausch animate-pulse" />
-                Rent 2BHK
+              {/* Step 2 Node */}
+              <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm relative z-10 animate-fade-up [animation-delay:0.2s]">
+                <div className="w-11 h-11 rounded-xl bg-violet-600/20 border border-violet-500/40 text-violet-400 flex items-center justify-center shrink-0 shadow-lg animate-pulse">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-white">2. Real-Time Application Scan</h4>
+                  <p className="text-[10px] text-white/60 mt-0.5 truncate">Instantly alerts matching landlords, sellers, & agents</p>
+                </div>
               </div>
 
-              {/* Floating Match Bubble 2 */}
-              <div className="absolute bottom-4 -left-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Owner Matched!
+              {/* Connecting animated arrow 2 */}
+              <div className="absolute left-[16px] top-[138px] z-10 animate-bounce">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-violet-400">
+                  <path d="M12 5v14M19 12l-7 7-7-7" />
+                </svg>
               </div>
 
-              {/* Floating Match Bubble 3 */}
-              <div className="absolute top-10 -right-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-3 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-yellow-400" />
-                Koramangala
-              </div>
-
-              {/* Floating Match Bubble 4 */}
-              <div className="absolute bottom-8 -right-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-4 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-violet-400" />
-                ₹25k Budget
-              </div>
-
-              {/* Floating Match Bubble 5 */}
-              <div className="absolute -top-10 left-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                1 BHK Flatmate
-              </div>
-
-              {/* Floating Match Bubble 6 */}
-              <div className="absolute -bottom-10 left-14 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-3 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                Office in HSR
-              </div>
-
-              {/* Floating Match Bubble 7 */}
-              <div className="absolute top-[40%] -left-28 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-4 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse" />
-                DevOps Job
-              </div>
-
-              {/* Floating Match Bubble 8 */}
-              <div className="absolute top-[40%] -right-28 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs md:text-sm font-semibold text-white shadow-airbnb float-bubble-1 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-400" />
-                Verified Buyer
+              {/* Step 3 Node */}
+              <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm relative z-10 animate-fade-up [animation-delay:0.4s]">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-lg">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <path d="M22 6l-10 7L2 6" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-white">3. Get Instant Matching Offers</h4>
+                  <p className="text-[10px] text-white/60 mt-0.5 truncate">Landlords propose direct matching properties to you</p>
+                </div>
               </div>
             </div>
           </div>
@@ -363,6 +374,17 @@ export default function RequirementsPage() {
                 <path d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3" />
               </svg>
               Requirement posted! It is live on the matchboard.
+            </div>
+          )}
+
+          {errorMsg && (
+            <div className="mb-4 p-3 bg-error/5 border border-error/25 text-error text-xs font-medium rounded-lg flex items-center gap-2 animate-fade-up animate-duration-200" role="alert">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-error shrink-0">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {errorMsg}
             </div>
           )}
 
@@ -411,7 +433,7 @@ export default function RequirementsPage() {
                     {worldCategories.map((c) => {
                       const on = slug === c.slug;
                       return (
-                        <button key={c.slug} type="button" onClick={() => setSlug(c.slug)} aria-pressed={on}
+                        <button key={c.slug} type="button" onClick={() => { setSlug(c.slug); setErrorMsg(""); }} aria-pressed={on}
                           className={`px-3 py-1.5 text-xs font-semibold rounded-[8px] border transition-colors ${on ? "bg-rausch text-white border-rausch shadow-sm" : "bg-canvas text-body border-hairline hover:border-ink"}`}>
                           {c.label}
                         </button>
@@ -433,12 +455,12 @@ export default function RequirementsPage() {
               {role !== "agent" && (
                 <div className="grid grid-cols-2 gap-3 mb-5">
                   <div>
-                    <label className={labelCls}>Budget Min (₹)</label>
-                    <input inputMode="numeric" value={budgetMin} onChange={(e) => setBudgetMin(e.target.value)} placeholder="Min budget" className={field} />
+                    <label className={labelCls}>Budget Min (₹) <span className="text-rausch">*</span></label>
+                    <input inputMode="numeric" value={budgetMin} onChange={(e) => { setBudgetMin(e.target.value); setErrorMsg(""); }} placeholder="Min budget" className={field} />
                   </div>
                   <div>
-                    <label className={labelCls}>Budget Max (₹)</label>
-                    <input inputMode="numeric" value={budgetMax} onChange={(e) => setBudgetMax(e.target.value)} placeholder="Max budget" className={field} />
+                    <label className={labelCls}>Budget Max (₹) <span className="text-rausch">*</span></label>
+                    <input inputMode="numeric" value={budgetMax} onChange={(e) => { setBudgetMax(e.target.value); setErrorMsg(""); }} placeholder="Max budget" className={field} />
                   </div>
                 </div>
               )}
@@ -450,9 +472,9 @@ export default function RequirementsPage() {
             <div className="animate-fade-up">
               {/* Preferred areas (multi) */}
               <div className="mb-5">
-                <label className={labelCls}>{role === "agent" ? "Coverage Areas" : "Preferred Localities"}</label>
+                <label className={labelCls}>{role === "agent" ? "Coverage Areas" : "Preferred Localities"} <span className="text-rausch">*</span></label>
                 <div className="flex gap-2 mb-2">
-                  <input value={areaInput} onChange={(e) => setAreaInput(e.target.value)}
+                  <input value={areaInput} onChange={(e) => { setAreaInput(e.target.value); setErrorMsg(""); }}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addArea(); } }}
                     placeholder="Type area (e.g. Koramangala)" className={field} />
                   <button type="button" onClick={addArea} className="px-4 h-12 shrink-0 border border-hairline rounded-[8px] text-sm font-semibold text-ink hover:bg-surface-soft active:scale-95 transition-all">Add</button>
@@ -472,13 +494,13 @@ export default function RequirementsPage() {
               {/* Name + city */}
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div>
-                  <label className={labelCls}>Name</label>
-                  <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" className={field} />
+                  <label className={labelCls}>Name <span className="text-rausch">*</span></label>
+                  <input value={name} onChange={(e) => { setName(e.target.value); setErrorMsg(""); }} placeholder="Your name" autoComplete="name" className={field} />
                 </div>
                 <div>
-                  <label className={labelCls}>City</label>
+                  <label className={labelCls}>City <span className="text-rausch">*</span></label>
                   <div className="relative">
-                    <select value={city} onChange={(e) => setCity(e.target.value)} className={`${field} text-ink pr-8`}>
+                    <select value={city} onChange={(e) => { setCity(e.target.value); setErrorMsg(""); }} className={`${field} text-ink pr-8`}>
                       {cities.map((c) => (<option key={c} value={c}>{c}</option>))}
                     </select>
                   </div>
@@ -487,8 +509,8 @@ export default function RequirementsPage() {
 
               {/* Notes */}
               <div className="mb-6">
-                <label className={labelCls}>Tell {role === "agent" ? "clients" : "owners"} more</label>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
+                <label className={labelCls}>Tell {role === "agent" ? "clients" : "owners"} more <span className="text-rausch">*</span></label>
+                <textarea value={notes} onChange={(e) => { setNotes(e.target.value); setErrorMsg(""); }} rows={3}
                   placeholder="e.g. Seeking furnished flat with good ventilation, ready to move in ASAP." className={`${field} h-auto py-2.5 resize-none`} />
               </div>
             </div>
@@ -499,7 +521,7 @@ export default function RequirementsPage() {
             {step > 1 && (
               <button
                 type="button"
-                onClick={() => setStep((s) => s - 1)}
+                onClick={() => { setStep((s) => s - 1); setErrorMsg(""); }}
                 className="flex-1 h-12 border border-hairline rounded-xl text-sm font-semibold text-ink hover:bg-surface-soft active:scale-95 transition-all"
               >
                 Back
@@ -508,7 +530,7 @@ export default function RequirementsPage() {
             {step < 3 ? (
               <button
                 type="button"
-                onClick={() => setStep((s) => s + 1)}
+                onClick={handleNextStep}
                 className="flex-1 h-12 bg-ink text-white text-sm font-semibold rounded-xl hover:bg-ink-hover hover:shadow-md active:scale-[0.98] transition-all"
               >
                 Next Step

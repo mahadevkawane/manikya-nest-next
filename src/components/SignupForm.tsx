@@ -100,24 +100,24 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
   };
 
   const fieldClass = (invalid?: string) =>
-    `flex items-center gap-2.5 border rounded-[10px] h-12 px-3.5 transition-colors ${
-      invalid ? "border-error" : "border-hairline focus-within:border-ink focus-within:border-2"
+    `flex items-center gap-2 border rounded-[10px] h-11 px-3 transition-all duration-200 bg-canvas ${
+      invalid
+        ? "border-error focus-within:ring-4 focus-within:ring-error/10"
+        : "border-hairline focus-within:border-rausch focus-within:ring-4 focus-within:ring-rausch/10"
     }`;
 
   return (
-    <div className="space-y-3.5">
-      <h2 className="text-[19px] font-bold text-ink">Create your account</h2>
-
+    <div className="space-y-3">
       {banner && (
         <div
           role={banner.type === "error" ? "alert" : "status"}
-          className={`flex items-start gap-2.5 rounded-[10px] border px-3.5 py-3 text-[13px] ${
+          className={`flex items-start gap-2 rounded-[10px] border px-3 py-2 text-[12px] animate-fade-up ${
             banner.type === "error"
               ? "border-error/30 bg-error/5 text-error"
               : "border-green-600/30 bg-green-50 text-green-800"
           }`}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5" aria-hidden="true">
             {banner.type === "error" ? (
               <>
                 <circle cx="12" cy="12" r="10" />
@@ -135,11 +135,11 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
       )}
 
       <div>
-        <label htmlFor="signup-name" className="text-[13px] text-muted block mb-1.5">
+        <label htmlFor="signup-name" className="text-[11px] text-muted block mb-1 font-semibold uppercase tracking-wider">
           Full name
         </label>
         <div className={fieldClass(errors.name)}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-muted shrink-0" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-muted shrink-0" aria-hidden="true">
             <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           <input
@@ -150,22 +150,19 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             value={name}
             onChange={(e) => { setName(e.target.value); clearError("name"); }}
             aria-invalid={!!errors.name}
-            className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"
+            className="flex-1 min-w-0 text-sm text-ink placeholder-muted/60 outline-none bg-transparent"
           />
         </div>
-        {errors.name && <p className="text-[12px] text-error mt-1">{errors.name}</p>}
+        {errors.name && <p className="text-[11px] text-error mt-0.5">{errors.name}</p>}
       </div>
 
       <div>
-        <label htmlFor="signup-phone" className="text-[13px] text-muted block mb-1.5">
+        <label htmlFor="signup-phone" className="text-[11px] text-muted block mb-1 font-semibold uppercase tracking-wider">
           Mobile number
         </label>
         <div className={fieldClass(errors.phone)}>
-          <span className="flex items-center gap-1 text-[15px] text-ink pr-2.5 border-r border-hairline shrink-0">
+          <span className="flex items-center gap-1 text-[14px] font-semibold text-muted pr-2 border-r border-hairline shrink-0 select-none">
             +91
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted" aria-hidden="true">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
           </span>
           <input
             id="signup-phone"
@@ -176,18 +173,18 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             value={phone}
             onChange={(e) => { setPhone(e.target.value); clearError("phone"); }}
             aria-invalid={!!errors.phone}
-            className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"
+            className="flex-1 min-w-0 text-sm text-ink placeholder-muted/60 outline-none bg-transparent pl-2"
           />
         </div>
-        {errors.phone && <p className="text-[12px] text-error mt-1">{errors.phone}</p>}
+        {errors.phone && <p className="text-[11px] text-error mt-0.5">{errors.phone}</p>}
       </div>
 
       <div>
-        <label htmlFor="signup-password" className="text-[13px] text-muted block mb-1.5">
+        <label htmlFor="signup-password" className="text-[11px] text-muted block mb-1 font-semibold uppercase tracking-wider">
           Password
         </label>
         <div className={fieldClass(errors.password)}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-muted shrink-0" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-muted shrink-0" aria-hidden="true">
             <rect x="4" y="11" width="16" height="10" rx="2" />
             <path d="M8 11V7a4 4 0 118 0v4" />
           </svg>
@@ -200,7 +197,7 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
             onKeyDown={(e) => e.key === "Enter" && handleSignup()}
             aria-invalid={!!errors.password}
-            className="flex-1 min-w-0 text-[15px] text-ink placeholder-muted outline-none bg-transparent"
+            className="flex-1 min-w-0 text-sm text-ink placeholder-muted/60 outline-none bg-transparent"
           />
           <button
             type="button"
@@ -210,26 +207,31 @@ export default function SignupForm({ onSuccess }: { onSuccess: (session: Session
             className="text-muted hover:text-ink transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink rounded-sm"
           >
             {showPassword ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22" /></svg>
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22" />
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
             )}
           </button>
         </div>
-        {errors.password && <p className="text-[12px] text-error mt-1">{errors.password}</p>}
+        {errors.password && <p className="text-[11px] text-error mt-0.5">{errors.password}</p>}
       </div>
 
       <button
         onClick={handleSignup}
         disabled={loading}
-        className="w-full h-12 mt-1 bg-rausch text-white text-base font-medium rounded-[10px] hover:bg-rausch-active transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2 disabled:opacity-50"
+        className="w-full h-11 mt-1 bg-rausch hover:bg-rausch-active text-white text-sm font-semibold rounded-[10px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2 disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
       >
-        {loading ? "Creating account..." : "Create account"}
+        {loading ? (
+          <>
+            <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            <span>Creating account...</span>
+          </>
+        ) : (
+          <span>Create account</span>
+        )}
       </button>
     </div>
   );
