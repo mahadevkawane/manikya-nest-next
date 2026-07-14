@@ -102,10 +102,17 @@ const styles = `
   .fw-reveal .fw-card-2 { transition-delay: .15s; } .fw-reveal .fw-card-3 { transition-delay: .3s; } .fw-reveal .fw-card-4 { transition-delay: .45s; }
   .fw-links { opacity: 0; transition: opacity .8s ease .6s; }
   .fw-reveal .fw-links { opacity: 1; }
-  /* current flowing through the links */
-  .fw-flow { stroke-dasharray: 3.5 5; animation: fw-flow 1.1s linear infinite paused; }
+  /* water flows down the chain: Home fills link 1, reaches Job, then
+   * link 2 to Skill, then link 3 to Community — then the loop restarts.
+   * Flow paths use pathLength=1, so dashoffset 1→0 draws start-to-end. */
+  .fw-flow { stroke-dasharray: 1; stroke-dashoffset: 1; animation-duration: 6s; animation-timing-function: linear; animation-iteration-count: infinite; animation-delay: 1s; animation-play-state: paused; }
   .fw-reveal .fw-flow { animation-play-state: running; }
-  @keyframes fw-flow { to { stroke-dashoffset: -8.5; } }
+  .fw-flow-1 { animation-name: fw-flow-1; }
+  .fw-flow-2 { animation-name: fw-flow-2; }
+  .fw-flow-3 { animation-name: fw-flow-3; }
+  @keyframes fw-flow-1 { 0%, 5% { stroke-dashoffset: 1; opacity: 1; } 20% { stroke-dashoffset: 0; } 88% { stroke-dashoffset: 0; opacity: 1; } 92% { opacity: 0; } 93%, 100% { stroke-dashoffset: 1; opacity: 0; } }
+  @keyframes fw-flow-2 { 0%, 30% { stroke-dashoffset: 1; opacity: 1; } 45% { stroke-dashoffset: 0; } 88% { stroke-dashoffset: 0; opacity: 1; } 92% { opacity: 0; } 93%, 100% { stroke-dashoffset: 1; opacity: 0; } }
+  @keyframes fw-flow-3 { 0%, 55% { stroke-dashoffset: 1; opacity: 1; } 70% { stroke-dashoffset: 0; } 88% { stroke-dashoffset: 0; opacity: 1; } 92% { opacity: 0; } 93%, 100% { stroke-dashoffset: 1; opacity: 0; } }
   /* the pulse travels with the current: one card at a time zooms + blinks
    * (Home → Job → Skill → Community), the rest stay static */
   @keyframes fw-pulse {
@@ -121,6 +128,7 @@ const styles = `
   .fw-reveal .fw-card-4 { animation-delay: 5.5s; }
   @media (prefers-reduced-motion: reduce) {
     .fw-seg, .fw-callout, .fw-core, .fw-flow { animation: none !important; opacity: 1; }
+    .fw-flow { stroke-dashoffset: 0; }
     .fw-card { opacity: 1; transform: none; transition: none; animation: none !important; }
   }
 `;
@@ -210,10 +218,10 @@ export default function HowFindWayWorks() {
               aria-hidden="true"
             >
               {/* Home → Job → Skill → Community elbow links; a rausch "current" flows over the pink pipe */}
-              {["M46,20 L50,20 L50,32 L54,32", "M54,46 L50,46 L50,60 L46,60", "M46,76 L50,76 L50,82 L54,82"].map((d) => (
+              {["M46,20 L50,20 L50,32 L54,32", "M54,46 L50,46 L50,60 L46,60", "M46,76 L50,76 L50,82 L54,82"].map((d, i) => (
                 <g key={d}>
                   <path d={d} vectorEffect="non-scaling-stroke" fill="none" stroke="#222222" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d={d} className="fw-flow" vectorEffect="non-scaling-stroke" fill="none" stroke="#7dd3fc" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d={d} pathLength={1} className={`fw-flow fw-flow-${i + 1}`} vectorEffect="non-scaling-stroke" fill="none" stroke="#7dd3fc" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
                 </g>
               ))}
             </svg>
