@@ -88,6 +88,9 @@ const styles = `
   .fw-seg-3 { animation-name: fw-seg-3; } .fw-callout-3 { animation-name: fw-fade-3; }
   .fw-seg-4 { animation-name: fw-seg-4; } .fw-callout-4 { animation-name: fw-fade-4; }
   .fw-core { animation-name: fw-core; }
+  .fw-ring { opacity: 0; transform-box: view-box; transform-origin: 50% 50%; animation: fw-core ${CYCLE} infinite paused, fw-spin 9s linear infinite paused; }
+  .fw-play .fw-ring { animation-play-state: running, running; }
+  @keyframes fw-spin { to { transform: rotate(360deg); } }
   @keyframes fw-seg-1 { 0%,2% { opacity:0; transform:scale(.55) rotate(-16deg); } 9% { opacity:1; transform:scale(1) rotate(0deg); } 95% { opacity:1; } 100% { opacity:0; } }
   @keyframes fw-seg-2 { 0%,10% { opacity:0; transform:scale(.55) rotate(-16deg); } 17% { opacity:1; transform:scale(1) rotate(0deg); } 95% { opacity:1; } 100% { opacity:0; } }
   @keyframes fw-seg-3 { 0%,18% { opacity:0; transform:scale(.55) rotate(-16deg); } 25% { opacity:1; transform:scale(1) rotate(0deg); } 95% { opacity:1; } 100% { opacity:0; } }
@@ -127,7 +130,7 @@ const styles = `
   .fw-reveal .fw-card-3 { animation-delay: 4s; }
   .fw-reveal .fw-card-4 { animation-delay: 5.5s; }
   @media (prefers-reduced-motion: reduce) {
-    .fw-seg, .fw-callout, .fw-core, .fw-flow { animation: none !important; opacity: 1; }
+    .fw-seg, .fw-callout, .fw-core, .fw-ring, .fw-flow { animation: none !important; opacity: 1; }
     .fw-flow { stroke-dashoffset: 0; }
     .fw-card { opacity: 1; transform: none; transition: none; animation: none !important; }
   }
@@ -177,11 +180,13 @@ export default function HowFindWayWorks() {
                 </g>
               ))}
 
-              {/* cycle arrows between wedges */}
-              <g className="fw-core">
+              {/* cycle arrows spin automatically around the core */}
+              <g className="fw-ring">
                 {arrows.map((d) => (
                   <path key={d} d={d} fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" markerEnd="url(#fw-arrowhead)" />
                 ))}
+              </g>
+              <g className="fw-core">
                 <circle cx="360" cy="220" r="62" fill="#ffffff" />
                 <text x="360" y="228" textAnchor="middle" fill="#ff385c" fontSize="24" fontWeight="800" letterSpacing="-0.5">
                   findway.
