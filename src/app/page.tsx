@@ -4,6 +4,7 @@ import Link from "next/link";
 import ListingCard from "@/components/ListingCard";
 import PageLayout from "@/components/PageLayout";
 import HeroSearch from "@/components/HeroSearch";
+import HowFindWayWorks from "@/components/HowFindWayWorks";
 import { apiClient } from "@/lib/apiClient";
 
 const trustPoints = [
@@ -171,6 +172,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* How FindWay works — story wheel + Our Mission */}
+      <HowFindWayWorks />
 
       {/* Jobs hub teaser */}
       <section className="mb-10">

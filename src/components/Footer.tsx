@@ -5,7 +5,7 @@ import Logo from "./Logo";
 
 const companyLinks = [
   { label: "About us", href: "#" },
-  { label: "How it works", href: "#" },
+  { label: "How it works", href: "/how-it-works" },
   { label: "Careers", href: "#" },
   { label: "Blog", href: "#" },
   { label: "Contact", href: "#" },
