@@ -164,7 +164,7 @@ function ContactCard({
   currentRating,
   currentReviewsCount,
 }: {
-  listing: Listing;
+  listing: any;
   saved: boolean;
   onToggleSave: () => void;
   onScheduleVisit: () => void;
@@ -173,7 +173,22 @@ function ContactCard({
   currentReviewsCount: number;
 }) {
   const isCommercial = getCategory(listing.category)?.world === "commercial";
-  const ownerLabel = isCommercial ? "Verified agent" : "Verified owner";
+
+  // Dynamic listedBy role badge
+  const role = listing.listedBy || (isCommercial ? "agent" : "owner");
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+  const roleBadgeStyle =
+    role === "owner"
+      ? "bg-rausch/10 border-rausch/20 text-rausch"
+      : role === "builder"
+      ? "bg-indigo/10 border-indigo/20 text-indigo"
+      : "bg-emerald-600/10 border-emerald-600/20 text-emerald-700";
+
+  const ownerName = listing.owner?.name || "Rajesh Kumar";
+  const initials = ownerName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
+  const ownerPhone = listing.owner?.phone || "9876543210";
+  const ownerId = listing.owner?.id;
+
   return (
     <div className="bg-canvas border border-hairline rounded-[14px] p-5 shadow-airbnb">
       {/* Price + rating */}
@@ -188,26 +203,58 @@ function ContactCard({
 
       {/* Owner */}
       <div className="flex items-center gap-3 mb-4 pb-4 border-b border-hairline-soft">
-        <div className="w-10 h-10 rounded-full bg-rausch/10 flex items-center justify-center text-sm font-semibold text-rausch shrink-0">
-          RK
-        </div>
-        <div className="min-w-0">
+        {ownerId ? (
+          <Link href={`/profile/${ownerId}`} className="shrink-0 group">
+            {listing.owner?.avatarUrl ? (
+              <img src={listing.owner.avatarUrl} alt={ownerName} className="w-10 h-10 rounded-full object-cover border border-hairline group-hover:opacity-90" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-rausch/10 flex items-center justify-center text-sm font-semibold text-rausch border border-rausch/20 group-hover:bg-rausch/20 transition-colors">
+                {initials}
+              </div>
+            )}
+          </Link>
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-rausch/10 flex items-center justify-center text-sm font-semibold text-rausch shrink-0">
+            {initials}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-ink truncate">Rajesh Kumar</span>
+            {ownerId ? (
+              <Link href={`/profile/${ownerId}`} className="text-sm font-semibold text-ink truncate hover:underline hover:text-rausch transition-colors">
+                {ownerName}
+              </Link>
+            ) : (
+              <span className="text-sm font-semibold text-ink truncate">{ownerName}</span>
+            )}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="text-rausch shrink-0" aria-hidden="true">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-[11px] text-muted">{ownerLabel} · Responds in ~1 hr</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${roleBadgeStyle} uppercase tracking-wider`}>
+              {roleLabel}
+            </span>
+            <p className="text-[10px] text-muted">Responds in ~1 hr</p>
+          </div>
         </div>
       </div>
 
       {/* Primary action */}
+      {ownerId && (
+        <Link
+          href={`/profile/${ownerId}`}
+          className="w-full mb-3 inline-flex items-center justify-center py-2 text-xs font-semibold text-ink border border-hairline rounded-[8px] hover:bg-surface-soft active:scale-[0.98] transition-all"
+        >
+          View Profile &amp; Listings
+        </Link>
+      )}
+
       <button
         type="button"
         className="w-full py-2.5 text-sm font-semibold text-white bg-rausch rounded-[8px] hover:bg-rausch-active active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch focus-visible:ring-offset-2"
       >
-        {isCommercial ? "Contact agent" : "Contact owner"}
+        {role === "agent" ? "Contact agent" : role === "builder" ? "Contact builder" : "Contact owner"}
       </button>
 
       {/* Secondary actions */}
@@ -229,7 +276,7 @@ function ContactCard({
 
       {/* WhatsApp */}
       <a
-        href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi, I'm interested in ${listing.title}`)}`}
+        href={`https://wa.me/91${ownerPhone}?text=${encodeURIComponent(`Hi, I'm interested in ${listing.title}`)}`}
         target="_blank"
         rel="noopener noreferrer"
         onClick={onWhatsAppClick}
@@ -799,7 +846,7 @@ export default function ListingDetail() {
     return LISTINGS.find((l) => String(l.id) === idStr) ?? LISTINGS[0];
   }, [idStr]);
 
-  const [listing, setListing] = useState<Listing>(initialListing);
+  const [listing, setListing] = useState<any>(initialListing);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -816,8 +863,16 @@ export default function ListingDetail() {
       .finally(() => {
         setLoading(false);
       });
-    // Record a page view for the owner's analytics (fire-and-forget).
-    apiClient.post("/events", { listingId: idStr, eventType: "view" }).catch(() => {});
+    // Record a unique page view for the owner's analytics (fire-and-forget).
+    const viewedKey = `viewed_${idStr}`;
+    if (typeof window !== "undefined" && !sessionStorage.getItem(viewedKey)) {
+      apiClient
+        .post("/events", { listingId: idStr, eventType: "view" })
+        .then(() => {
+          sessionStorage.setItem(viewedKey, "true");
+        })
+        .catch(() => {});
+    }
   }, [idStr]);
 
   const category = getCategory(listing.category);
@@ -978,7 +1033,7 @@ export default function ListingDetail() {
           <section className="mb-6 pb-6 border-b border-hairline-soft">
             <h2 className="text-lg font-bold text-ink mb-4">Amenities</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-              {listing.amenities.map((a) => {
+              {listing.amenities.map((a: string) => {
                 const IconComponent = amenityLucideIcons[a] || HelpCircle;
                 return (
                   <div
