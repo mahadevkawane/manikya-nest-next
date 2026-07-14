@@ -259,7 +259,7 @@ export default function HowFindWayWorks() {
               {["M46,20 L50,20 L50,32 L54,32", "M54,46 L50,46 L50,60 L46,60", "M46,76 L50,76 L50,82 L54,82"].map((d, i) => (
                 <g key={d}>
                   <path d={d} vectorEffect="non-scaling-stroke" fill="none" stroke="#222222" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" />
-                  <path d={d} pathLength={1} className={`fw-flow fw-flow-${i + 1}`} vectorEffect="non-scaling-stroke" fill="none" stroke="#7dd3fc" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d={d} pathLength={1} className={`fw-flow fw-flow-${i + 1}`} vectorEffect="non-scaling-stroke" fill="none" stroke="#ffffff" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
                 </g>
               ))}
             </svg>
