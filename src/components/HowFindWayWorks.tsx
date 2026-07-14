@@ -39,6 +39,39 @@ const pillars = [
   },
 ];
 
+/* Mission cards tell the newcomer's journey, step by step — the water
+ * chain carries the story from one card to the next. */
+const storySteps = [
+  {
+    key: "nest",
+    step: "Step 1",
+    title: "Find your nest",
+    caption: "A verified home, zero brokerage",
+    icon: pillars[0].icon,
+  },
+  {
+    key: "job",
+    step: "Step 2",
+    title: "Land the job",
+    caption: "Work close to where you live",
+    icon: pillars[1].icon,
+  },
+  {
+    key: "skill",
+    step: "Step 3",
+    title: "Level up",
+    caption: "Skills that grow your career",
+    icon: pillars[2].icon,
+  },
+  {
+    key: "belong",
+    step: "Step 4",
+    title: "Belong",
+    caption: "Flatmates, friends & your people",
+    icon: pillars[3].icon,
+  },
+];
+
 function usePlayOnView<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
@@ -231,32 +264,36 @@ export default function HowFindWayWorks() {
               ))}
             </svg>
             <div className="flex flex-col gap-5">
-              {[pillars[0], pillars[2]].map((p, col) => (
+              {[storySteps[0], storySteps[2]].map((s, col) => (
                 <div
-                  key={p.key}
-                  className={`fw-card fw-card-${col === 0 ? 1 : 3} h-[160px] md:h-[180px] rounded-[22px] bg-gradient-to-br from-[#fb4d68] to-[#c40837] shadow-airbnb flex flex-col items-center justify-center gap-3`}
+                  key={s.key}
+                  className={`fw-card fw-card-${col === 0 ? 1 : 3} h-[170px] md:h-[190px] rounded-[22px] bg-gradient-to-br from-[#fb4d68] to-[#c40837] shadow-airbnb flex flex-col items-center justify-center gap-2 px-4 text-center`}
                 >
-                  <span className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      {p.icon}
+                  <span className="text-white/70 text-[10px] font-bold uppercase tracking-[2px]">{s.step}</span>
+                  <span className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      {s.icon}
                     </svg>
                   </span>
-                  <span className="text-white font-bold text-base">{p.label}</span>
+                  <span className="text-white font-bold text-base leading-tight">{s.title}</span>
+                  <span className="text-white/85 text-xs leading-snug">{s.caption}</span>
                 </div>
               ))}
             </div>
             <div className="flex flex-col gap-5 pt-12">
-              {[pillars[1], pillars[3]].map((p, col) => (
+              {[storySteps[1], storySteps[3]].map((s, col) => (
                 <div
-                  key={p.key}
-                  className={`fw-card fw-card-${col === 0 ? 2 : 4} h-[160px] md:h-[180px] rounded-[22px] bg-gradient-to-br from-[#fb4d68] to-[#c40837] shadow-airbnb flex flex-col items-center justify-center gap-3`}
+                  key={s.key}
+                  className={`fw-card fw-card-${col === 0 ? 2 : 4} h-[170px] md:h-[190px] rounded-[22px] bg-gradient-to-br from-[#fb4d68] to-[#c40837] shadow-airbnb flex flex-col items-center justify-center gap-2 px-4 text-center`}
                 >
-                  <span className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      {p.icon}
+                  <span className="text-white/70 text-[10px] font-bold uppercase tracking-[2px]">{s.step}</span>
+                  <span className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      {s.icon}
                     </svg>
                   </span>
-                  <span className="text-white font-bold text-base">{p.label}</span>
+                  <span className="text-white font-bold text-base leading-tight">{s.title}</span>
+                  <span className="text-white/85 text-xs leading-snug">{s.caption}</span>
                 </div>
               ))}
             </div>
