@@ -30,7 +30,6 @@ import RecommendationsBlock from "@/components/profile/RecommendationsBlock";
 const NEST_MENU: MenuItem[] = [
   { label: "Saved listings", href: "/explore", icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) },
   { label: "Scheduled visits", href: "/explore", icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 11h18" /></svg>) },
-  { label: "Flatmate matches", href: "/c/flatmate", icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>) },
 ];
 
 const NEXT_MENU: MenuItem[] = [
@@ -68,6 +67,13 @@ export default function UserProfile() {
     if (session) { hadSession.current = true; return; }
     if (hydrated && !hadSession.current) router.replace("/login");
   }, [session, hydrated, router]);
+
+  const isAdmin = session?.roles?.includes("admin");
+  useEffect(() => {
+    if (hydrated && session && isAdmin) {
+      router.replace("/admin");
+    }
+  }, [session, hydrated, isAdmin, router]);
 
   const handleLogout = () => { signOut(); router.push("/"); };
 

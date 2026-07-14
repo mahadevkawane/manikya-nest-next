@@ -125,7 +125,7 @@ export default function ExplorePage() {
   useEffect(() => {
     apiClient.get("/listings")
       .then((res) => {
-        if (res.data && res.data.success && res.data.data.length > 0) {
+        if (res.data && res.data.success) {
           setListings(res.data.data);
         }
       })

@@ -14,7 +14,7 @@ import RentHero from "./RentHero";
 import BuyHero from "./BuyHero";
 import PgHero from "./PgHero";
 import ColivingHero from "./ColivingHero";
-import FlatmateHero from "./FlatmateHero";
+
 import CommercialOfficeHero from "./CommercialOfficeHero";
 import CommercialShopHero from "./CommercialShopHero";
 import CoworkingHero from "./CoworkingHero";
@@ -41,8 +41,7 @@ export default function CategoryHero({ slug, city = "Bengaluru" }: CategoryHeroP
       return <PgHero city={city} />;
     case "coliving":
       return <ColivingHero city={city} />;
-    case "flatmate":
-      return <FlatmateHero city={city} />;
+
     case "commercial-office":
       return <CommercialOfficeHero city={city} />;
     case "commercial-shop":

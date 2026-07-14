@@ -25,33 +25,33 @@ function AuthCard() {
   };
 
   return (
-    <div className="bg-canvas rounded-[24px] p-6 shadow-3d border border-hairline-soft">
+    <div className="bg-canvas rounded-[20px] p-5 sm:p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-hairline relative z-10">
       {/* Brand header */}
-      <div className="flex flex-col items-center mb-5">
-        <Logo size={40} />
-        <p className="text-[13px] text-muted mt-2.5 text-center leading-snug">
-          One Platform. Two Worlds.
-          <br />
-          Better Living. Better Careers.
+      <div className="flex flex-col items-center mb-4">
+        <Logo size={36} />
+        <p className="text-[12px] text-muted mt-1.5 text-center leading-snug font-medium">
+          One Platform. Two Worlds. Better Living &amp; Careers.
         </p>
       </div>
 
-      {/* Log in / Sign up toggle */}
-      <div role="tablist" aria-label="Log in or sign up" className="flex gap-1 p-1 bg-surface-soft rounded-[12px] mb-5">
+      {/* Log in / Sign up toggle with sliding background pill */}
+      <div role="tablist" aria-label="Log in or sign up" className="relative flex p-1 bg-surface-soft/80 rounded-[12px] mb-4 overflow-hidden">
+        <div
+          className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-canvas rounded-[8px] shadow-airbnb transition-all duration-300 ease-out-quint ${
+            mode === "signup" ? "translate-x-full" : "translate-x-0"
+          }`}
+        />
         {(["login", "signup"] as AuthMode[]).map((m) => (
           <button
             key={m}
             role="tab"
             aria-selected={mode === m}
             onClick={() => switchMode(m)}
-            className={`relative flex-1 h-10 text-sm font-medium rounded-[9px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
-              mode === m ? "bg-canvas text-ink shadow-airbnb" : "text-muted hover:text-ink"
+            className={`relative z-10 flex-1 h-9 text-sm font-semibold rounded-[8px] transition-colors duration-200 focus-visible:outline-none ${
+              mode === m ? "text-ink" : "text-muted hover:text-ink"
             }`}
           >
             {m === "login" ? "Log in" : "Sign up"}
-            {mode === m && (
-              <span aria-hidden="true" className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-9 h-[3px] bg-rausch rounded-full" />
-            )}
           </button>
         ))}
       </div>
@@ -59,11 +59,11 @@ function AuthCard() {
       <div key={mode} className="animate-fade-up">
         {mode === "login" ? (
           <>
-            <h2 className="text-[19px] font-bold text-ink mb-4">Welcome back</h2>
+            <h2 className="text-[17px] font-bold text-ink mb-3">Welcome back</h2>
             <LoginForm onSuccess={() => router.push("/profile")} />
-            <p className="text-[13px] text-muted text-center mt-5">
+            <p className="text-[12px] text-muted text-center mt-4">
               New to FindWay?{" "}
-              <button onClick={() => switchMode("signup")} className="text-rausch font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm">
+              <button onClick={() => switchMode("signup")} className="text-rausch font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm">
                 Create an account
               </button>
             </p>
@@ -71,9 +71,9 @@ function AuthCard() {
         ) : (
           <>
             <SignupForm onSuccess={() => router.push("/profile")} />
-            <p className="text-[13px] text-muted text-center mt-4">
+            <p className="text-[12px] text-muted text-center mt-3">
               Already have an account?{" "}
-              <button onClick={() => switchMode("login")} className="text-rausch font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm">
+              <button onClick={() => switchMode("login")} className="text-rausch font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm">
                 Log in
               </button>
             </p>
@@ -81,7 +81,7 @@ function AuthCard() {
         )}
       </div>
 
-      <p className="text-[11px] text-muted text-center mt-4 leading-relaxed">
+      <p className="text-[10px] text-muted text-center mt-4 leading-relaxed font-medium">
         By continuing you agree to FindWay&apos;s{" "}
         <Link href="#" className="text-legal-link">Terms</Link> and{" "}
         <Link href="#" className="text-legal-link">Privacy Policy</Link>.
@@ -166,32 +166,26 @@ export default function LoginPage() {
              down to its centre seam, hiding the theme — so the FULL artwork
              renders as a banner at its natural aspect ratio with the card
              overlapping it below. ── */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden flex items-center justify-center min-h-[calc(100vh-80px)] lg:min-h-[760px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/login-hero.png"
           alt=""
           aria-hidden="true"
-          className="hidden lg:block absolute inset-0 w-full h-full object-cover object-center"
+          className="absolute inset-0 w-full h-full object-cover object-top"
         />
-        <div className="lg:min-h-[max(calc(100vh-80px),960px)] lg:flex lg:items-center lg:justify-center lg:px-4 lg:py-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/login-hero.png"
-            alt=""
-            aria-hidden="true"
-            className="lg:hidden w-full h-auto"
-          />
-          <div className="relative w-full max-w-[400px] mx-auto -mt-14 px-4 pb-4 lg:mt-0 lg:px-0 lg:pb-0">
-            <Suspense fallback={<AuthCardFallback />}>
-              <AuthCard />
-            </Suspense>
-          </div>
+        {/* Dark dimming overlay to pop the login card */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" aria-hidden="true" />
+
+        <div className="relative w-full max-w-[480px] mx-auto z-10 px-4 py-8">
+          <Suspense fallback={<AuthCardFallback />}>
+            <AuthCard />
+          </Suspense>
         </div>
       </section>
 
       {/* ── Trust feature bar ── */}
-      <div className="relative max-w-[1120px] mx-auto px-4 md:px-6 mt-4 lg:-mt-12 pb-8">
+      <div className="relative max-w-[1120px] mx-auto px-4 md:px-6 mt-8 lg:mt-8 pb-8">
         <div className="bg-canvas rounded-[20px] shadow-airbnb border border-hairline-soft px-2 py-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-5">
           {FEATURES.map((f, i) => (
             <div key={f.title} className={`flex items-center gap-3 px-5 ${i > 0 ? "lg:border-l lg:border-hairline-soft" : ""}`}>

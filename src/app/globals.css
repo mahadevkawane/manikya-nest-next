@@ -63,7 +63,6 @@
      Raw hex lives ONLY here; components use Tailwind class names. */
   --color-tab-pg: #ff5a3c;
   --color-tab-rent: #ff7a52;
-  --color-tab-flatmate: #0fb5a5;
   --color-tab-jobs: #1e6fff;
   --color-tab-combo: #4f46e5;
 }

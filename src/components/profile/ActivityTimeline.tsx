@@ -11,7 +11,7 @@ export interface ActivityItem {
 const DOT: Record<ActivityItem["kind"], string> = {
   saved: "bg-rausch",
   visit: "bg-indigo",
-  search: "bg-tab-flatmate",
+  search: "bg-slate-400",
 };
 
 export default function ActivityTimeline({ items }: { items: ActivityItem[] }) {

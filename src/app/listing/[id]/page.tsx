@@ -142,7 +142,6 @@ function buildFacts(listing: Listing): { label: string; value: string }[] {
     const specLabel =
       slug === "pg" ? "Sharing"
         : slug === "coliving" ? "Room"
-        : slug === "flatmate" ? "Looking for"
         : slug === "buy" ? "Type"
         : world === "commercial" ? "Configuration"
         : "Details";
@@ -859,6 +858,7 @@ export default function ListingDetail() {
       })
       .catch((err) => {
         console.error("Failed to fetch listing detail from database:", err);
+        setListing(null);
       })
       .finally(() => {
         setLoading(false);
@@ -875,8 +875,8 @@ export default function ListingDetail() {
     }
   }, [idStr]);
 
-  const category = getCategory(listing.category);
-  const facts = buildFacts(listing);
+  const category = listing ? getCategory(listing.category) : null;
+  const facts = listing ? buildFacts(listing) : [];
   const [saved, setSaved] = useState(false);
   const [visitOpen, setVisitOpen] = useState(false);
 
@@ -939,7 +939,6 @@ export default function ListingDetail() {
             "/categories/buy.jpg",
             "/categories/pg.jpg",
             "/categories/coliving.jpg",
-            "/categories/flatmate.jpg",
           ]
         : world === "commercial"
         ? [
@@ -956,10 +955,35 @@ export default function ListingDetail() {
             "/categories/hotel.jpg",
             "/categories/rent.jpg",
           ];
-    const primaryImage = listing.image || category.image;
+    const primaryImage = listing?.image || category?.image;
     const unique = [primaryImage, ...pool.filter((img) => img !== primaryImage)];
     return unique.slice(0, 5);
   }, [category, listing]);
+
+  if (loading) {
+    return (
+      <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Explore", href: "/explore" }, { label: "Loading..." }]}>
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-rausch"></div>
+          <p className="mt-4 text-muted text-sm font-semibold">Loading listing details...</p>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Explore", href: "/explore" }, { label: "Not Found" }]}>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <h2 className="text-xl font-bold text-ink text-center">Property Not Found</h2>
+          <p className="mt-2 text-muted text-sm max-w-xs text-center">The property listing you are trying to view does not exist or has been deleted.</p>
+          <button onClick={() => router.push("/explore")} className="mt-6 bg-rausch hover:bg-rausch/90 text-white font-semibold text-xs px-6 py-2.5 rounded-full shadow-sm transition-all">
+            Back to Explore
+          </button>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout
@@ -1053,7 +1077,7 @@ export default function ListingDetail() {
           </section>
 
           {/* Room types & pricing — visible for lodging-style listings and any explicit room type data */}
-          {(["pg", "coliving", "flatmate", "homestay", "service-apartment", "hotel"].includes(listing.category) || (listing.roomTypes?.length ?? 0) > 0) && (
+          {(["pg", "coliving", "homestay", "service-apartment", "hotel"].includes(listing.category) || (listing.roomTypes?.length ?? 0) > 0) && (
             <div className="mb-6">
               <RoomTypesPricing roomTypes={listing.roomTypes} />
             </div>
