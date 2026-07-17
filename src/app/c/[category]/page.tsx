@@ -244,7 +244,9 @@ export default function CategoryPage() {
       {/* Full-width Map Hero Section with Floating Category Hub Card (Airbnb Style) */}
       <section 
         aria-label="Category Hero Map Header" 
-        className="w-full h-[320px] md:h-[450px] relative border-b border-hairline-soft bg-canvas overflow-hidden z-10"
+        className={`w-full relative border-b border-hairline-soft bg-canvas overflow-hidden z-10 transition-all duration-300 ${
+          viewMode === "map" ? "h-[500px] md:h-[450px] block" : "h-0 md:h-[450px] border-b-0 md:border-b hidden md:block"
+        }`}
       >
         {/* Full 100% Map */}
         <div className="absolute inset-0 w-full h-full z-0">
@@ -262,7 +264,7 @@ export default function CategoryPage() {
       </section>
 
       {/* Mobile Info Header (Static, Mobile Only) */}
-      <div className="block md:hidden bg-canvas p-5 border-b border-hairline-soft">
+      <div className={`block md:hidden bg-canvas p-5 border-b border-hairline-soft ${viewMode === "map" ? "hidden" : "block"}`}>
         <span className="text-[9px] font-extrabold uppercase tracking-widest text-rausch mb-1 block">
           Category Hub
         </span>
@@ -461,7 +463,7 @@ export default function CategoryPage() {
       )}
 
       {/* Results Deck */}
-      <div id="results" className="mt-4">
+      <div id="results" className={`mt-4 ${viewMode === "map" ? "hidden md:block" : "block"}`}>
         {loading ? (
           <ListSkeleton />
         ) : filtered.length === 0 ? (

@@ -999,14 +999,16 @@ export default function PostListing() {
       {/* Main Workspace split */}
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden bg-canvas">
         {/* Left pane: dynamic descriptive contextual help in light theme */}
-        <div className="w-full md:w-5/12 bg-surface-soft border-b md:border-b-0 md:border-r border-hairline p-8 md:p-12 flex flex-col items-center justify-center text-ink shrink-0">
-          {renderStepCartoonGraphic(active, selectedRole, world)}
+        <div className="w-full md:w-5/12 bg-surface-soft border-b md:border-b-0 md:border-r border-hairline p-4 md:p-12 flex flex-col items-center justify-center text-ink shrink-0">
+          <div className="hidden md:block">
+            {renderStepCartoonGraphic(active, selectedRole, world)}
+          </div>
           <div className="text-center md:text-left w-full max-w-[340px]">
-            <span className="text-xs font-bold uppercase tracking-wider opacity-70 mb-2 block">Step {active + 1} of {WIZARD_STEPS.length}</span>
-            <h2 className="text-2xl md:text-3.5xl font-extrabold leading-tight tracking-tight mb-4 text-ink">
+            <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider opacity-70 mb-1 md:mb-2 block">Step {active + 1} of {WIZARD_STEPS.length}</span>
+            <h2 className="text-lg md:text-3.5xl font-extrabold leading-tight tracking-tight mb-1 md:mb-4 text-ink">
               {getStepTitle(active, category?.label ?? "Property")}
             </h2>
-            <p className="text-sm md:text-base opacity-85 leading-relaxed text-body">
+            <p className="text-xs md:text-base opacity-85 leading-relaxed text-body hidden md:block">
               {getStepDescription(active, category?.label ?? "Property")}
             </p>
           </div>
