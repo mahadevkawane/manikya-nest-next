@@ -566,10 +566,10 @@ export default function HeroSearch() {
         playsInline
         preload="auto"
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 w-full h-full object-cover bg-ink"
+        className="pointer-events-none absolute inset-0 w-full h-full object-cover bg-ink scale-[1.08] translate-y-[2%] translate-x-[-2%] brightness-[0.95] contrast-[1.08] saturate-[1.15]"
       />
       {/* Background scrim */}
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/35 pointer-events-none" />
+      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/40 pointer-events-none" />
 
       {/* Decorative blob. */}
       <div aria-hidden="true" className="hidden md:block pointer-events-none absolute inset-0 overflow-hidden">
