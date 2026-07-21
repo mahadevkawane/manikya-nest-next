@@ -292,7 +292,7 @@ export default function ReviewsSection() {
 
                       {/* Review Text */}
                       <p className="text-[10px] leading-relaxed text-neutral-600 mt-2 line-clamp-5 font-medium">
-                        "{review.text}"
+                        &quot;{review.text}&quot;
                       </p>
                     </div>
 
