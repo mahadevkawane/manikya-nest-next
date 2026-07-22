@@ -559,7 +559,7 @@ export default function HeroSearch() {
       {/* Looping hero video (home page only) */}
       <video
         ref={videoRef}
-        src="/hero-home.mp4"
+        src="/hero-home.mp4?v=2"
         autoPlay
         muted
         loop
