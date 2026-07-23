@@ -168,11 +168,11 @@ export default function ExplorePage() {
     <div className="bg-[#f6fcfd] w-full min-h-screen">
       <PageLayout className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-10 pt-24 md:pt-28 pb-20 md:pb-8">
       {/* Residential | Commercial | Stays segmented toggle */}
-      <div className="flex justify-center pt-7 mb-6">
+      <div className="flex justify-center pt-7 mb-6 max-w-full overflow-x-auto scrollbar-hide">
         <div
           role="group"
           aria-label="Choose property world"
-          className="inline-flex items-center gap-1 bg-white border border-neutral-200/80 rounded-full p-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+          className="inline-flex items-center gap-1 shrink-0 bg-white border border-neutral-200/80 rounded-full p-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
         >
           {WORLDS.map((w) => {
             const active = world === w.value;
@@ -200,7 +200,7 @@ export default function ExplorePage() {
           className="flex flex-wrap justify-center gap-4 animate-fade-up"
         >
           {tiles.map((cat) => (
-            <div key={cat.slug} className="w-full sm:w-[calc(50%-10px)] md:w-[calc(33.333%-12px)] lg:w-[calc(25%-14px)] xl:w-[280px] shrink-0">
+            <div key={cat.slug} className="w-[calc(50%-8px)] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-12px)] lg:w-[calc(25%-14px)] xl:w-[280px] shrink-0">
               <CategoryTile cat={cat} count={getCount(cat.slug)} />
             </div>
           ))}
@@ -228,7 +228,7 @@ export default function ExplorePage() {
           {/* Popular Flats & Apartments */}
           {popularFlats.length > 0 && (
             <section className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
                 <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Popular Flats & Apartments</h2>
                 <Link
                   href="/c/rent"
@@ -259,7 +259,7 @@ export default function ExplorePage() {
           {/* Popular PGs & Hostels */}
           {popularPGs.length > 0 && (
             <section className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
                 <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Popular PGs & Hostels</h2>
                 <Link
                   href="/c/pg"
@@ -294,7 +294,7 @@ export default function ExplorePage() {
           {/* Popular Offices & Co-working */}
           {popularOffices.length > 0 && (
             <section className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
                 <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Popular Offices & Co-working</h2>
                 <Link
                   href="/c/coworking"
@@ -325,7 +325,7 @@ export default function ExplorePage() {
           {/* Popular Retail, Plots & Storage */}
           {popularRetail.length > 0 && (
             <section className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
                 <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Popular Shops & Warehouses</h2>
                 <Link
                   href="/c/commercial-shop"
@@ -360,7 +360,7 @@ export default function ExplorePage() {
           {/* Popular Homestays & Resorts */}
           {popularHomestays.length > 0 && (
             <section className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
                 <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Popular Homestays & Resorts</h2>
                 <Link
                   href="/c/homestay"
@@ -391,7 +391,7 @@ export default function ExplorePage() {
           {/* Popular Hotels & Service Apartments */}
           {popularHotels.length > 0 && (
             <section className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-4">
                 <h2 className="text-[22px] md:text-[26px] font-bold tracking-tight text-ink">Popular Hotels & Serviced Suites</h2>
                 <Link
                   href="/c/hotel"

@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Airbnb design system — tokens
-   Warm, photography-led consumer marketplace: white canvas, near-black ink,
-   a single Rausch (#ff385c) brand voltage, soft radii everywhere.
+   FindWay design system — tokens
+   Clean consumer marketplace: white canvas, near-black ink, a single
+   emerald-teal brand voltage (#0e8a6a), soft radii everywhere. The legacy
+   token name "rausch" is kept so every existing text-rausch / bg-rausch
+   usage across the app inherits the brand automatically.
    ────────────────────────────────────────────────────────────────────────── */
 @theme {
   /* Font — Inter as the standard, highly-legible English sans-serif
@@ -13,9 +15,10 @@
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
   /* Brand & accent */
-  --color-rausch: #5e6836;
-  --color-rausch-active: #4a522a;
-  --color-rausch-disabled: #e6ebdb;
+  --color-rausch: #0e8a6a;
+  --color-rausch-active: #0a6b52;
+  --color-rausch-disabled: #d6ede5;
+  --color-rausch-soft: #e9f6f1;
   --color-luxe: #460479;
   --color-plus: #92174d;
 
@@ -221,9 +224,9 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom selection color — Rausch */
+/* Custom selection color — brand emerald */
 ::selection {
-  background-color: #ff385c;
+  background-color: #0e8a6a;
   color: white;
 }
 
@@ -266,10 +269,85 @@ button, a {
 /* Interactive hover scaling for primary action buttons */
 .btn-primary-hover:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(255, 56, 92, 0.25);
+  box-shadow: 0 4px 12px rgba(14, 138, 106, 0.25);
 }
 .btn-primary-hover:active {
   transform: scale(0.98);
+}
+
+/* ── Homepage-only theme: teal + beige ───────────────────────────────────
+   Scoped token override — inside .theme-home every rausch-based utility
+   (text-rausch, bg-rausch, …) resolves to the homepage accent instead of
+   the global brand, leaving the rest of the site untouched. */
+.theme-home {
+  --color-rausch: #0f766e;
+  --color-rausch-active: #115e59;
+  --color-rausch-disabled: #d1e7e4;
+  --color-rausch-soft: #e7f2f0;
+}
+.theme-home .price-pin--emerald {
+  --pin-color: #0f766e;
+}
+
+/* ── Homepage map: price pins ────────────────────────────────────────────
+   Leaflet divIcon markers — a white price chip with a colored dot, sitting
+   above a small stem. Colors rotate per listing (see .price-pin--*). */
+.price-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border-radius: 9999px;
+  padding: 4px 10px 4px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
+  transform: translate(-50%, -130%);
+  transition: transform 0.15s ease-out;
+}
+.price-pin:hover {
+  transform: translate(-50%, -130%) scale(1.08);
+}
+.price-pin::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--pin-color, #0e8a6a);
+  flex-shrink: 0;
+}
+.price-pin--emerald {
+  --pin-color: #0e8a6a;
+}
+.price-pin--blue {
+  --pin-color: #2563eb;
+}
+.price-pin--violet {
+  --pin-color: #7c3aed;
+}
+
+/* Custom Leaflet Popup Styling Override */
+.custom-leaflet-popup .leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 16px !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.custom-leaflet-popup .leaflet-popup-content {
+  margin: 6px !important;
+  width: auto !important;
+}
+.custom-leaflet-popup .leaflet-popup-tip-container {
+  display: none !important;
+}
+.custom-leaflet-popup .leaflet-popup-close-button {
+  display: none !important;
 }
 
 /* Accessibility — honor reduced-motion preference globally. Animation and

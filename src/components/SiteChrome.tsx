@@ -23,7 +23,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   return (
     <>
       <Navbar />
-      <div className="flex-1">{children}</div>
+      <div className={`flex-1 ${pathname === "/" ? "" : "pt-16"}`}>{children}</div>
       {isJobs && <JobJourney />}
       <Footer />
       <BottomNav />

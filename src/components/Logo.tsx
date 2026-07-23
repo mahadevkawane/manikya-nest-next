@@ -33,8 +33,8 @@ export default function Logo({ size = 32, showText = true, className = "", light
       >
         <defs>
           <linearGradient id="fw-badge" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#ff5a76" />
-            <stop offset="1" stopColor="#e00b41" />
+            <stop offset="0" stopColor="#14a97f" />
+            <stop offset="1" stopColor="#0a6b52" />
           </linearGradient>
         </defs>
 
@@ -44,7 +44,7 @@ export default function Logo({ size = 32, showText = true, className = "", light
           height="40"
           rx="11"
           fill="url(#fw-badge)"
-          className="transition-[filter] duration-300 group-hover:[filter:drop-shadow(0_4px_8px_rgba(255,56,92,0.45))]"
+          className="transition-[filter] duration-300 group-hover:[filter:drop-shadow(0_4px_8px_rgba(14,138,106,0.45))]"
         />
 
         {/* "F" wayfinder — stem + arms. Nudges toward the pin on hover. */}

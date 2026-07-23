@@ -153,12 +153,17 @@ export default function SearchBar({ onSearch, lightText = false, hideTabs = fals
 
   return (
     <div className="w-full">
-      {/* Property-type tabs — controlled, ink underline like the navbar */}
+      {/* Property-type tabs — a clear segmented control so the choice is
+          impossible to miss: active tab is a filled brand pill. */}
       {!hideTabs && (
       <div
         role="tablist"
         aria-label="What are you looking for"
-        className="flex items-center justify-center md:justify-start gap-1 mb-3 overflow-x-auto scrollbar-hide"
+        className={`inline-flex max-w-full items-center gap-1 mb-3.5 p-1 rounded-full overflow-x-auto scrollbar-hide [&>*]:shrink-0 ${
+          lightText
+            ? "bg-black/25 backdrop-blur-md border border-white/25"
+            : "bg-white border border-hairline shadow-[0_2px_10px_rgba(15,23,42,0.06)]"
+        }`}
       >
         {propertyTabs.map((tab) => {
           const active = propertyType === tab;
@@ -169,16 +174,15 @@ export default function SearchBar({ onSearch, lightText = false, hideTabs = fals
               role="tab"
               aria-selected={active}
               onClick={() => setPropertyType(tab)}
-              className={`relative whitespace-nowrap px-3 py-2 text-sm font-medium rounded-[8px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-                lightText
-                  ? `focus-visible:ring-white focus-visible:ring-offset-transparent [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] ${active ? "text-white" : "text-white/75 hover:text-white"}`
-                  : `focus-visible:ring-ink focus-visible:ring-offset-surface-soft ${active ? "text-ink" : "text-muted hover:text-ink"}`
+              className={`relative whitespace-nowrap px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
+                active
+                  ? "bg-rausch text-white shadow-[0_4px_12px_rgba(14,138,106,0.35)] focus-visible:ring-rausch"
+                  : lightText
+                    ? "text-white/85 hover:text-white hover:bg-white/15 focus-visible:ring-white"
+                    : "text-muted hover:text-ink hover:bg-surface-soft focus-visible:ring-ink"
               }`}
             >
               {tab}
-              {active && (
-                <span className={`absolute -bottom-0.5 left-3 right-3 h-[2px] rounded-full ${lightText ? "bg-white" : "bg-ink"}`} />
-              )}
             </button>
           );
         })}
