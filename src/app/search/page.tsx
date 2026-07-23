@@ -1,13 +1,122 @@
 "use client";
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import PageLayout from "@/components/PageLayout";
 import ListingCard from "@/components/ListingCard";
-import SearchBar from "@/components/SearchBar";
 import { apiClient } from "@/lib/apiClient";
 
 /** Params the search API understands; anything else in the URL is ignored. */
 const API_PARAMS = ["q", "category", "locality", "bhk", "gender", "minPrice", "maxPrice", "sort"];
+
+const CATEGORIES = [
+  { value: "", label: "All Categories" },
+  { value: "rent", label: "Rent" },
+  { value: "buy", label: "Buy" },
+  { value: "pg", label: "PG / Hostel" },
+  { value: "coliving", label: "Co-living" },
+  { value: "commercial-office", label: "Commercial" },
+];
+
+const BHK_OPTIONS: Record<string, { value: string; label: string }[]> = {
+  default: [
+    { value: "", label: "Any Type" },
+    { value: "1", label: "1 BHK" },
+    { value: "2", label: "2 BHK" },
+    { value: "3", label: "3 BHK" },
+  ],
+  rent: [
+    { value: "", label: "Any BHK" },
+    { value: "1", label: "1 BHK" },
+    { value: "2", label: "2 BHK" },
+    { value: "3", label: "3 BHK" },
+  ],
+  buy: [
+    { value: "", label: "Any BHK/Type" },
+    { value: "1", label: "1 BHK" },
+    { value: "2", label: "2 BHK" },
+    { value: "3", label: "3 BHK" },
+    { value: "4", label: "4 BHK" },
+    { value: "villa", label: "Villa" },
+    { value: "plot", label: "Plot" },
+  ],
+  pg: [
+    { value: "", label: "Any Sharing" },
+    { value: "single", label: "Single Sharing" },
+    { value: "double", label: "Double Sharing" },
+    { value: "triple", label: "Triple Sharing" },
+  ],
+  coliving: [
+    { value: "", label: "Any Room" },
+    { value: "private", label: "Private Room" },
+    { value: "shared", label: "Shared Room" },
+    { value: "studio", label: "Studio Flat" },
+  ],
+  "commercial-office": [
+    { value: "", label: "Any Space" },
+    { value: "office", label: "Office Space" },
+    { value: "coworking", label: "Coworking" },
+    { value: "shop", label: "Retail Shop" },
+    { value: "warehouse", label: "Warehouse" },
+  ],
+};
+
+const GENDERS = [
+  { value: "", label: "Any Gender" },
+  { value: "boys", label: "For Boys" },
+  { value: "girls", label: "For Girls" },
+  { value: "anyone", label: "Co-ed" },
+];
+
+const BUDGETS_BY_CATEGORY: Record<string, { value: string; label: string }[]> = {
+  default: [
+    { value: "", label: "Any Budget" },
+    { value: "15000", label: "Under ₹15,000" },
+    { value: "25000", label: "Under ₹25,000" },
+    { value: "50000", label: "Under ₹50,000" },
+  ],
+  rent: [
+    { value: "", label: "Any Budget" },
+    { value: "15000", label: "Under ₹15,000" },
+    { value: "25000", label: "Under ₹25,000" },
+    { value: "50000", label: "Under ₹50,000" },
+    { value: "120000", label: "Under ₹1.20 L" },
+  ],
+  buy: [
+    { value: "", label: "Any Budget" },
+    { value: "5000000", label: "Under ₹50 L" },
+    { value: "10000000", label: "Under ₹1 Cr" },
+    { value: "20000000", label: "Under ₹2 Cr" },
+    { value: "50000000", label: "Under ₹5 Cr" },
+  ],
+  pg: [
+    { value: "", label: "Any Budget" },
+    { value: "5000", label: "Under ₹5,000" },
+    { value: "8000", label: "Under ₹8,000" },
+    { value: "12000", label: "Under ₹12,000" },
+    { value: "18000", label: "Under ₹18,000" },
+  ],
+  coliving: [
+    { value: "", label: "Any Budget" },
+    { value: "10000", label: "Under ₹10,000" },
+    { value: "15000", label: "Under ₹15,000" },
+    { value: "22000", label: "Under ₹22,000" },
+    { value: "30000", label: "Under ₹30,000" },
+  ],
+  "commercial-office": [
+    { value: "", label: "Any Budget" },
+    { value: "25000", label: "Under ₹25,000" },
+    { value: "50000", label: "Under ₹50,000" },
+    { value: "150000", label: "Under ₹1.50 L" },
+    { value: "500000", label: "Under ₹5.00 L" },
+  ],
+};
+
+const SORT_OPTIONS = [
+  { value: "", label: "Sort: Default" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+  { value: "rating", label: "Rating: High to Low" },
+];
 
 const GENDER_LABEL: Record<string, string> = {
   boys: "For boys",
@@ -35,49 +144,52 @@ const CATEGORY_LABEL: Record<string, string> = {
 const inr = (v: string) => `₹${Number(v).toLocaleString("en-IN")}`;
 
 function SearchResultsContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  
   const query = searchParams.get("q") || "";
-
-  // Everything the API cares about, in a stable string we can depend on.
-  const apiQuery = (() => {
-    const params = new URLSearchParams();
-    for (const key of API_PARAMS) {
-      const value = searchParams.get(key);
-      if (value && value.trim()) params.set(key, value.trim());
-    }
-    return params.toString();
-  })();
-
-  // Human-readable summary of the active filters.
-  const activeFilters: string[] = [];
-  const cat = searchParams.get("category");
-  if (cat) activeFilters.push(CATEGORY_LABEL[cat] ?? cat);
-  const bhkParam = searchParams.get("bhk");
-  if (bhkParam) activeFilters.push(`${bhkParam} BHK`);
-  const genderParam = searchParams.get("gender");
-  if (genderParam) activeFilters.push(GENDER_LABEL[genderParam] ?? genderParam);
-  const minP = searchParams.get("minPrice");
-  const maxP = searchParams.get("maxPrice");
-  if (minP && maxP) activeFilters.push(`${inr(minP)} – ${inr(maxP)}`);
-  else if (maxP) activeFilters.push(`under ${inr(maxP)}`);
-  else if (minP) activeFilters.push(`${inr(minP)}+`);
-  const localityParam = searchParams.get("locality");
-  if (localityParam) activeFilters.push(localityParam);
+  const category = searchParams.get("category") || "";
+  const bhk = searchParams.get("bhk") || "";
+  const gender = searchParams.get("gender") || "";
+  const maxPrice = searchParams.get("maxPrice") || "";
+  const sort = searchParams.get("sort") || "";
 
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!apiQuery) {
-      setListings([]);
-      return;
+  // Update query params in the URL to trigger auto-fetch
+  const updateFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(window.location.search);
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
     }
+    // Reset specific dependent options on category switch
+    if (key === "category") {
+      params.delete("bhk");
+      params.delete("maxPrice");
+    }
+    router.replace(`/search?${params.toString()}`);
+  };
 
+  useEffect(() => {
     setLoading(true);
     setError(null);
+
+    // Build the query string to pass to the API
+    const params = new URLSearchParams();
+    for (const key of API_PARAMS) {
+      const val = searchParams.get(key);
+      if (val && val.trim()) params.set(key, val.trim());
+    }
+
+    // Determine the route: if we have a free text search 'q', hit '/search', else hit '/listings'
+    const endpoint = searchParams.has("q") ? "/search" : "/listings";
+
     apiClient
-      .get(`/search?${apiQuery}`)
+      .get(`${endpoint}?${params.toString()}`)
       .then((res) => {
         if (res.data && res.data.success) {
           setListings(res.data.data);
@@ -94,34 +206,109 @@ function SearchResultsContent() {
       .finally(() => {
         setLoading(false);
       });
-  }, [apiQuery]);
+  }, [searchParams]);
+
+  // Human-readable summary of the active filters.
+  const activeFilters: string[] = [];
+  if (category) activeFilters.push(CATEGORY_LABEL[category] ?? category);
+  if (bhk) activeFilters.push(`${bhk} BHK`);
+  if (gender) activeFilters.push(GENDER_LABEL[gender] ?? gender);
+  if (maxPrice) activeFilters.push(`under ${inr(maxPrice)}`);
+
+  const activeBhkOptions = BHK_OPTIONS[category] || BHK_OPTIONS.default;
+  const activeBudgetOptions = BUDGETS_BY_CATEGORY[category] || BUDGETS_BY_CATEGORY.default;
 
   return (
     <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Search Results" }]}>
-      {/* Search input hub */}
-      <div className="max-w-[700px] mx-auto mb-8">
-        <SearchBar hideTabs glass initialQuery={query} />
+      {/* Dynamic Filter Controls Panel — stacks on very narrow phones, two-up
+          from ~400px, and one row on desktop */}
+      <div className="bg-white border border-neutral-200/80 p-3 sm:p-4 rounded-2xl shadow-sm mb-6 md:mb-8 grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+        {/* Category Select */}
+        <div className="flex flex-col">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1">Category</label>
+          <select
+            value={category}
+            onChange={(e) => updateFilter("category", e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-rausch cursor-pointer"
+          >
+            {CATEGORIES.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* BHK / Property Type Select */}
+        <div className="flex flex-col">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1">Property Type</label>
+          <select
+            value={bhk}
+            onChange={(e) => updateFilter("bhk", e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-rausch cursor-pointer"
+          >
+            {activeBhkOptions.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Gender Select (relevant for PG & Co-living) */}
+        <div className="flex flex-col">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1">Gender</label>
+          <select
+            value={gender}
+            onChange={(e) => updateFilter("gender", e.target.value)}
+            disabled={category !== "pg" && category !== "coliving"}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-rausch cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {GENDERS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Budget Select */}
+        <div className="flex flex-col">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1">Max Budget</label>
+          <select
+            value={maxPrice}
+            onChange={(e) => updateFilter("maxPrice", e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-rausch cursor-pointer"
+          >
+            {activeBudgetOptions.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sort Select */}
+        <div className="flex flex-col col-span-1 min-[400px]:col-span-2 sm:col-span-1">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1">Sort By</label>
+          <select
+            value={sort}
+            onChange={(e) => updateFilter("sort", e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-ink outline-none focus:border-rausch cursor-pointer"
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="border-b border-hairline-soft pb-4 mb-6">
         <h1 className="text-xl md:text-2xl font-extrabold text-ink leading-tight">
           Smart Search Results
         </h1>
-        {apiQuery ? (
-          <p className="text-sm text-muted mt-1">
-            {query && (
-              <>
-                Showing results for{" "}
-                <span className="font-semibold text-ink">&ldquo;{query}&rdquo;</span>
-              </>
-            )}
-            {!query && "Showing results for your filters"}
-          </p>
-        ) : (
-          <p className="text-sm text-muted mt-1">
-            Enter a search query in the box above.
-          </p>
-        )}
+        <p className="text-sm text-muted mt-1">
+          {query ? (
+            <>
+              Showing results for{" "}
+              <span className="font-semibold text-ink">&ldquo;{query}&rdquo;</span>
+            </>
+          ) : (
+            "Showing properties matching your filters"
+          )}
+        </p>
 
         {activeFilters.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
@@ -154,18 +341,13 @@ function SearchResultsContent() {
           <p className="text-base font-semibold text-error mb-1">Search Error</p>
           <p className="text-sm text-muted mb-4">{error}</p>
         </div>
-      ) : !apiQuery ? (
-        <div className="flex flex-col items-center justify-center text-center py-16 px-6 border border-hairline-soft rounded-[14px] bg-surface-soft">
-          <p className="text-base font-semibold text-ink mb-1">No search query specified</p>
-          <p className="text-sm text-muted">Type something like &ldquo;2bhk under 25000 in HSR Layout&rdquo; in the box above.</p>
-        </div>
       ) : listings.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center py-16 px-6 border border-hairline-soft rounded-[14px] bg-surface-soft animate-fade-up">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" className="text-muted-soft mb-3" aria-hidden="true">
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <p className="text-base font-semibold text-ink mb-1">No matching listings found</p>
-          <p className="text-sm text-muted">Try using different keywords or typing a simpler query (e.g. &ldquo;2bhk in Indiranagar&rdquo;).</p>
+          <p className="text-sm text-muted">Try using different filters or keywords above.</p>
         </div>
       ) : (
         <div className="animate-fade-up">

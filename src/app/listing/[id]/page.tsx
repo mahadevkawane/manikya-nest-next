@@ -1034,28 +1034,6 @@ export default function ListingDetail() {
             </div>
           )}
 
-          {/* AI Nest Insight Card — the housing × jobs differentiator */}
-          <section className="mb-6">
-            <div className="bg-gradient-to-r from-rausch/[0.04] to-tab-rent/[0.04] border border-rausch/20 rounded-[14px] p-5 shadow-sm relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rausch/10 to-tab-rent/10 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
-              <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-rausch animate-pulse" aria-hidden="true">
-                  <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
-                </svg>
-                <span className="text-sm font-bold text-rausch tracking-wide uppercase">AI nest insight</span>
-              </div>
-              <p className="text-sm text-body leading-relaxed mb-3 relative z-10 font-medium">
-                This {category?.label.toLowerCase() ?? "place"} is <span className="text-ink font-bold">12 min</span> from 3 companies hiring for your profile.
-                {listing.metroDistance ? ` ${listing.metroDistance}.` : ""} Plan your commute and explore roles nearby.
-              </p>
-              <Link href="/jobs" className="inline-flex items-center gap-1 text-sm text-rausch font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-sm relative z-10">
-                View matches <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
-              </Link>
-            </div>
-          </section>
-
-
-
           {/* Reviews & Ratings */}
           <ReviewsSection reviewsList={reviewsList} setReviewsList={setReviewsList} />
 

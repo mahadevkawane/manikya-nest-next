@@ -38,7 +38,7 @@ const REVIEWS_DATA: Review[] = [
     name: "Rahul Sharma",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
     rating: 5,
-    text: "No brokerage fees and verified properties. I visited three places and they all looked exactly like the photos.",
+    text: "Direct deals with owners and verified properties. I visited three places and they all looked exactly like the photos.",
     location: "2BHK Rent in Indiranagar",
     date: "June 28, 2026",
   },
@@ -135,14 +135,14 @@ export default function ReviewsSection() {
 
   if (isMobile) {
     return (
-      <section className="relative w-full py-12 bg-gradient-to-b from-lime-50/50 via-lime-100/35 to-lime-50/50 overflow-hidden flex flex-col items-center">
+      <section className="relative w-full py-12 bg-gradient-to-b from-slate-50/70 via-slate-100/40 to-white overflow-hidden flex flex-col items-center">
         <div className="max-w-3xl mx-auto px-6 w-full text-center mb-8">
           <div className="w-8 h-1 bg-rausch/40 mx-auto rounded-full mb-3" />
           <h2 className="text-[28px] font-extrabold tracking-tight text-ink leading-tight">
             What Our Users Say
           </h2>
           <p className="text-xs text-neutral-500 font-medium leading-relaxed mt-3 px-2">
-            Verified co-living stories shared by students, professionals, and families who found their perfect, brokerage-free space.
+            Verified co-living stories shared by students, professionals, and families who found their perfect space directly with owners.
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export default function ReviewsSection() {
     <section
       ref={sectionRef}
       onMouseLeave={handleDeckHoverEnd}
-      className="relative w-full pt-8 pb-20 md:pt-12 md:pb-28 bg-gradient-to-b from-lime-50/50 via-lime-100/35 to-lime-50/50 overflow-hidden flex flex-col items-center select-none"
+      className="relative w-full pt-8 pb-20 md:pt-12 md:pb-28 bg-gradient-to-b from-slate-50/70 via-slate-100/40 to-white overflow-hidden flex flex-col items-center select-none"
     >
       <div className="max-w-3xl mx-auto px-4 w-full text-center mb-10">
         <div className="w-10 h-1 bg-rausch/40 mx-auto rounded-full mb-4" />
@@ -212,7 +212,7 @@ export default function ReviewsSection() {
         </h2>
         <div className="w-10 h-1 bg-rausch/40 mx-auto rounded-full mt-4 mb-5" />
         <p className="text-xs md:text-sm text-neutral-500 font-medium leading-relaxed max-w-2xl mx-auto">
-          Discover genuine co-living experiences shared by students, working professionals, and families who found their perfect, brokerage-free spaces with FindWay. Verified stories from real residents who found a place to call home.
+          Discover genuine co-living experiences shared by students, working professionals, and families who found their perfect spaces with FindWay. Verified stories from real residents who found a place to call home.
         </p>
       </div>
 
@@ -292,7 +292,7 @@ export default function ReviewsSection() {
                 >
                   {/* BACK SIDE OF PLAYING CARD */}
                   <div
-                    className="absolute inset-0 w-full h-full rounded-xl p-3 bg-gradient-to-tr from-rausch via-red-500 to-rose-600 border border-white/20 shadow-xl flex flex-col items-center justify-between overflow-hidden"
+                    className="absolute inset-0 w-full h-full rounded-xl p-3 bg-gradient-to-tr from-[#0e8a6a] via-[#0b6e55] to-[#1e40af] border border-white/20 shadow-xl flex flex-col items-center justify-between overflow-hidden"
                     style={{
                       backfaceVisibility: "hidden",
                       WebkitBackfaceVisibility: "hidden",
@@ -404,22 +404,22 @@ export default function ReviewsSection() {
             <div className="absolute -inset-x-3 bottom-[-10px] h-4 bg-neutral-900/25 blur-lg rounded-full group-hover:opacity-100 transition-opacity" />
 
             {/* Stack Card 3 */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-red-950 via-red-900 to-rose-950 border border-neutral-950 rounded-xl transform translate-y-2 scale-96 shadow-md opacity-45 transition-all duration-300 group-hover:translate-y-3" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#021f18] via-slate-900 to-[#021e2f] border border-neutral-950 rounded-xl transform translate-y-2 scale-96 shadow-md opacity-45 transition-all duration-300 group-hover:translate-y-3" />
 
             {/* Stack Card 2 */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-red-900 via-red-800 to-rose-900 border border-neutral-900 rounded-xl transform translate-y-1 scale-98 shadow-md opacity-70 transition-all duration-300 group-hover:translate-y-1.5" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#043327] via-slate-800 to-[#032d47] border border-neutral-900 rounded-xl transform translate-y-1 scale-98 shadow-md opacity-70 transition-all duration-300 group-hover:translate-y-1.5" />
 
             {/* Top Deck Cover Card */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-neutral-950 via-zinc-900 to-neutral-950 border-2 border-amber-500/30 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.12)] flex flex-col items-center justify-center text-white p-4 select-none overflow-hidden ring-4 ring-amber-500/5">
+            <div className="absolute inset-0 bg-gradient-to-tr from-neutral-950 via-slate-900 to-neutral-950 border-2 border-rausch/30 rounded-xl shadow-[0_0_20px_rgba(14,138,106,0.12)] flex flex-col items-center justify-center text-white p-4 select-none overflow-hidden ring-4 ring-rausch/5">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/5 via-transparent to-black/50 pointer-events-none" />
               
               {/* Center Content */}
               <div className="flex flex-col items-center justify-center text-center z-10">
-                <div className="w-12 h-12 rounded-full border-2 border-amber-500/40 flex items-center justify-center bg-amber-500/10 backdrop-blur-md mb-3 shadow-[0_0_10px_rgba(245,158,11,0.15)]">
-                  <span className="text-amber-500 font-extrabold text-xl tracking-tighter">F</span>
+                <div className="w-12 h-12 rounded-full border-2 border-rausch/40 flex items-center justify-center bg-rausch/10 backdrop-blur-md mb-3 shadow-[0_0_10px_rgba(14,138,106,0.15)]">
+                  <span className="text-rausch font-extrabold text-xl tracking-tighter">F</span>
                 </div>
                 <h3 className="text-white font-black text-sm tracking-wide">FindWay Reviews</h3>
-                <span className="text-amber-500/80 text-[8px] uppercase font-extrabold tracking-[0.2em] mt-2 block">
+                <span className="text-rausch/80 text-[8px] uppercase font-extrabold tracking-[0.2em] mt-2 block">
                   {isOpen ? "Close Deck" : "Deck Pack"}
                 </span>
               </div>

@@ -92,10 +92,11 @@ function usePlayOnView<T extends HTMLElement>() {
  * callouts stay aligned at every size. Center (360,220), radius 150. */
 const wedges = [
   // top-left → top-right → bottom-right → bottom-left (clockwise build)
-  { d: "M360,220 L210,220 A150,150 0 0 1 360,70 Z", fill: "#fb4d68", label: "Home", lx: 289.3, ly: 149.3, rot: -45 },
-  { d: "M360,220 L360,70 A150,150 0 0 1 510,220 Z", fill: "#d90f43", label: "Job", lx: 430.7, ly: 149.3, rot: 45 },
-  { d: "M360,220 L510,220 A150,150 0 0 1 360,370 Z", fill: "#e8244d", label: "Skill", lx: 430.7, ly: 290.7, rot: -45 },
-  { d: "M360,220 L360,370 A150,150 0 0 1 210,220 Z", fill: "#c40837", label: "Community", lx: 289.3, ly: 290.7, rot: 45 },
+  // Teal ramp — light to deep around #0f766e.
+  { d: "M360,220 L210,220 A150,150 0 0 1 360,70 Z", fill: "#3aa79d", label: "Home", lx: 289.3, ly: 149.3, rot: -45 },
+  { d: "M360,220 L360,70 A150,150 0 0 1 510,220 Z", fill: "#0f766e", label: "Job", lx: 430.7, ly: 149.3, rot: 45 },
+  { d: "M360,220 L510,220 A150,150 0 0 1 360,370 Z", fill: "#16948a", label: "Skill", lx: 430.7, ly: 290.7, rot: -45 },
+  { d: "M360,220 L360,370 A150,150 0 0 1 210,220 Z", fill: "#0b544f", label: "Community", lx: 289.3, ly: 290.7, rot: 45 },
 ];
 
 const arrows = [
@@ -155,10 +156,10 @@ const styles = `
   /* the pulse travels with the current: one card at a time zooms + blinks
    * (Home → Job → Skill → Community), the rest stay static */
   @keyframes fw-pulse {
-    0% { transform: scale(1); filter: brightness(1); box-shadow: 0 6px 16px rgba(255,56,92,.18); }
-    8% { transform: scale(1.07); filter: brightness(1.12); box-shadow: 0 14px 34px rgba(255,56,92,.4); }
-    12% { transform: scale(1.03); filter: brightness(1.06); }
-    18%, 100% { transform: scale(1); filter: brightness(1); box-shadow: 0 6px 16px rgba(255,56,92,.18); }
+    0% { transform: scale(1); filter: brightness(1); box-shadow: 0 6px 16px rgba(5,40,37,.3); }
+    8% { transform: scale(1.07); filter: brightness(1.05); box-shadow: 0 14px 34px rgba(5,40,37,.55); }
+    12% { transform: scale(1.03); filter: brightness(1.02); }
+    18%, 100% { transform: scale(1); filter: brightness(1); box-shadow: 0 6px 16px rgba(5,40,37,.3); }
   }
   .fw-reveal .fw-card { animation: fw-pulse 6s ease-in-out infinite; }
   .fw-reveal .fw-card-1 { animation-delay: 1s; }
@@ -184,7 +185,7 @@ function WheelSvg({ idSuffix, withCallouts, viewBox }: { idSuffix: string; withC
 
       {wedges.map((w, i) => (
         <g key={w.label} className={`fw-seg fw-seg-${i + 1}`}>
-          <path d={w.d} fill={w.fill} />
+          <path d={w.d} fill={w.fill} stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" />
           <text
             x={w.lx}
             y={w.ly}
@@ -209,7 +210,7 @@ function WheelSvg({ idSuffix, withCallouts, viewBox }: { idSuffix: string; withC
       </g>
       <g className="fw-core">
         <circle cx="360" cy="220" r="62" fill="#ffffff" />
-        <text x="360" y="228" textAnchor="middle" fill="#ff385c" fontSize="24" fontWeight="800" letterSpacing="-0.5">
+        <text x="360" y="228" textAnchor="middle" fill="#0f766e" fontSize="24" fontWeight="800" letterSpacing="-0.5">
           findway.
         </text>
       </g>
@@ -218,8 +219,8 @@ function WheelSvg({ idSuffix, withCallouts, viewBox }: { idSuffix: string; withC
       {withCallouts &&
         callouts.map((c, i) => (
           <g key={pillars[i].key} className={`fw-callout fw-callout-${i + 1}`}>
-            <path d={c.line} fill="none" stroke="#e8244d" strokeWidth="1.5" opacity="0.55" />
-            <circle cx={c.cx} cy={c.cy} r="24" fill="#d90f43" />
+            <path d={c.line} fill="none" stroke="#16948a" strokeWidth="1.5" opacity="0.55" strokeDasharray="4 4" />
+            <circle cx={c.cx} cy={c.cy} r="24" fill="#0f766e" />
             <g transform={`translate(${c.cx - 12}, ${c.cy - 12})`} stroke="#ffffff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round">
               {pillars[i].icon}
             </g>
@@ -246,15 +247,11 @@ export default function HowFindWayWorks() {
           <h2 className="text-center text-neutral-900 text-[26px] md:text-[38px] font-extrabold tracking-tight leading-tight max-w-[640px] mx-auto mb-8 md:mb-10">
             One City. One App. Your Whole Journey, Sorted.
           </h2>
-          <div className="rounded-[20px] bg-[#fdeef1] shadow-airbnb px-2 py-4 md:px-6 md:py-6">
-            {/* Desktop: wide canvas with icon callouts. Mobile: tight crop so
-              * the wheel fills the phone width instead of shrinking. */}
-            <div className="hidden sm:block">
-              <WheelSvg idSuffix="d" withCallouts viewBox="0 0 720 440" />
-            </div>
-            <div className="sm:hidden">
-              <WheelSvg idSuffix="m" withCallouts={false} viewBox="200 60 320 320" />
-            </div>
+          <div className="rounded-[24px] bg-[#f8f3e8] border border-[#e6dcc8] shadow-[0_12px_40px_-15px_rgba(15,23,42,0.08)] px-2 py-4 md:px-6 md:py-6">
+            {/* One canvas at every breakpoint — the SVG scales with the
+              * container width, so the full wheel + callouts always fit
+              * without overflow. */}
+            <WheelSvg idSuffix="d" withCallouts viewBox="0 0 720 440" />
           </div>
         </div>
       </section>
@@ -263,7 +260,7 @@ export default function HowFindWayWorks() {
       <section aria-label="Our mission" className="mb-12">
         <div
           ref={missionRef}
-          className={`grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center ${missionInView ? "fw-reveal" : ""}`}
+          className={`relative overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center rounded-[28px] bg-gradient-to-br from-[#128078] via-[#0f766e] to-[#0b544f] border border-[#0b544f] shadow-[0_16px_44px_-16px_rgba(11,84,79,0.5)] p-6 md:p-10 lg:p-12 ${missionInView ? "fw-reveal" : ""}`}
         >
           {/* staggered pillar cards, chained with connector lines like the reference */}
           <div className="relative grid grid-cols-2 gap-4 sm:gap-5 max-w-[420px] mx-auto md:mx-0 w-full">
@@ -276,7 +273,7 @@ export default function HowFindWayWorks() {
               {/* Home → Job → Skill → Community elbow links; a rausch "current" flows over the pink pipe */}
               {["M46,20 L50,20 L50,32 L54,32", "M54,46 L50,46 L50,60 L46,60", "M46,76 L50,76 L50,82 L54,82"].map((d, i) => (
                 <g key={d}>
-                  <path d={d} vectorEffect="non-scaling-stroke" fill="none" stroke="#222222" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" />
+                  <path d={d} vectorEffect="non-scaling-stroke" fill="none" stroke="#0d3331" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" />
                   <path d={d} pathLength={1} className={`fw-flow fw-flow-${i + 1}`} vectorEffect="non-scaling-stroke" fill="none" stroke="#ffffff" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
                 </g>
               ))}
@@ -285,16 +282,16 @@ export default function HowFindWayWorks() {
               {[storySteps[0], storySteps[2]].map((s, col) => (
                 <div
                   key={s.key}
-                  className={`fw-card fw-card-${col === 0 ? 1 : 3} h-[170px] md:h-[190px] rounded-[22px] bg-gradient-to-br from-[#fb4d68] to-[#c40837] shadow-airbnb flex flex-col items-center justify-center gap-2 px-4 text-center`}
+                  className={`fw-card fw-card-${col === 0 ? 1 : 3} min-h-[150px] py-4 sm:min-h-[170px] md:min-h-[190px] rounded-[22px] bg-[#f8f3e8] border border-[#0b544f]/25 shadow-airbnb flex flex-col items-center justify-center gap-2 px-4 text-center`}
                 >
-                  <span className="text-white/70 text-[10px] font-bold uppercase tracking-[2px]">{s.step}</span>
-                  <span className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <span className="text-[#0f766e]/80 text-[10px] font-bold uppercase tracking-[2px]">{s.step}</span>
+                  <span className="w-12 h-12 rounded-full bg-[#0f766e]/12 flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       {s.icon}
                     </svg>
                   </span>
-                  <span className="text-white font-bold text-base leading-tight">{s.title}</span>
-                  <span className="text-white/85 text-xs leading-snug">{s.caption}</span>
+                  <span className="text-[#123f3c] font-bold text-base leading-tight">{s.title}</span>
+                  <span className="text-[#0b544f]/85 text-xs leading-snug">{s.caption}</span>
                 </div>
               ))}
             </div>
@@ -302,16 +299,16 @@ export default function HowFindWayWorks() {
               {[storySteps[1], storySteps[3]].map((s, col) => (
                 <div
                   key={s.key}
-                  className={`fw-card fw-card-${col === 0 ? 2 : 4} h-[170px] md:h-[190px] rounded-[22px] bg-gradient-to-br from-[#fb4d68] to-[#c40837] shadow-airbnb flex flex-col items-center justify-center gap-2 px-4 text-center`}
+                  className={`fw-card fw-card-${col === 0 ? 2 : 4} min-h-[150px] py-4 sm:min-h-[170px] md:min-h-[190px] rounded-[22px] bg-[#f8f3e8] border border-[#0b544f]/25 shadow-airbnb flex flex-col items-center justify-center gap-2 px-4 text-center`}
                 >
-                  <span className="text-white/70 text-[10px] font-bold uppercase tracking-[2px]">{s.step}</span>
-                  <span className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <span className="text-[#0f766e]/80 text-[10px] font-bold uppercase tracking-[2px]">{s.step}</span>
+                  <span className="w-12 h-12 rounded-full bg-[#0f766e]/12 flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f766e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       {s.icon}
                     </svg>
                   </span>
-                  <span className="text-white font-bold text-base leading-tight">{s.title}</span>
-                  <span className="text-white/85 text-xs leading-snug">{s.caption}</span>
+                  <span className="text-[#123f3c] font-bold text-base leading-tight">{s.title}</span>
+                  <span className="text-[#0b544f]/85 text-xs leading-snug">{s.caption}</span>
                 </div>
               ))}
             </div>
@@ -319,24 +316,24 @@ export default function HowFindWayWorks() {
 
           {/* mission copy */}
           <div className="flex flex-col items-start space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rausch/10 text-rausch text-xs font-semibold uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-rausch animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/25 text-white text-xs font-extrabold uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f8f3e8] animate-pulse"></span>
               Our Mission
             </div>
-            
-            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-ink leading-tight">
+
+            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
               Connect Every New Beginning in the City —{" "}
-              <span className="bg-gradient-to-r from-rausch to-[#c40837] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#f8f3e8] to-[#bfe3dc] bg-clip-text text-transparent">
                 Home, Work, and Beyond
               </span>
             </h3>
-            
-            <div className="relative pl-6 border-l-2 border-rausch/20 py-1">
-              <p className="text-base md:text-lg text-body leading-relaxed font-medium mb-3">
+
+            <div className="relative pl-6 border-l-2 border-white/30 py-1">
+              <p className="text-base md:text-lg text-white/90 leading-relaxed font-medium mb-3">
                 Moving to a new city is fragmented and overwhelming — finding a trusted home, a nearby
                 job, the right skills, and people you belong with all happen in different places.
               </p>
-              <p className="text-sm md:text-base text-body/80 leading-relaxed">
+              <p className="text-sm md:text-base text-white/75 leading-relaxed">
                 FindWay brings them together on one platform, so every newcomer to Bengaluru can settle
                 in with verified listings, direct connection, and a community that has their back.
               </p>
