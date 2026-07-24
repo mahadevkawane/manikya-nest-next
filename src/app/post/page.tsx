@@ -394,8 +394,8 @@ function detailFields(slug: string, apartmentType?: string): FieldDef[] {
       ];
     case "land":
       return [
-        { key: "plotArea", label: "Plot area (sq ft)", type: "number", placeholder: "e.g. 6000", required: true, half: true },
-        { key: "dimensions", label: "Dimensions (ft)", type: "text", placeholder: "e.g. 60 × 100", half: true },
+        { key: "dimensions", label: "Dimensions (ft)", type: "text", placeholder: "e.g. 60 × 100", required: true, half: true },
+        { key: "plotArea", label: "Plot area (sq ft)", type: "number", placeholder: "Calculated automatically", required: true, half: true },
         { key: "approved", label: "Approved use", type: "select", options: ["Commercial", "Mixed-use", "Industrial"] },
         { key: "corner", label: "Corner plot", type: "pills", options: ["Yes", "No"] },
         { key: "boundary", label: "Boundary wall", type: "pills", options: ["Yes", "No"] },
@@ -1187,13 +1187,18 @@ export default function PostListing() {
         }
       }
 
-      if (k === "dimensions" && nextForm.apartmentType === "Plot") {
+      if (k === "dimensions" && (nextForm.apartmentType === "Plot" || category?.slug === "land")) {
         const match = v.match(/(\d+(?:\.\d+)?)\s*[*xX×]\s*(\d+(?:\.\d+)?)/);
         if (match) {
           const wVal = parseFloat(match[1]);
           const hVal = parseFloat(match[2]);
           if (!isNaN(wVal) && !isNaN(hVal)) {
-            nextForm.landArea = Math.round(wVal * hVal).toString();
+            const calculatedArea = Math.round(wVal * hVal).toString();
+            if (nextForm.apartmentType === "Plot") {
+              nextForm.landArea = calculatedArea;
+            } else {
+              nextForm.plotArea = calculatedArea;
+            }
           }
         }
       }
