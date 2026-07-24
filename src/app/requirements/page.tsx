@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import PageLayout from "@/components/PageLayout";
 import RequirementCard from "@/components/RequirementCard";
 import RespondModal from "@/components/RespondModal";
@@ -23,6 +24,29 @@ type FieldDef = {
 
 const bhkTypes = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
 const furnishings = ["Fully furnished", "Semi furnished", "Unfurnished"];
+
+/** Small line icon used inside the segmented selectors. */
+function SegIcon({ name, className = "w-4 h-4" }: { name: string; className?: string }) {
+  const p: Record<string, React.ReactNode> = {
+    tenant: <><circle cx="12" cy="7" r="4" /><path d="M5.5 21a6.5 6.5 0 0 1 13 0" /></>,
+    buyer: <><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></>,
+    residential: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></>,
+    stay: <><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h6" /></>,
+    commercial: <><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h3a1 1 0 0 1 1 1v11M2 21h20M8 7h2m-2 4h2m-2 4h2" /></>,
+    rent: <><circle cx="8" cy="15" r="4" /><path d="M10.85 12.15 20 3m-3 3 2 2m-4 0 2 2" /></>,
+    pg: <><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 14h18M7 10V7" /></>,
+    coliving: <><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 5.5a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6" /></>,
+    tag: <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></>,
+  };
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {p[name] ?? p.tag}
+    </svg>
+  );
+}
+/** Map a category slug to the closest available seg icon. */
+const catIconName = (slug: string) =>
+  slug === "pg" ? "pg" : slug === "coliving" ? "coliving" : slug === "buy" || slug === "rent" ? "rent" : slug.startsWith("commercial") || slug === "coworking" || slug === "warehouse" || slug === "lease" || slug === "land" ? "commercial" : "tag";
 
 function requirementFields(role: Role, slug: string): FieldDef[] {
   if (role === "agent") {
@@ -142,7 +166,7 @@ export default function RequirementsPage() {
             const on = form[f.key] === o;
             return (
               <button key={o} type="button" onClick={() => set(f.key, o)} aria-pressed={on}
-                className={`px-4 py-2 text-sm font-medium rounded-[8px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-job-navy focus-visible:ring-offset-2 ${on ? "bg-job-navy/[.08] border-job-navy text-job-navy" : "bg-canvas text-body border-hairline hover:border-ink"}`}>
+                className={`px-4 py-2 text-sm font-medium rounded-[8px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 ${on ? "bg-ink text-white border-ink" : "bg-canvas text-body border-hairline hover:border-ink"}`}>
                 {o}
               </button>
             );
@@ -161,7 +185,7 @@ export default function RequirementsPage() {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5">
       {fields.map((f) => (
         <div key={f.key} className={f.half ? "col-span-1" : "col-span-1 sm:col-span-2"}>
-          <label className={labelCls}>{f.label}{f.required && <span className="text-job-navy"> *</span>}</label>
+          <label className={labelCls}>{f.label}{f.required && <span className="text-[#eab308]"> *</span>}</label>
           {renderField(f)}
         </div>
       ))}
@@ -266,80 +290,79 @@ export default function RequirementsPage() {
   const showCategory = role !== "agent";
 
   return (
-    <>
-      {/* Spotlight hero — jobs-page direction: a full-bleed dark editorial
-          cover that fills the screen below the sticky navbar. It lives OUTSIDE
-          PageLayout so it spans the full viewport width edge-to-edge; the form
-          and feed stay in the constrained container below. Navy field (60%), a
-          cool navy-lift glow plus white text mass (30%), and sun as the 10%
-          accent only: eyebrow, headline highlight, scroll arrow. Sun is never
-          text on white here — the field is navy. */}
-      <section
-        aria-label="Post your requirement"
-        className="relative overflow-hidden w-full min-h-[56dvh] pt-20 px-4 md:px-6 lg:px-10 flex items-center rounded-b-[28px] shadow-airbnb"
-        style={{ background: "linear-gradient(160deg,#141d38 0%,#1b2749 52%,#141d38 100%)" }}
-      >
-        {/* 30% — supporting depth: one navy lift, one restrained pool of accent
-            warmth so the field never reads flat. */}
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 -left-20 w-[26rem] h-[26rem] rounded-full" style={{ background: "radial-gradient(circle,rgba(58,84,163,.38),transparent 70%)" }} />
-        <div aria-hidden="true" className="pointer-events-none absolute -top-20 -right-16 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle,rgba(252,219,50,.16),transparent 70%)" }} />
+    <div className="bg-[#f6f4ef] min-h-screen pt-[64px] md:pt-[80px]">
+      <div className="max-w-[1320px] mx-auto px-4 md:px-6 lg:px-10">
+        <section
+          aria-label="Post your requirement"
+          className="relative overflow-hidden w-full py-5 md:py-6 px-5 md:px-10 rounded-[20px]"
+          style={{ background: "linear-gradient(115deg,#ece5d7 0%,#f4f0e7 46%,#efe9dc 100%)" }}
+        >
+          {/* Building photo on the right, dissolving into the cream toward the left */}
+          <div className="absolute inset-y-0 right-0 w-1/2 hidden md:block" aria-hidden="true">
+            <div
+              className="absolute inset-0"
+              style={{
+                WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 38%)",
+                maskImage: "linear-gradient(to right, transparent 0%, #000 38%)",
+              }}
+            >
+              <Image src="/hero-day.jpg" alt="" fill priority sizes="50vw" className="object-cover object-[60%_45%] photo-enhance" />
+            </div>
+            {/* soft warm sun glow behind the building */}
+            <div className="absolute left-[6%] top-[46%] -translate-y-1/2 w-72 h-72 rounded-full" style={{ background: "radial-gradient(circle, rgba(250,204,21,.5), rgba(250,204,21,0) 70%)" }} />
+          </div>
 
-        <div className="relative max-w-[900px] mx-auto w-full text-center flex flex-col items-center gap-5 md:gap-6 py-16 md:py-20">
-          {/* 10% — accent eyebrow */}
-          <span
-            className="inline-flex items-center gap-2 h-7 px-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.16em]"
-            style={{ color: "#fcdb32", background: "rgba(252,219,50,.10)", border: "1px solid rgba(252,219,50,.28)" }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#fcdb32" }} aria-hidden="true" />
-            Real-time matchmaking
-          </span>
+          <div className="relative max-w-[1320px] mx-auto w-full">
+            <div className="max-w-[560px]">
+              <h1 className="font-extrabold tracking-tight leading-[1.03] text-[clamp(22px,3.5vw,36px)]">
+                <span className="block text-ink">Skip the scroll.</span>
+                <span className="block text-[#e0a80a]">Let owners find you.</span>
+              </h1>
 
-          <h1 className="text-white font-extrabold tracking-tight leading-[1.1] text-[clamp(28px,5vw,50px)]">
-            <span className="block">Skip the scroll.</span>
-            {/* The accent lands on the one phrase that carries the promise. */}
-            <span className="block" style={{ color: "#fcdb32" }}>Let owners find you.</span>
-          </h1>
+              <p className="mt-1.5 text-[13px] md:text-[14px] text-body max-w-[440px] leading-snug">
+                Post what you want to rent, buy or lease — landlords, sellers and verified agents bring matching offers to you.
+              </p>
 
-          <p className="text-[14px] md:text-[15.5px] text-white/65 max-w-[480px] leading-relaxed">
-            Post what you want to rent, buy or lease — landlords, sellers and verified agents bring matching offers straight to you.
-          </p>
-        </div>
-
-        {/* scroll hint */}
-        <div aria-hidden="true" className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">Post your requirement</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fcdb32" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
-            <path d="M12 5v14M5 12l7 7 7-7" />
-          </svg>
-        </div>
-      </section>
-
-      <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Post a requirement" }]}>
-        {/* Main split dashboard layout */}
-        <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-16">
-        
-        {/* Left Column: Post form (Sticky on desktop) */}
-        <section className="lg:col-span-5 lg:sticky lg:top-24 bg-canvas border border-hairline rounded-[24px] p-5 sm:p-6 shadow-airbnb transition-all">
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-ink flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-job-navy">
-                  <path d="M12 5v14M5 12h14" />
+              <button
+                type="button"
+                onClick={() => document.getElementById("post-form")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                className="mt-3 inline-flex items-center gap-2 h-9 px-4 bg-ink text-white text-xs font-semibold rounded-[10px] hover:bg-black active:scale-[0.98] transition-all shadow-sm"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
                 </svg>
+                Post your requirement
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <PageLayout breadcrumbs={[{ label: "Home", href: "/" }, { label: "Post a requirement" }]} className="max-w-[1320px] mx-auto px-4 md:px-6 lg:px-10 pb-4">
+        {/* Main split dashboard layout */}
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 items-start pb-4">
+
+        {/* Left Column: Post form (Sticky on desktop) */}
+        <section id="post-form" className="lg:col-span-5 lg:sticky lg:top-[88px] bg-canvas border border-hairline rounded-[20px] p-3.5 sm:p-4 shadow-sm transition-all">
+          <div className="mb-2.5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[17px] font-bold text-ink flex items-center gap-2">
+                <span className="text-[#eab308] font-extrabold tabular-nums">01</span>
                 Create Requirement
               </h2>
-              <span className="text-xs font-bold text-job-navy bg-job-navy-soft px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-muted bg-surface-soft px-2.5 py-1 rounded-full">
                 Step {step} of 3
               </span>
             </div>
-            <p className="text-xs text-muted mt-1">{roleDef.tagline}</p>
+            <p className="text-xs text-muted mt-1">Tell owners what you&apos;re looking for</p>
           </div>
 
           {/* Progress Indicators */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${step >= 1 ? "bg-job-sun shadow-[0_0_8px_rgba(252,219,50,0.45)]" : "bg-surface-soft"}`} />
-            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${step >= 2 ? "bg-job-sun shadow-[0_0_8px_rgba(252,219,50,0.45)]" : "bg-surface-soft"}`} />
-            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${step >= 3 ? "bg-job-sun shadow-[0_0_8px_rgba(252,219,50,0.45)]" : "bg-surface-soft"}`} />
+          <div className="flex items-center gap-2 mb-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className={`h-1 flex-1 rounded-full transition-all duration-300 ${step >= n ? "bg-[#eab308]" : "bg-surface-strong"}`} />
+            ))}
           </div>
 
           {submitted && (
@@ -352,28 +375,20 @@ export default function RequirementsPage() {
           )}
 
           {errorMsg && (
-            <div className="mb-4 p-3 bg-error/5 border border-error/25 text-error text-xs font-medium rounded-lg flex items-center gap-2 animate-fade-up animate-duration-200" role="alert">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-error shrink-0">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              {errorMsg}
-            </div>
+            <div className="mb-4 p-3 bg-error/5 border border-error/25 text-error text-[11px] rounded-lg">{errorMsg}</div>
           )}
 
-          {/* Step 1: Role & Category Selector */}
           {step === 1 && (
             <div className="animate-fade-up">
-              {/* Role selector */}
-              <div className="mb-5">
-                <label className="text-[11px] font-bold text-muted uppercase tracking-wider block mb-2">My Profile Role</label>
-                <div role="group" aria-label="Your role" className="flex items-center bg-surface-soft rounded-xl p-1">
+              <div className="mb-3">
+                <label className="text-[10px] font-bold text-muted uppercase tracking-wider block mb-1.5">My Profile Role</label>
+                <div role="group" aria-label="Your role" className="flex items-center bg-surface-soft rounded-lg p-0.5">
                   {roleList().map((rd) => {
                     const on = role === rd.role;
                     return (
                       <button key={rd.role} type="button" onClick={() => chooseRole(rd.role)} aria-pressed={on}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-[8px] transition-all ${on ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"}`}>
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-[6px] transition-all flex items-center justify-center gap-1.5 ${on ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"}`}>
+                        <SegIcon name={rd.role} />
                         {rd.label}
                       </button>
                     );
@@ -381,16 +396,15 @@ export default function RequirementsPage() {
                 </div>
               </div>
 
-              {/* World toggle (hidden for single-world cases) */}
               {roleDef.worlds.length > 1 && (
-                <div className="mb-5">
+                <div className="mb-3">
                   <label className={labelCls}>Property Type</label>
-                  <div role="group" aria-label="Property world" className="flex items-center bg-surface-soft border border-hairline-soft rounded-xl p-1 w-full">
+                  <div role="group" aria-label="Property world" className="flex items-center bg-surface-soft border border-hairline-soft rounded-lg p-0.5">
                     {roleDef.worlds.map((w) => {
                       const on = world === w;
                       return (
                         <button key={w} type="button" onClick={() => chooseWorld(w)} aria-pressed={on}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-[8px] capitalize transition-colors ${on ? "bg-job-navy text-white shadow-sm" : "text-muted hover:text-ink"}`}>
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-[6px] capitalize transition-all ${on ? "bg-ink text-white shadow-sm" : "text-muted hover:text-ink"}`}>
                           {w}
                         </button>
                       );
@@ -399,16 +413,15 @@ export default function RequirementsPage() {
                 </div>
               )}
 
-              {/* Category chips */}
               {showCategory && (
-                <div className="mb-5">
-                  <label className={labelCls}>{role === "seller" ? "Select Category" : "What category?"}</label>
-                  <div className="flex flex-wrap gap-1.5" role="group" aria-label="Category">
+                <div className="mb-3">
+                  <label className={labelCls}>{role === "seller" ? "Select Category" : "What are you looking for?"}</label>
+                  <div className="flex flex-wrap gap-1.5" role="group">
                     {worldCategories.map((c) => {
                       const on = slug === c.slug;
                       return (
-                        <button key={c.slug} type="button" onClick={() => { setSlug(c.slug); setErrorMsg(""); }} aria-pressed={on}
-                          className={`px-3 py-1.5 text-xs font-semibold rounded-[8px] border transition-colors ${on ? "bg-job-navy text-white border-job-navy shadow-sm" : "bg-canvas text-body border-hairline hover:border-ink"}`}>
+                        <button key={c.slug} type="button" onClick={() => { setSlug(c.slug); setErrorMsg(""); }}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-lg border ${on ? "bg-ink text-white border-ink" : "bg-canvas text-ink border-hairline hover:border-ink"}`}>
                           {c.label}
                         </button>
                       );
@@ -419,122 +432,61 @@ export default function RequirementsPage() {
             </div>
           )}
 
-          {/* Step 2: Configuration & Budget */}
           {step === 2 && (
             <div className="animate-fade-up">
-              {/* Category-aware fields */}
-              <div className="mb-5">{renderFieldGroup(requirementFields(role, slug))}</div>
-
-              {/* Budget range (not for agents) */}
+              <div className="mb-4">{renderFieldGroup(requirementFields(role, slug))}</div>
               {role !== "agent" && (
-                <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <label className={labelCls}>Budget Min (₹) <span className="text-job-navy">*</span></label>
-                    <input inputMode="numeric" value={budgetMin} onChange={(e) => { setBudgetMin(e.target.value); setErrorMsg(""); }} placeholder="Min budget" className={field} />
+                    <label className={labelCls}>Min Budget (₹)</label>
+                    <input inputMode="numeric" value={budgetMin} onChange={(e) => { setBudgetMin(e.target.value); setErrorMsg(""); }} placeholder="Min" className={field} />
                   </div>
                   <div>
-                    <label className={labelCls}>Budget Max (₹) <span className="text-job-navy">*</span></label>
-                    <input inputMode="numeric" value={budgetMax} onChange={(e) => { setBudgetMax(e.target.value); setErrorMsg(""); }} placeholder="Max budget" className={field} />
+                    <label className={labelCls}>Max Budget (₹)</label>
+                    <input inputMode="numeric" value={budgetMax} onChange={(e) => { setBudgetMax(e.target.value); setErrorMsg(""); }} placeholder="Max" className={field} />
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Step 3: Location & Details */}
           {step === 3 && (
             <div className="animate-fade-up">
-              {/* Preferred areas (multi) */}
-              <div className="mb-5">
-                <label className={labelCls}>{role === "agent" ? "Coverage Areas" : "Preferred Localities"} <span className="text-job-navy">*</span></label>
+              <div className="mb-4">
+                <label className={labelCls}>{role === "agent" ? "Coverage" : "Locations"}</label>
                 <div className="flex gap-2 mb-2">
-                  <input value={areaInput} onChange={(e) => { setAreaInput(e.target.value); setErrorMsg(""); }}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addArea(); } }}
-                    placeholder="Type area (e.g. Koramangala)" className={field} />
-                  <button type="button" onClick={addArea} className="px-4 h-12 shrink-0 border border-hairline rounded-[8px] text-sm font-semibold text-ink hover:bg-surface-soft active:scale-95 transition-all">Add</button>
-                </div>
-                {areas.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 p-2 bg-surface-soft rounded-[8px] border border-hairline-soft" aria-label="Selected areas">
-                    {areas.map((a) => (
-                      <span key={a} className="inline-flex items-center gap-1.5 text-xs bg-canvas text-ink px-2.5 py-1 rounded-md border border-hairline shadow-sm">
-                        {a}
-                        <button type="button" onClick={() => setAreas((p) => p.filter((x) => x !== a))} aria-label={`Remove ${a}`} className="text-muted hover:text-error transition-colors font-semibold">✕</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Name + city */}
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div>
-                  <label className={labelCls}>Name <span className="text-job-navy">*</span></label>
-                  <input value={name} onChange={(e) => { setName(e.target.value); setErrorMsg(""); }} placeholder="Your name" autoComplete="name" className={field} />
-                </div>
-                <div>
-                  <label className={labelCls}>City <span className="text-job-navy">*</span></label>
-                  <div className="relative">
-                    <select value={city} onChange={(e) => { setCity(e.target.value); setErrorMsg(""); }} className={`${field} text-ink pr-8`}>
-                      {cities.map((c) => (<option key={c} value={c}>{c}</option>))}
-                    </select>
-                  </div>
+                  <input value={areaInput} onChange={(e) => setAreaInput(e.target.value)} placeholder="e.g. Koramangala" className={field} />
+                  <button type="button" onClick={addArea} className="px-3 h-10 border rounded-[8px] text-xs font-bold text-ink">Add</button>
                 </div>
               </div>
-
-              {/* Notes */}
-              <div className="mb-6">
-                <label className={labelCls}>Tell {role === "agent" ? "clients" : "owners"} more <span className="text-job-navy">*</span></label>
-                <textarea value={notes} onChange={(e) => { setNotes(e.target.value); setErrorMsg(""); }} rows={3}
-                  placeholder="e.g. Seeking furnished flat with good ventilation, ready to move in ASAP." className={`${field} h-auto py-2.5 resize-none`} />
+              <div className="mb-4">
+                <label className={labelCls}>Name</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className={field} />
               </div>
             </div>
           )}
 
-          {/* Navigation Controls */}
-          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-hairline-soft">
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={() => { setStep((s) => s - 1); setErrorMsg(""); }}
-                className="flex-1 h-12 border border-hairline rounded-xl text-sm font-semibold text-ink hover:bg-surface-soft active:scale-95 transition-all"
-              >
-                Back
-              </button>
-            )}
-            {step < 3 ? (
-              <button
-                type="button"
-                onClick={handleNextStep}
-                className="flex-1 h-12 bg-job-navy text-white text-sm font-semibold rounded-xl hover:bg-job-navy-lift hover:shadow-md active:scale-[0.98] transition-all"
-              >
-                Next Step
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="flex-1 h-12 bg-job-sun text-job-navy text-sm font-bold rounded-xl hover:bg-job-sun-active hover:shadow-lg active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-job-navy focus-visible:ring-offset-2"
-              >
-                Post Requirement
-              </button>
-            )}
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-hairline-soft">
+            {step > 1 && <button type="button" onClick={() => setStep((s) => s - 1)} className="flex-1 h-10 border rounded-lg text-xs font-bold text-ink">Back</button>}
+            <button type="button" onClick={step < 3 ? handleNextStep : handleSubmit} className="flex-[2] h-10 bg-ink text-white text-xs font-bold rounded-lg">
+              {step < 3 ? "Next" : "Post Requirement"}
+            </button>
           </div>
         </section>
 
-        {/* Right Column: Requirements Feed */}
-        <section id="requirements-feed" className="lg:col-span-7">
-          <div className="bg-canvas border border-hairline rounded-[24px] p-5 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-5 flex-wrap gap-3 pb-4 border-b border-hairline-soft">
+        <section id="requirements-feed" className="lg:col-span-7 mt-2 lg:mt-0">
+          <div className="bg-canvas border border-hairline rounded-[20px] p-3.5 sm:p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2 pb-3 border-b border-hairline-soft">
               <div>
-                <h2 className="text-lg font-bold text-ink">Matchboard Feed</h2>
-                <p className="text-xs text-muted mt-0.5">Showing recent seeker requirements in {city}</p>
+                <h2 className="text-base font-bold text-ink">Matchboard Feed</h2>
+                <p className="text-[11px] text-muted mt-0.5">Showing recent seeker requirements in {city}</p>
               </div>
               <div role="group" aria-label="Filter by role" className="inline-flex items-center gap-1 bg-surface-soft border border-hairline-soft rounded-full p-1">
                 {(["all", "tenant", "buyer"] as const).map((r) => {
                   const on = filterRole === r;
                   return (
                     <button key={r} type="button" onClick={() => setFilterRole(r)} aria-pressed={on}
-                      className={`px-3 py-1 text-xs font-semibold rounded-full capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-job-navy ${on ? "bg-job-navy text-white" : "text-muted hover:text-ink"}`}>
+                      className={`px-3.5 py-1 text-xs font-semibold rounded-full capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${on ? "bg-ink text-white" : "text-muted hover:text-ink"}`}>
                       {r === "all" ? "All" : roleList().find((x) => x.role === r)!.label}
                     </button>
                   );
@@ -559,6 +511,23 @@ export default function RequirementsPage() {
                 ))}
               </div>
             )}
+
+            {/* Notify / view-all footer bar */}
+            <div className="mt-5 flex items-center justify-between gap-4 flex-wrap bg-surface-soft rounded-[16px] px-4 py-3.5">
+              <div className="flex items-center gap-3">
+                <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-canvas border border-hairline text-ink" aria-hidden="true">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></svg>
+                </span>
+                <span>
+                  <span className="block text-[13.5px] font-bold text-ink leading-tight">Get notified for new matches</span>
+                  <span className="block text-[11.5px] text-muted mt-0.5">We&apos;ll notify you when owners respond.</span>
+                </span>
+              </div>
+              <button type="button" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-ink hover:gap-2.5 transition-all">
+                View all requirements
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </button>
+            </div>
           </div>
         </section>
       </div>
@@ -581,6 +550,6 @@ export default function RequirementsPage() {
         />
       )}
     </PageLayout>
-    </>
+    </div>
   );
 }
